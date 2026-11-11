@@ -1,0 +1,13 @@
+{
+  "name": "an-forge",
+  "owner": {
+    "name": "arthurnicolas59"
+  },
+  "plugins": [
+    {
+      "name": "an-forge",
+      "source": "./",
+      "description": "Ma software factory : skills, agents et workflows réutilisables pour tous mes projets."
+    }
+  ]
+}

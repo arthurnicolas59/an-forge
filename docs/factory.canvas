@@ -1,0 +1,177 @@
+{
+  "nodes": [
+    {
+      "id": "title",
+      "type": "text",
+      "x": -260,
+      "y": -400,
+      "width": 520,
+      "height": 80,
+      "color": "6",
+      "text": "# an-forge\nMa software factory pour tous mes projets"
+    },
+    {
+      "id": "goal",
+      "type": "text",
+      "x": -260,
+      "y": -260,
+      "width": 520,
+      "height": 160,
+      "text": "## Objectif\nUne demande entre d'un côté, une pull request sort de l'autre.\n\n- **Agents** : le travail qui demande du jugement\n- **Scripts** : le travail qui doit être exact"
+    },
+    {
+      "id": "inspirations",
+      "type": "text",
+      "x": 340,
+      "y": -400,
+      "width": 380,
+      "height": 220,
+      "text": "## Inspirations\n- [mattpocock/skills](https://github.com/mattpocock/skills) : skills courts et composables\n- [rstack](https://github.com/michaelshimeles/rstack) : worktrees, preuves, unslop\n- [zazencodes v2](https://github.com/zazencodes/zazencodes-season-3/tree/main/src/software-factory-claude-code-v2) : orchestrateur, agents, gates"
+    },
+    {
+      "id": "intake",
+      "type": "text",
+      "x": -640,
+      "y": 0,
+      "width": 340,
+      "height": 160,
+      "color": "6",
+      "text": "## 1. Intake\nDécide si une demande vaut la peine d'être construite, et à quelle échelle.\n\n*Agent · à construire*"
+    },
+    {
+      "id": "orchestrator",
+      "type": "text",
+      "x": -170,
+      "y": 0,
+      "width": 340,
+      "height": 160,
+      "text": "## 2. Orchestrateur\nLe skill `/factory` : lance les jobs et passe chaque étape au bon agent.\n\n*Skill · à construire*"
+    },
+    {
+      "id": "exit",
+      "type": "text",
+      "x": 300,
+      "y": 0,
+      "width": 340,
+      "height": 160,
+      "text": "## 6. Sortie\nUne pull request prête à merger.\n\n*GitHub · à construire*"
+    },
+    {
+      "id": "agents",
+      "type": "text",
+      "x": -640,
+      "y": 260,
+      "width": 340,
+      "height": 180,
+      "color": "6",
+      "text": "## 3. Agents\nUn par rôle : spec, build, review, approbation. Chacun lit des fichiers et en écrit un seul.\n\n*Agents · à construire*"
+    },
+    {
+      "id": "gates",
+      "type": "text",
+      "x": -170,
+      "y": 260,
+      "width": 340,
+      "height": 180,
+      "color": "4",
+      "text": "## 4. Gates\n`checks.sh` : tests, lint, build. Rien n'avance si ça échoue.\n\n*Script · à construire*"
+    },
+    {
+      "id": "state",
+      "type": "text",
+      "x": 300,
+      "y": 260,
+      "width": 340,
+      "height": 180,
+      "color": "4",
+      "text": "## 5. État\n`job.json` : où en est chaque job, pour reprendre après un arrêt.\n\n*Fichiers · à construire*"
+    },
+    {
+      "id": "progress",
+      "type": "text",
+      "x": 760,
+      "y": 0,
+      "width": 360,
+      "height": 440,
+      "color": "3",
+      "text": "## Avancement\n- [x] 1. Squelette\n- [ ] 2. Premiers skills (aligner, planifier)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
+    },
+    {
+      "id": "rules",
+      "type": "text",
+      "x": -640,
+      "y": -260,
+      "width": 340,
+      "height": 160,
+      "text": "## Règles\n`AGENTS.md` : source unique, lue par tous les outils.\n`CLAUDE.md` l'importe.\n\n*Structure · en place*"
+    },
+    {
+      "id": "portability",
+      "type": "text",
+      "x": 340,
+      "y": -140,
+      "width": 380,
+      "height": 100,
+      "color": "5",
+      "text": "**Portabilité** : skills au format Agent Skills. Plugin pour Claude Code, `npx skills` pour les autres."
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "title",
+      "fromSide": "bottom",
+      "toNode": "goal",
+      "toSide": "top"
+    },
+    {
+      "id": "e2",
+      "fromNode": "goal",
+      "fromSide": "bottom",
+      "toNode": "orchestrator",
+      "toSide": "top"
+    },
+    {
+      "id": "e3",
+      "fromNode": "intake",
+      "fromSide": "right",
+      "toNode": "orchestrator",
+      "toSide": "left"
+    },
+    {
+      "id": "e4",
+      "fromNode": "orchestrator",
+      "fromSide": "right",
+      "toNode": "exit",
+      "toSide": "left"
+    },
+    {
+      "id": "e5",
+      "fromNode": "orchestrator",
+      "fromSide": "bottom",
+      "toNode": "agents",
+      "toSide": "top"
+    },
+    {
+      "id": "e6",
+      "fromNode": "orchestrator",
+      "fromSide": "bottom",
+      "toNode": "gates",
+      "toSide": "top"
+    },
+    {
+      "id": "e7",
+      "fromNode": "orchestrator",
+      "fromSide": "bottom",
+      "toNode": "state",
+      "toSide": "top"
+    },
+    {
+      "id": "e8",
+      "fromNode": "rules",
+      "fromSide": "right",
+      "toNode": "goal",
+      "toSide": "left"
+    }
+  ]
+}
