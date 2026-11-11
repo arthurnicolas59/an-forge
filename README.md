@@ -17,6 +17,35 @@ jugement et des **scripts** font le travail qui doit être exact.
 | 5 | État | fichiers | Où en est chaque job, pour pouvoir reprendre après un arrêt |
 | 6 | Sortie | GitHub | Une pull request que je merge |
 
+## Le workflow : deux niveaux
+
+### Niveau projet : la direction
+
+Sert à décider quoi construire et comment. On le refait à chaque nouveau projet ou grosse évolution.
+Il repose sur les skills de [Matt Pocock](https://github.com/mattpocock/skills), qu'an-forge ne réécrit pas.
+
+1. `/grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `CONTEXT.md` (le vocabulaire du projet) et les ADR (les décisions).
+2. `/to-spec` : transforme la conversation en spec et la publie comme issue GitHub.
+3. `/to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une issue `ready-for-agent`.
+
+Fais les trois dans **la même conversation**, sans la vider entre les étapes : la spec et les tickets s'appuient sur ce que l'interrogatoire a établi.
+
+### Niveau feature : la réalisation
+
+Reprend les tickets `ready-for-agent` un par un, chacun dans une session neuve, jusqu'à une pull request.
+*Le détail de ce niveau reste à définir.*
+
+## Démarrer un nouveau projet
+
+À faire une seule fois par projet, **dans cet ordre** :
+
+1. Copier `templates/AGENTS.md` à la racine du projet et remplir les sections « À REMPLIR ». **Ne crée pas encore `CLAUDE.md`.**
+2. Lancer `/setup-matt-pocock-skills` : il configure l'outil de tickets (GitHub), les étiquettes et l'emplacement des docs.
+3. Créer `CLAUDE.md` avec une seule ligne : `@AGENTS.md`.
+
+Pourquoi cet ordre : le setup écrit sa configuration dans `CLAUDE.md` si ce fichier existe, sinon dans `AGENTS.md`.
+En le lançant avant de créer `CLAUDE.md`, toute la configuration reste dans `AGENTS.md`, lisible par tous les outils.
+
 ## Structure du repo
 
 ```
@@ -39,19 +68,20 @@ docs/             la carte de la factory (factory.canvas, s'ouvre dans Obsidian)
 
 ## Installation dans un projet
 
-**1. Les règles** : copie `templates/AGENTS.md` à la racine du projet et remplis-le.
-Pour Claude Code, ajoute un `CLAUDE.md` qui contient seulement `@AGENTS.md`.
-
-**2. Les outils**, selon ton agent :
+**1. Les outils**, une seule fois par machine, selon ton agent. an-forge a besoin des skills de Matt Pocock.
 
 ```bash
 # Claude Code (mises à jour automatiques)
+claude plugin install mattpocock-skills@claude-plugins-official
 claude plugin marketplace add arthurnicolas59/an-forge
 claude plugin install an-forge@an-forge
 
 # Autres agents (copie les skills dans le projet)
+npx skills@latest add mattpocock/skills
 npx skills@latest add arthurnicolas59/an-forge
 ```
+
+**2. Le projet** : suis [Démarrer un nouveau projet](#démarrer-un-nouveau-projet).
 
 ## Avancement
 

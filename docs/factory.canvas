@@ -1,6 +1,15 @@
 {
   "nodes": [
     {
+      "id": "project-group",
+      "type": "group",
+      "x": -1130,
+      "y": -820,
+      "width": 1440,
+      "height": 230,
+      "label": "Niveau projet : la direction (une seule conversation)"
+    },
+    {
       "id": "title",
       "type": "text",
       "x": -260,
@@ -94,7 +103,7 @@
       "width": 360,
       "height": 440,
       "color": "3",
-      "text": "## Avancement\n- [x] 1. Squelette\n- [ ] 2. Premiers skills (aligner, planifier)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
+      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock)\n- [ ] 2. Niveau feature\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
     },
     {
       "id": "rules",
@@ -114,6 +123,46 @@
       "height": 100,
       "color": "5",
       "text": "**Portabilité** : skills au format Agent Skills. Plugin pour Claude Code, `npx skills` pour les autres."
+    },
+    {
+      "id": "setup",
+      "type": "text",
+      "x": -1100,
+      "y": -760,
+      "width": 300,
+      "height": 140,
+      "color": "2",
+      "text": "## 0. Setup\n`/setup-matt-pocock-skills`\nUne fois par projet, **avant** de créer `CLAUDE.md`.\n\n*Matt Pocock · en place*"
+    },
+    {
+      "id": "grill",
+      "type": "text",
+      "x": -740,
+      "y": -760,
+      "width": 300,
+      "height": 140,
+      "color": "6",
+      "text": "## 1. Grill\n`/grill-with-docs`\nInterroger l'idée, tenir `CONTEXT.md` et les ADR.\n\n*Matt Pocock · en place*"
+    },
+    {
+      "id": "spec",
+      "type": "text",
+      "x": -380,
+      "y": -760,
+      "width": 300,
+      "height": 140,
+      "color": "6",
+      "text": "## 2. Spec\n`/to-spec`\nLa conversation devient une spec, publiée en issue.\n\n*Matt Pocock · en place*"
+    },
+    {
+      "id": "tickets",
+      "type": "text",
+      "x": -20,
+      "y": -760,
+      "width": 300,
+      "height": 140,
+      "color": "6",
+      "text": "## 3. Tickets\n`/to-tickets`\nDes tranches complètes, issues `ready-for-agent`.\n\n*Matt Pocock · en place*"
     }
   ],
   "edges": [
@@ -172,6 +221,35 @@
       "fromSide": "right",
       "toNode": "goal",
       "toSide": "left"
+    },
+    {
+      "id": "p1",
+      "fromNode": "setup",
+      "fromSide": "right",
+      "toNode": "grill",
+      "toSide": "left"
+    },
+    {
+      "id": "p2",
+      "fromNode": "grill",
+      "fromSide": "right",
+      "toNode": "spec",
+      "toSide": "left"
+    },
+    {
+      "id": "p3",
+      "fromNode": "spec",
+      "fromSide": "right",
+      "toNode": "tickets",
+      "toSide": "left"
+    },
+    {
+      "id": "p4",
+      "fromNode": "tickets",
+      "fromSide": "bottom",
+      "toNode": "intake",
+      "toSide": "top",
+      "label": "issues ready-for-agent"
     }
   ]
 }

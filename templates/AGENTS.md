@@ -1,7 +1,8 @@
 # <Nom du projet>
 
-<!-- Modèle an-forge. Copie ce fichier à la racine du projet, puis remplis les sections marquées À REMPLIR.
-     Pour Claude Code, ajoute un CLAUDE.md qui contient seulement : @AGENTS.md -->
+<!-- Modèle an-forge. Copie ce fichier à la racine du projet et remplis les sections À REMPLIR.
+     Puis lance /setup-matt-pocock-skills AVANT de créer CLAUDE.md (il écrit dans CLAUDE.md s'il existe).
+     Enfin, crée CLAUDE.md avec une seule ligne : @AGENTS.md -->
 
 ## Le projet
 
@@ -9,15 +10,24 @@
 
 ## Workflow
 
-Chaque changement suit ces étapes, dans l'ordre.
+### Niveau projet : la direction
 
-1. **Aligner** : avant de coder, pose des questions jusqu'à ce que la demande soit claire.
-2. **Planifier** : écris une spec courte, puis découpe-la en tâches.
-3. **Isoler** : travaille sur une branche dédiée (un worktree par tâche si plusieurs agents travaillent en parallèle). Jamais directement sur `main`.
-4. **Construire** : en TDD, une petite tranche à la fois, en suivant l'architecture existante.
-5. **Prouver** : lance les checks ci-dessous. Pour un changement visible, montre l'état avant et après.
-6. **Relire** : relis le diff par rapport à la spec et aux règles de ce fichier.
-7. **Livrer** : ouvre une pull request avec la preuve. Ne merge pas sans accord.
+Pour une nouvelle idée ou une grosse évolution, dans une seule conversation :
+
+1. `/grill-with-docs` : interroger l'idée jusqu'à ce qu'elle soit claire, en tenant `CONTEXT.md` et les ADR à jour.
+2. `/to-spec` : publier la spec comme issue.
+3. `/to-tickets` : la découper en tickets `ready-for-agent`.
+
+### Niveau feature : la réalisation
+
+Chaque ticket suit ces étapes, dans l'ordre, dans une session neuve.
+
+1. **Lire** : lis le ticket, la spec dont il dépend, `CONTEXT.md` et les ADR concernés.
+2. **Isoler** : travaille sur une branche dédiée (un worktree par tâche si plusieurs agents travaillent en parallèle). Jamais directement sur `main`.
+3. **Construire** : en TDD, une petite tranche à la fois, en suivant l'architecture existante.
+4. **Prouver** : lance les checks ci-dessous. Pour un changement visible, montre l'état avant et après.
+5. **Relire** : relis le diff par rapport à la spec et aux règles de ce fichier.
+6. **Livrer** : ouvre une pull request avec la preuve. Ne merge pas sans accord.
 
 ## Checks
 
