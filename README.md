@@ -23,11 +23,13 @@ jugement et des **scripts** font le travail qui doit être exact.
 
 Sert à décider quoi construire et comment. On le refait à chaque nouveau projet ou grosse évolution.
 
-1. `/grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `GLOSSARY.md` (le vocabulaire du projet) et les ADR (les décisions).
-2. `/to-spec` : transforme la conversation en spec et la publie comme issue GitHub.
-3. `/to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une issue `ready-for-agent`.
+**`/project-launch`** enchaîne, dans une seule conversation :
 
-Fais les trois dans **la même conversation**, sans la vider entre les étapes : la spec et les tickets s'appuient sur ce que l'interrogatoire a établi.
+1. `grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `GLOSSARY.md` (le vocabulaire du projet) et les ADR (les décisions).
+2. `to-spec` : transforme la conversation en spec et la publie comme issue GitHub.
+3. `to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une issue `ready-for-agent`.
+
+Il s'arrête pour te demander ton accord avant de publier la spec, puis avant de créer les tickets.
 
 ### Niveau feature : la réalisation
 
@@ -37,19 +39,24 @@ lire, isoler sur une branche, construire en TDD, prouver, relire, livrer.
 
 ## Démarrer un nouveau projet
 
-À faire une seule fois par projet, **dans cet ordre** :
+Une seule fois par projet, neuf ou existant : **`/project-init`**. À la fin, le repo est prêt.
 
-1. Copier `templates/AGENTS.md` à la racine du projet et remplir les sections « À REMPLIR ». **Ne crée pas encore `CLAUDE.md`.**
-2. Lancer `/setup-matt-pocock-skills` : il configure l'outil de tickets (GitHub), les étiquettes et l'emplacement des docs.
-3. Créer `CLAUDE.md` avec une seule ligne : `@AGENTS.md`.
+1. Inspecte le projet (git, GitHub, fichiers existants).
+2. Pose le modèle `AGENTS.md`, sans jamais écraser un fichier existant.
+3. Remplit ses sections à partir du code, et te demande le reste.
+4. Lance `setup-matt-pocock-skills` (outil de tickets, emplacement des docs).
+5. Crée les étiquettes GitHub (`ready-for-agent`…), sans lesquelles la publication des tickets échoue.
+6. Crée `CLAUDE.md` avec `@AGENTS.md`.
 
-Pourquoi cet ordre : le setup écrit sa configuration dans `CLAUDE.md` si ce fichier existe, sinon dans `AGENTS.md`.
-En le lançant avant de créer `CLAUDE.md`, toute la configuration reste dans `AGENTS.md`, lisible par tous les outils.
+`CLAUDE.md` est créé en dernier exprès : le setup écrit sa configuration dans `CLAUDE.md` si ce fichier existe,
+sinon dans `AGENTS.md`. Ainsi, toute la configuration reste dans `AGENTS.md`, lisible par tous les outils.
 
 ## Les skills
 
 | Skill | Rôle | Origine |
 |-------|------|---------|
+| `project-init` | Prépare un repo pour la factory | an-forge |
+| `project-launch` | De l'idée aux tickets : grill, spec, tickets | an-forge |
 | `setup-matt-pocock-skills` | Configure un projet (tickets, étiquettes, docs) | Matt Pocock |
 | `grill-with-docs` | Interrogatoire + glossaire et ADR | Matt Pocock |
 | `grilling` | L'interrogatoire, utilisé par `grill-with-docs` | Matt Pocock |
@@ -88,7 +95,6 @@ CLAUDE.md         importe AGENTS.md pour Claude Code
 skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
 scripts/          scripts d'an-forge (sync-matt.sh, mattpocock.lock)
-templates/        fichiers copiés dans chaque projet, dont son AGENTS.md
 licenses/         licences des skills venus d'ailleurs
 docs/             la carte de la factory (factory.canvas, s'ouvre dans Obsidian)
 .claude-plugin/   l'emballage pour Claude Code
@@ -117,12 +123,13 @@ npx skills@latest add arthurnicolas59/an-forge
 
 N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en double.
 
-**2. Le projet** : suis [Démarrer un nouveau projet](#démarrer-un-nouveau-projet).
+**2. Le projet** : lance `/project-init` dedans (voir [Démarrer un nouveau projet](#démarrer-un-nouveau-projet)).
 
 ## Avancement
 
 - [x] Étape 1 : squelette
 - [x] Niveau projet : skills de Matt Pocock intégrés
+- [x] `/project-init` et `/project-launch`
 - [ ] Étape 2 : niveau feature (`/build-ticket`)
 - [ ] Étape 3 : agents
 - [ ] Étape 4 : gates et état

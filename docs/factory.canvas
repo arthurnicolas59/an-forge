@@ -7,7 +7,7 @@
       "y": -820,
       "width": 1440,
       "height": 230,
-      "label": "Niveau projet : la direction (une seule conversation)"
+      "label": "Niveau projet : la direction (/project-launch enchaîne 1 → 3)"
     },
     {
       "id": "title",
@@ -103,7 +103,7 @@
       "width": 360,
       "height": 440,
       "color": "3",
-      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock copiés)\n- [ ] 2. Niveau feature (`/build-ticket`)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
+      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock copiés)\n- [x] `/project-init` et `/project-launch`\n- [ ] 2. Niveau feature (`/build-ticket`)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
     },
     {
       "id": "rules",
@@ -132,7 +132,7 @@
       "width": 300,
       "height": 140,
       "color": "2",
-      "text": "## 0. Setup\n`/setup-matt-pocock-skills`\nUne fois par projet, **avant** de créer `CLAUDE.md`.\n\n*Matt Pocock · copié dans an-forge*"
+      "text": "## 0. Init\n`/project-init`\nAGENTS.md, setup des skills, étiquettes, puis CLAUDE.md en dernier.\n\n*an-forge · en place*"
     },
     {
       "id": "grill",

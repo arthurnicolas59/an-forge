@@ -12,13 +12,13 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
 - `agents/<nom>.md` : un sous-agent.
 - `scripts/` : scripts propres à an-forge (dont `sync-matt.sh`).
 - `licenses/` : licences des skills venus d'ailleurs.
-- `templates/` : fichiers copiés dans chaque nouveau projet (dont son `AGENTS.md`).
 - `docs/factory.canvas` : la carte de la factory, au format JSON Canvas (s'ouvre dans Obsidian).
 - `.claude-plugin/` : l'emballage pour Claude Code. Il ne contient aucune règle.
 
 ## Règles
 
 - Écris la documentation en français. Les noms de fichiers, de skills et d'agents restent en anglais, en kebab-case.
+- Un skill emporte tout ce dont il a besoin (scripts, modèles) dans son propre dossier : `npx skills add` ne copie que les dossiers de skills.
 - Un skill fait une seule chose. Son frontmatter ne contient que `name` et `description`, pour rester lisible par tous les outils.
 - Le texte d'un skill ne dépend pas d'un outil précis. Si une étape a besoin d'une fonction propre à un outil, décris aussi comment faire sans.
 - Ce qui doit donner le même résultat à chaque fois va dans un script, pas dans des instructions.

@@ -1,8 +1,6 @@
 # <Nom du projet>
 
-<!-- Modèle an-forge. Copie ce fichier à la racine du projet et remplis les sections À REMPLIR.
-     Puis lance /setup-matt-pocock-skills AVANT de créer CLAUDE.md (il écrit dans CLAUDE.md s'il existe).
-     Enfin, crée CLAUDE.md avec une seule ligne : @AGENTS.md -->
+<!-- Posé par /project-init (an-forge). Les sections À REMPLIR sont complétées pendant /project-init. -->
 
 ## Le projet
 
@@ -12,11 +10,11 @@
 
 ### Niveau projet : la direction
 
-Pour une nouvelle idée ou une grosse évolution, dans une seule conversation :
+Pour une nouvelle idée ou une grosse évolution, lance `/project-launch`. Il enchaîne, dans une seule conversation :
 
-1. `/grill-with-docs` : interroger l'idée jusqu'à ce qu'elle soit claire, en tenant `GLOSSARY.md` et les ADR à jour.
-2. `/to-spec` : publier la spec comme issue.
-3. `/to-tickets` : la découper en tickets `ready-for-agent`.
+1. `grill-with-docs` : interroger l'idée jusqu'à ce qu'elle soit claire, en tenant `GLOSSARY.md` et les ADR à jour.
+2. `to-spec` : publier la spec comme issue.
+3. `to-tickets` : la découper en tickets `ready-for-agent`.
 
 ### Niveau feature : la réalisation
 
