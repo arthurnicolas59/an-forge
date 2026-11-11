@@ -6,6 +6,8 @@ Une demande entre d'un côté, une pull request prête à merger sort de l'autre
 Entre les deux, une chaîne fixe où des **agents** font le travail qui demande du
 jugement et des **scripts** font le travail qui doit être exact.
 
+![Lancer un projet avec an-forge](docs/lancement-projet.svg)
+
 ## Les 6 parties
 
 | # | Partie | Qui | Rôle |
@@ -96,7 +98,7 @@ skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
 scripts/          scripts d'an-forge (sync-matt.sh, mattpocock.lock)
 licenses/         licences des skills venus d'ailleurs
-docs/             la carte de la factory (factory.canvas, s'ouvre dans Obsidian)
+docs/             la carte de la factory (factory.canvas pour Obsidian, lancement-projet.svg pour tous)
 .claude-plugin/   l'emballage pour Claude Code
 ```
 
@@ -134,7 +136,8 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [ ] Étape 3 : agents
 - [ ] Étape 4 : gates et état
 - [ ] Étape 5 : orchestrateur `/factory`
-- [ ] Étape 6 : rendu HTML du canvas et test sur un vrai projet
+- [x] Image du lancement d'un projet (docs/lancement-projet.svg)
+- [ ] Étape 6 : test sur un vrai projet
 
 ## Inspirations
 

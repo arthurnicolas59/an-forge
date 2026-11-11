@@ -13,6 +13,7 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
 - `scripts/` : scripts propres à an-forge (dont `sync-matt.sh`).
 - `licenses/` : licences des skills venus d'ailleurs.
 - `docs/factory.canvas` : la carte de la factory, au format JSON Canvas (s'ouvre dans Obsidian).
+- `docs/lancement-projet.svg` : l'image des étapes du lancement d'un projet, à tenir à jour quand ces étapes changent. `docs/index.html` l'affiche.
 - `.claude-plugin/` : l'emballage pour Claude Code. Il ne contient aucune règle.
 
 ## Règles
