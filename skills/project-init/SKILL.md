@@ -7,8 +7,8 @@ description: Prépare un repo pour la software factory an-forge, qu'il soit neuf
 
 Prépare le repo courant pour qu'il soit prêt à suivre le workflow an-forge. À la fin, le projet a :
 
-- un `AGENTS.md` rempli, qui contient les règles et le workflow ;
-- un `scripts/checks.sh` rempli : le gate que `build-ticket` lance avant toute relecture ;
+- un `AGENTS.md` qui contient les règles, le workflow et la façon de parler à l'utilisateur ;
+- un `scripts/checks.sh` : le gate que `build-ticket` lance avant toute relecture, rempli tout de suite si le projet a déjà du code, sinon par `/project-launch` ;
 - la configuration des skills (`docs/agents/`) et un bloc « Agent skills » dans `AGENTS.md` ;
 - les étiquettes GitHub utilisées par les tickets ;
 - un `CLAUDE.md` qui contient une seule ligne : `@AGENTS.md`.
@@ -27,7 +27,7 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md=filled`, `checks=filled`, `skills_setup=yes`, `claude_md=import-only`), dis-le et ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `skills_setup=yes`, `claude_md=import-only`), dis-le et ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
@@ -35,17 +35,19 @@ Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modè
 
 ## 3. Remplir AGENTS.md et checks.sh
 
-Remplace chaque « À REMPLIR » :
+**Ne pose aucune question sur le projet** : ce qu'il fera et sa stack se décident pendant `/project-launch`.
 
-- **Le projet** (dans `AGENTS.md`) : ce qu'il fait, pour qui, sa stack.
-- **Règles** (dans `AGENTS.md`) : les conventions propres au projet.
-- **`scripts/checks.sh`** : remplace ses deux dernières lignes par les commandes réelles de tests, lint, typecheck et build, dans cet ordre. Retire celles qui n'existent pas. Retire aussi le commentaire « À REMPLIR ». Si le projet a déjà un script qui fait tout (`make check`…), appelle-le. Pour un repo vide, mets les commandes prévues par la stack et ajoute-les au projet dès qu'elles existent.
+**L'utilisateur** : c'est la seule question de cette étape. Demande « Êtes-vous développeur ? » et remplace la section « L'utilisateur » par l'un de ces deux textes :
 
-Lance ensuite `scripts/checks.sh` une fois. S'il échoue sur un projet existant, montre l'erreur à l'utilisateur : il faut le savoir avant le premier ticket.
+- Non : « L'utilisateur n'est pas développeur. Pour toute question technique (stack, tests, architecture, outils), ne pose pas la question brute : explique l'enjeu en une phrase simple, donne ta recommandation avec ses forces et ses faiblesses, résume les autres options en une ligne chacune, et demande seulement de valider. Explique chaque terme technique la première fois, avec une image de tous les jours. »
+- Oui : « L'utilisateur est développeur : les questions techniques peuvent lui être posées directement, avec ta recommandation. »
 
-Déduis tout ce que tu peux du repo (README, `package.json`, `pyproject.toml`, `Makefile`, CI, code). Ne demande à l'utilisateur que ce que le repo ne dit pas, en une seule série de questions. Pour un repo vide, demande ce que sera le projet et sa stack prévue.
+Le reste dépend de `code` :
 
-Montre les sections remplies et le script, et attends l'accord. Il ne doit plus rester aucun « À REMPLIR ».
+- **`code=yes`** (le projet a déjà du code) : déduis du repo (README, `package.json`, `pyproject.toml`, `Makefile`, CI, code) ce qu'il fait, pour qui, sa stack et ses conventions. Remplace les « À DÉCIDER AVEC /project-launch » de « Le projet » et de « Règles ». Remplis `scripts/checks.sh` : remplace ses deux dernières lignes par les commandes réelles de tests, lint, typecheck et build, dans cet ordre, retire celles qui n'existent pas et retire le commentaire « À REMPLIR ». Si le projet a déjà un script qui fait tout (`make check`…), appelle-le. Lance ensuite `scripts/checks.sh` une fois : s'il échoue, montre l'erreur à l'utilisateur. Ce que le repo ne dit pas reste « À DÉCIDER AVEC /project-launch ».
+- **`code=no`** (projet neuf) : remplace seulement `<Nom du projet>` par le nom du dossier. Laisse « Le projet », « Règles » et `scripts/checks.sh` tels quels : `/project-launch` les remplira une fois l'idée et la stack choisies.
+
+Il ne doit plus rester aucun « À REMPLIR » dans `AGENTS.md`. Montre en quelques lignes ce que tu as rempli.
 
 ## 4. Configurer les skills
 
@@ -66,6 +68,6 @@ Lance `scripts/claude-md.sh write`.
 
 ## 7. Conclure
 
-Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md=filled`, `checks=filled`, `skills_setup=yes`, `claude_md=import-only`.
+Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md` vaut `filled` ou `launch-pending`, `skills_setup=yes`, `claude_md=import-only`. Pour un projet neuf, `checks=to-fill` est normal à ce stade.
 
-Propose de commiter ces fichiers, sans le faire sans accord. Indique l'étape suivante : `/project-launch` pour passer de l'idée aux tickets.
+Propose de commiter ces fichiers sur `main` **et de les pousser**, sans le faire sans accord : chaque ticket part du `main` de GitHub, il doit donc avoir ces fichiers. Indique l'étape suivante : `/project-launch` pour passer de l'idée aux tickets.

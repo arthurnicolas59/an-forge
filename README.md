@@ -28,10 +28,13 @@ Sert à décider quoi construire et comment. On le refait à chaque nouveau proj
 **`/project-launch`** enchaîne, dans une seule conversation :
 
 1. `grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `GLOSSARY.md` (le vocabulaire du projet) et les ADR (les décisions).
-2. `to-spec` : transforme la conversation en spec et la publie comme issue GitHub.
-3. `to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une issue `ready-for-agent`.
+2. **Le cadre** : pour un projet neuf, le choix de la stack (deux ou trois options, leurs forces et faiblesses, une recommandation à valider), puis `AGENTS.md` et `scripts/checks.sh` remplis et poussés sur GitHub.
+3. `to-spec` : transforme la conversation en spec et la publie comme issue GitHub. La spec est le document de référence : elle ne se construit pas, et se ferme toute seule avec son dernier ticket.
+4. `to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une sous-issue `ready-for-agent` de la spec. Pour un projet neuf, le premier est le socle.
 
-Il s'arrête pour te demander ton accord avant de publier la spec, puis avant de créer les tickets.
+Il s'arrête pour te demander ton accord avant de pousser le cadre, de publier la spec, puis de créer les tickets.
+
+Si tu n'es pas développeur (`/project-init` te le demande), aucune question technique ne t'est posée brute : tu reçois une recommandation expliquée simplement, à valider.
 
 ### Niveau feature : la réalisation
 
@@ -44,9 +47,11 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 3. **Tester** : `gate.sh` lance `scripts/checks.sh`. Rien n'avance tant qu'il échoue, et une branche qui modifie les checks est refusée.
 4. **Relire** : `code-review` confie la relecture à deux agents neufs, qui ne voient que le diff, le ticket et les règles du projet. Deux tours au maximum.
 5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués), puis une annexe avec les fichiers touchés.
-6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. Jamais de merge : c'est toi qui décides, après lecture du brief.
+6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. L'agent ne merge pas de lui-même : tu lis le brief, puis tu dis « merge la PR ». `merge-pr.sh` ne merge que si la PR contient le dernier `main` et que les checks ont passé sur exactement cette version.
 
-Sans numéro, `/build-ticket` liste les tickets prêts et non bloqués et te demande lequel prendre.
+Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
+
+`/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Ce sera le rôle de l'orchestrateur `/factory` de choisir quels tickets peuvent avancer ensemble.
 
 Les captures et le PDF du brief utilisent Playwright : il faut Node.js 20 ou plus. La première fois, Playwright télécharge Chromium (environ 150 Mo).
 
@@ -56,7 +61,7 @@ Une seule fois par projet, neuf ou existant : **`/project-init`**. À la fin, le
 
 1. Inspecte le projet (git, GitHub, fichiers existants).
 2. Pose les modèles `AGENTS.md` et `scripts/checks.sh`, sans jamais écraser un fichier existant.
-3. Les remplit à partir du code (règles, commandes de tests, lint et build), et te demande le reste.
+3. Te demande seulement si tu es développeur. Aucune question sur le projet : s'il a déjà du code, il en déduit les règles et les checks ; s'il est neuf, c'est `/project-launch` qui les fixera.
 4. Lance `setup-matt-pocock-skills` (outil de tickets, emplacement des docs).
 5. Crée les étiquettes GitHub (`ready-for-agent`…), sans lesquelles la publication des tickets échoue.
 6. Crée `CLAUDE.md` avec `@AGENTS.md`.

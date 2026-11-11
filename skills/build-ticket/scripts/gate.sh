@@ -6,6 +6,7 @@
 #
 # Échoue si la branche a modifié scripts/checks.sh (on ne change pas les règles pour passer),
 # sinon lance scripts/checks.sh. Code de sortie 0 seulement si tout passe.
+# Quand tout passe sans modification en cours, retient le commit testé (lu par merge-pr.sh).
 # La sortie complète est gardée dans .git du worktree (chemin affiché), la fin est affichée en cas d'échec.
 set -uo pipefail
 
@@ -29,12 +30,18 @@ if ! git diff --quiet "$(git merge-base "$BASE" HEAD)" -- scripts/checks.sh; the
 fi
 
 LOG="$(git rev-parse --git-dir)/an-forge-checks.log"
+PASSED="$(git rev-parse --git-dir)/an-forge-gate-pass"
+rm -f "$PASSED"
+# Sans modification en cours, ce qui est testé est exactement le dernier commit : on pourra le prouver au merge.
+CLEAN=0
+[ -z "$(git status --porcelain)" ] && CLEAN=1
 start=$(date +%s)
 bash scripts/checks.sh >"$LOG" 2>&1
 code=$?
 secs=$(( $(date +%s) - start ))
 
 if [ $code -eq 0 ]; then
+  [ "$CLEAN" = 1 ] && git rev-parse HEAD >"$PASSED"
   echo "GATE: PASS (${secs}s) — sortie complète : $LOG"
   exit 0
 fi

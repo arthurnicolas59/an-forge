@@ -25,6 +25,8 @@ if [ ! -f AGENTS.md ]; then
   echo "agents_md=absent"
 elif grep -q "À REMPLIR" AGENTS.md; then
   echo "agents_md=to-fill"
+elif grep -q "À DÉCIDER AVEC /project-launch" AGENTS.md; then
+  echo "agents_md=launch-pending"
 else
   echo "agents_md=filled"
 fi
@@ -46,4 +48,10 @@ else
 fi
 
 [ -f docs/agents/issue-tracker.md ] && echo "skills_setup=yes" || echo "skills_setup=no"
+if [ -n "$(git ls-files --cached --others --exclude-standard 2>/dev/null | grep -vE '^(AGENTS|CLAUDE|README)\.md$|^scripts/checks\.sh$|^docs/agents/|^\.gitignore$' | head -1)" ]; then
+  echo "code=yes"
+else
+  echo "code=no"
+fi
+
 [ -f GLOSSARY.md ] && echo "glossary=yes" || echo "glossary=no"

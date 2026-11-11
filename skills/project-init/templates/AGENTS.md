@@ -1,10 +1,14 @@
 # <Nom du projet>
 
-<!-- Posé par /project-init (an-forge). Les sections À REMPLIR sont complétées pendant /project-init. -->
+<!-- Posé par /project-init (an-forge). « À REMPLIR » est complété par /project-init, « À DÉCIDER AVEC /project-launch » par /project-launch. -->
 
 ## Le projet
 
-À REMPLIR : ce que fait le projet, pour qui, et sa stack en une ou deux phrases.
+À DÉCIDER AVEC /project-launch : ce que fait le projet, pour qui, et sa stack en une ou deux phrases.
+
+## L'utilisateur
+
+À REMPLIR : développeur ou non, et comment lui parler.
 
 ## Workflow
 
@@ -37,4 +41,4 @@ Pour construire un ticket `ready-for-agent`, lance `/build-ticket <numéro>` dan
 - Ne merge pas sans demande explicite.
 - Les textes destinés à des humains (commits, PR, docs) sont courts, précis et sans formules creuses.
 
-À REMPLIR : les conventions propres au projet.
+À DÉCIDER AVEC /project-launch : les conventions propres au projet.
