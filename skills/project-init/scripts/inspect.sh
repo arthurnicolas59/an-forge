@@ -31,6 +31,13 @@ else
   echo "agents_md=filled"
 fi
 
+# Sections du modèle absentes d'AGENTS.md (titres « ## »), séparées par « | ».
+TEMPLATE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/templates/AGENTS.md"
+if [ -f AGENTS.md ]; then
+  missing=$(grep '^## ' "$TEMPLATE" | while IFS= read -r h; do grep -qxF "$h" AGENTS.md || printf '%s|' "${h#\#\# }"; done)
+  echo "missing_sections=${missing%|}"
+fi
+
 if [ ! -f CLAUDE.md ]; then
   echo "claude_md=absent"
 elif [ "$(grep -v '^[[:space:]]*$' CLAUDE.md)" = "@AGENTS.md" ]; then

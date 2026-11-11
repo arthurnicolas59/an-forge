@@ -27,11 +27,11 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `skills_setup=yes`, `claude_md=import-only`), dis-le et ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`), dis-le et arrête-toi. Sinon, ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
-Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modèle `scripts/checks.sh`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections du modèle qui lui manquent, avec l'accord de l'utilisateur.
+Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modèle `scripts/checks.sh`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections que `missing_sections` liste, à la même place que dans le modèle. N'ajoute pas une section qui existe déjà sous un autre nom (par exemple « Commandes » pour « Checks »). Une section ajoutée arrive avec son marqueur, rempli à l'étape 3 : pour « L'utilisateur », c'est la question « Êtes-vous développeur ? ».
 
 ## 3. Remplir AGENTS.md et checks.sh
 

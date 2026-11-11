@@ -2,7 +2,9 @@
 # Fait le ménage après les merges, sans rien demander :
 #   - supprime le worktree et la branche (locale et sur GitHub) de chaque ticket dont la pull request est mergée ;
 #     un worktree qui contient du travail non commité est gardé, et signalé ;
-#   - ferme chaque spec dont tous les tickets sont fermés, avec un commentaire.
+#   - ferme chaque spec dont tous les tickets sont fermés, avec un commentaire ;
+#   - retire l'étiquette ready-for-agent de ce qui n'est pas un ticket à construire :
+#     les issues fermées et les specs.
 #
 # Usage : cleanup.sh        (depuis n'importe où dans le repo)
 set -uo pipefail
@@ -38,13 +40,24 @@ for branch in $(git for-each-ref --format='%(refname:short)' 'refs/heads/ticket/
 done
 git worktree prune
 
-# 2. Les specs terminées : toutes leurs sous-issues sont fermées.
+# 2. Les specs : une spec n'est pas un ticket à construire, et elle se ferme quand tous ses tickets sont fermés.
 for n in $(gh issue list --state open --limit 200 --json number --jq '.[].number'); do
-  summary=$(gh api "repos/$REPO/issues/$n" --jq '"\(.sub_issues_summary.total // 0) \(.sub_issues_summary.completed // 0)"')
-  read -r total done <<<"$summary"
-  if [ "$total" != "0" ] && [ "$total" = "$done" ]; then
+  summary=$(gh api "repos/$REPO/issues/$n" --jq '"\(.sub_issues_summary.total // 0) \(.sub_issues_summary.completed // 0) \([.labels[].name] | index("ready-for-agent") != null)"')
+  read -r total done labelled <<<"$summary"
+  [ "$total" != "0" ] || continue
+  if [ "$labelled" = "true" ]; then
+    gh issue edit "$n" --remove-label ready-for-agent >/dev/null &&
+      echo "Étiquette retirée : spec #$n (une spec n'est pas un ticket)"
+  fi
+  if [ "$total" = "$done" ]; then
     gh issue close "$n" --comment "Tous les tickets de cette spec sont terminés." >/dev/null &&
       echo "Fermée : spec #$n (ses $total tickets sont terminés)"
   fi
+done
+
+# 3. Les issues fermées n'ont plus rien à construire.
+for n in $(gh issue list --state closed --label ready-for-agent --limit 200 --json number --jq '.[].number'); do
+  gh issue edit "$n" --remove-label ready-for-agent >/dev/null &&
+    echo "Étiquette retirée : #$n (fermé)"
 done
 exit 0
