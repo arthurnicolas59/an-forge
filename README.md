@@ -8,6 +8,8 @@ jugement et des **scripts** font le travail qui doit être exact.
 
 ![Lancer un projet avec an-forge](docs/lancement-projet.svg)
 
+![Traiter un ticket avec an-forge](docs/traitement-ticket.svg)
+
 ## Les 6 parties
 
 | # | Partie | Qui | Rôle |
@@ -118,7 +120,7 @@ skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
 scripts/          scripts d'an-forge (sync-matt.sh, mattpocock.lock)
 licenses/         licences des skills venus d'ailleurs
-docs/             la carte de la factory (factory.canvas pour Obsidian, lancement-projet.svg pour tous)
+docs/             la carte de la factory (factory.canvas pour Obsidian, lancement-projet.svg et traitement-ticket.svg pour tous)
 .claude-plugin/   l'emballage pour Claude Code
 ```
 
@@ -157,6 +159,7 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [ ] Étape 4 : gates et état
 - [ ] Étape 5 : orchestrateur `/factory`
 - [x] Image du lancement d'un projet (docs/lancement-projet.svg)
+- [x] Image du traitement d'un ticket (docs/traitement-ticket.svg)
 - [ ] Étape 6 : test sur un vrai projet
 
 ## Inspirations
