@@ -14,7 +14,7 @@
 
 Pour une nouvelle idée ou une grosse évolution, dans une seule conversation :
 
-1. `/grill-with-docs` : interroger l'idée jusqu'à ce qu'elle soit claire, en tenant `CONTEXT.md` et les ADR à jour.
+1. `/grill-with-docs` : interroger l'idée jusqu'à ce qu'elle soit claire, en tenant `GLOSSARY.md` et les ADR à jour.
 2. `/to-spec` : publier la spec comme issue.
 3. `/to-tickets` : la découper en tickets `ready-for-agent`.
 
@@ -22,7 +22,7 @@ Pour une nouvelle idée ou une grosse évolution, dans une seule conversation :
 
 Chaque ticket suit ces étapes, dans l'ordre, dans une session neuve.
 
-1. **Lire** : lis le ticket, la spec dont il dépend, `CONTEXT.md` et les ADR concernés.
+1. **Lire** : lis le ticket, la spec dont il dépend, `GLOSSARY.md` et les ADR concernés.
 2. **Isoler** : travaille sur une branche dédiée (un worktree par tâche si plusieurs agents travaillent en parallèle). Jamais directement sur `main`.
 3. **Construire** : en TDD, une petite tranche à la fois, en suivant l'architecture existante.
 4. **Prouver** : lance les checks ci-dessous. Pour un changement visible, montre l'état avant et après.

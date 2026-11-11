@@ -1,0 +1,13 @@
+# Skills copiés depuis https://github.com/mattpocock/skills (licence MIT, voir licenses/mattpocock-skills.txt).
+# Mis à jour avec scripts/sync-matt.sh.
+commit 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
+skill setup-matt-pocock-skills skills/engineering/setup-matt-pocock-skills
+skill grilling skills/productivity/grilling
+skill domain-modeling skills/engineering/domain-modeling
+skill grill-with-docs skills/engineering/grill-with-docs
+skill to-spec skills/engineering/to-spec
+skill to-tickets skills/engineering/to-tickets
+skill tdd skills/engineering/tdd
+skill codebase-design skills/engineering/codebase-design
+skill code-review skills/engineering/code-review
+skill pr skills/engineering/pr

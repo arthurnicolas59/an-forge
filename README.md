@@ -22,9 +22,8 @@ jugement et des **scripts** font le travail qui doit être exact.
 ### Niveau projet : la direction
 
 Sert à décider quoi construire et comment. On le refait à chaque nouveau projet ou grosse évolution.
-Il repose sur les skills de [Matt Pocock](https://github.com/mattpocock/skills), qu'an-forge ne réécrit pas.
 
-1. `/grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `CONTEXT.md` (le vocabulaire du projet) et les ADR (les décisions).
+1. `/grill-with-docs` : un interrogatoire serré sur l'idée, qui tient à jour `GLOSSARY.md` (le vocabulaire du projet) et les ADR (les décisions).
 2. `/to-spec` : transforme la conversation en spec et la publie comme issue GitHub.
 3. `/to-tickets` : découpe la spec en tickets, des tranches complètes qui tiennent chacune dans une session, avec leurs dépendances. Chaque ticket devient une issue `ready-for-agent`.
 
@@ -32,8 +31,9 @@ Fais les trois dans **la même conversation**, sans la vider entre les étapes :
 
 ### Niveau feature : la réalisation
 
-Reprend les tickets `ready-for-agent` un par un, chacun dans une session neuve, jusqu'à une pull request.
-*Le détail de ce niveau reste à définir.*
+Reprend les tickets `ready-for-agent` un par un, chacun dans une session neuve, jusqu'à une pull request :
+lire, isoler sur une branche, construire en TDD, prouver, relire, livrer.
+*Le skill `/build-ticket` qui enchaîne ces étapes est en cours de construction.*
 
 ## Démarrer un nouveau projet
 
@@ -46,6 +46,40 @@ Reprend les tickets `ready-for-agent` un par un, chacun dans une session neuve, 
 Pourquoi cet ordre : le setup écrit sa configuration dans `CLAUDE.md` si ce fichier existe, sinon dans `AGENTS.md`.
 En le lançant avant de créer `CLAUDE.md`, toute la configuration reste dans `AGENTS.md`, lisible par tous les outils.
 
+## Les skills
+
+| Skill | Rôle | Origine |
+|-------|------|---------|
+| `setup-matt-pocock-skills` | Configure un projet (tickets, étiquettes, docs) | Matt Pocock |
+| `grill-with-docs` | Interrogatoire + glossaire et ADR | Matt Pocock |
+| `grilling` | L'interrogatoire, utilisé par `grill-with-docs` | Matt Pocock |
+| `domain-modeling` | Glossaire et ADR, utilisé par `grill-with-docs` | Matt Pocock |
+| `to-spec` | Conversation → spec publiée en issue | Matt Pocock |
+| `to-tickets` | Spec → tickets `ready-for-agent` | Matt Pocock |
+| `tdd` | Construire test d'abord, une tranche à la fois | Matt Pocock |
+| `codebase-design` | Vocabulaire de conception, utilisé par `tdd` | Matt Pocock |
+| `code-review` | Relire le diff selon les règles et la spec | Matt Pocock |
+| `pr` | Rédiger le corps d'une pull request | Matt Pocock |
+
+### Skills venus de Matt Pocock
+
+Ils sont **copiés** depuis [mattpocock/skills](https://github.com/mattpocock/skills) (licence MIT, voir
+[licenses/mattpocock-skills.txt](licenses/mattpocock-skills.txt)), pour qu'an-forge soit complet à lui seul
+et que ses skills puissent s'enchaîner.
+
+Modifications par rapport à l'original :
+- `setup-matt-pocock-skills`, `grill-with-docs`, `to-spec` et `to-tickets` ne sont plus réservés au lancement
+  manuel, pour qu'un skill an-forge puisse les appeler. Leur description demande de ne jamais les lancer de
+  sa propre initiative.
+- Les métadonnées de `pr` ont été retirées de l'en-tête ; les crédits restent dans `skills/pr/CREDITS.md`.
+
+Pour voir ce qui a changé chez Matt depuis la dernière copie :
+
+```bash
+scripts/sync-matt.sh          # résumé
+scripts/sync-matt.sh --full   # diff complet
+```
+
 ## Structure du repo
 
 ```
@@ -53,7 +87,9 @@ AGENTS.md         les règles de la factory (source unique, lisible par tous les
 CLAUDE.md         importe AGENTS.md pour Claude Code
 skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
+scripts/          scripts d'an-forge (sync-matt.sh, mattpocock.lock)
 templates/        fichiers copiés dans chaque projet, dont son AGENTS.md
+licenses/         licences des skills venus d'ailleurs
 docs/             la carte de la factory (factory.canvas, s'ouvre dans Obsidian)
 .claude-plugin/   l'emballage pour Claude Code
 ```
@@ -66,27 +102,28 @@ docs/             la carte de la factory (factory.canvas, s'ouvre dans Obsidian)
 | Skills | plugin | `npx skills add` |
 | Sous-agents | plugin | à adapter selon l'outil |
 
-## Installation dans un projet
+## Installation
 
-**1. Les outils**, une seule fois par machine, selon ton agent. an-forge a besoin des skills de Matt Pocock.
+**1. Les outils**, une seule fois par machine, selon ton agent. an-forge contient tout ce dont il a besoin.
 
 ```bash
 # Claude Code (mises à jour automatiques)
-claude plugin install mattpocock-skills@claude-plugins-official
 claude plugin marketplace add arthurnicolas59/an-forge
 claude plugin install an-forge@an-forge
 
 # Autres agents (copie les skills dans le projet)
-npx skills@latest add mattpocock/skills
 npx skills@latest add arthurnicolas59/an-forge
 ```
+
+N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en double.
 
 **2. Le projet** : suis [Démarrer un nouveau projet](#démarrer-un-nouveau-projet).
 
 ## Avancement
 
 - [x] Étape 1 : squelette
-- [ ] Étape 2 : premiers skills (aligner, planifier)
+- [x] Niveau projet : skills de Matt Pocock intégrés
+- [ ] Étape 2 : niveau feature (`/build-ticket`)
 - [ ] Étape 3 : agents
 - [ ] Étape 4 : gates et état
 - [ ] Étape 5 : orchestrateur `/factory`

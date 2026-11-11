@@ -103,7 +103,7 @@
       "width": 360,
       "height": 440,
       "color": "3",
-      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock)\n- [ ] 2. Niveau feature\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
+      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock copiés)\n- [ ] 2. Niveau feature (`/build-ticket`)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
     },
     {
       "id": "rules",
@@ -118,11 +118,11 @@
       "id": "portability",
       "type": "text",
       "x": 340,
-      "y": -140,
+      "y": -170,
       "width": 380,
-      "height": 100,
+      "height": 150,
       "color": "5",
-      "text": "**Portabilité** : skills au format Agent Skills. Plugin pour Claude Code, `npx skills` pour les autres."
+      "text": "**Portabilité** : skills au format Agent Skills. Plugin pour Claude Code, `npx skills` pour les autres.\n\nSkills de Matt copiés (MIT), mis à jour avec `scripts/sync-matt.sh`."
     },
     {
       "id": "setup",
@@ -132,7 +132,7 @@
       "width": 300,
       "height": 140,
       "color": "2",
-      "text": "## 0. Setup\n`/setup-matt-pocock-skills`\nUne fois par projet, **avant** de créer `CLAUDE.md`.\n\n*Matt Pocock · en place*"
+      "text": "## 0. Setup\n`/setup-matt-pocock-skills`\nUne fois par projet, **avant** de créer `CLAUDE.md`.\n\n*Matt Pocock · copié dans an-forge*"
     },
     {
       "id": "grill",
@@ -142,7 +142,7 @@
       "width": 300,
       "height": 140,
       "color": "6",
-      "text": "## 1. Grill\n`/grill-with-docs`\nInterroger l'idée, tenir `CONTEXT.md` et les ADR.\n\n*Matt Pocock · en place*"
+      "text": "## 1. Grill\n`/grill-with-docs`\nInterroger l'idée, tenir `GLOSSARY.md` et les ADR.\n\n*Matt Pocock · copié dans an-forge*"
     },
     {
       "id": "spec",
@@ -152,7 +152,7 @@
       "width": 300,
       "height": 140,
       "color": "6",
-      "text": "## 2. Spec\n`/to-spec`\nLa conversation devient une spec, publiée en issue.\n\n*Matt Pocock · en place*"
+      "text": "## 2. Spec\n`/to-spec`\nLa conversation devient une spec, publiée en issue.\n\n*Matt Pocock · copié dans an-forge*"
     },
     {
       "id": "tickets",
@@ -162,7 +162,7 @@
       "width": 300,
       "height": 140,
       "color": "6",
-      "text": "## 3. Tickets\n`/to-tickets`\nDes tranches complètes, issues `ready-for-agent`.\n\n*Matt Pocock · en place*"
+      "text": "## 3. Tickets\n`/to-tickets`\nDes tranches complètes, issues `ready-for-agent`.\n\n*Matt Pocock · copié dans an-forge*"
     }
   ],
   "edges": [
