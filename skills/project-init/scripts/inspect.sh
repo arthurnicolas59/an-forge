@@ -37,5 +37,13 @@ else
   echo "claude_md=custom"
 fi
 
+if [ ! -f scripts/checks.sh ]; then
+  echo "checks=absent"
+elif grep -q "À REMPLIR" scripts/checks.sh; then
+  echo "checks=to-fill"
+else
+  echo "checks=filled"
+fi
+
 [ -f docs/agents/issue-tracker.md ] && echo "skills_setup=yes" || echo "skills_setup=no"
 [ -f GLOSSARY.md ] && echo "glossary=yes" || echo "glossary=no"

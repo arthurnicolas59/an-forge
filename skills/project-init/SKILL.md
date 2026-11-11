@@ -8,6 +8,7 @@ description: Prépare un repo pour la software factory an-forge, qu'il soit neuf
 Prépare le repo courant pour qu'il soit prêt à suivre le workflow an-forge. À la fin, le projet a :
 
 - un `AGENTS.md` rempli, qui contient les règles et le workflow ;
+- un `scripts/checks.sh` rempli : le gate que `build-ticket` lance avant toute relecture ;
 - la configuration des skills (`docs/agents/`) et un bloc « Agent skills » dans `AGENTS.md` ;
 - les étiquettes GitHub utilisées par les tickets ;
 - un `CLAUDE.md` qui contient une seule ligne : `@AGENTS.md`.
@@ -26,23 +27,25 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md=filled`, `skills_setup=yes`, `claude_md=import-only`), dis-le et ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md=filled`, `checks=filled`, `skills_setup=yes`, `claude_md=import-only`), dis-le et ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
-Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections du modèle qui lui manquent, avec l'accord de l'utilisateur.
+Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modèle `scripts/checks.sh`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections du modèle qui lui manquent, avec l'accord de l'utilisateur.
 
-## 3. Remplir AGENTS.md
+## 3. Remplir AGENTS.md et checks.sh
 
 Remplace chaque « À REMPLIR » :
 
-- **Le projet** : ce qu'il fait, pour qui, sa stack.
-- **Checks** : les commandes réelles de tests, lint, typecheck et build. Retire celles qui n'existent pas.
-- **Règles** : les conventions propres au projet.
+- **Le projet** (dans `AGENTS.md`) : ce qu'il fait, pour qui, sa stack.
+- **Règles** (dans `AGENTS.md`) : les conventions propres au projet.
+- **`scripts/checks.sh`** : remplace ses deux dernières lignes par les commandes réelles de tests, lint, typecheck et build, dans cet ordre. Retire celles qui n'existent pas. Retire aussi le commentaire « À REMPLIR ». Si le projet a déjà un script qui fait tout (`make check`…), appelle-le. Pour un repo vide, mets les commandes prévues par la stack et ajoute-les au projet dès qu'elles existent.
+
+Lance ensuite `scripts/checks.sh` une fois. S'il échoue sur un projet existant, montre l'erreur à l'utilisateur : il faut le savoir avant le premier ticket.
 
 Déduis tout ce que tu peux du repo (README, `package.json`, `pyproject.toml`, `Makefile`, CI, code). Ne demande à l'utilisateur que ce que le repo ne dit pas, en une seule série de questions. Pour un repo vide, demande ce que sera le projet et sa stack prévue.
 
-Montre les sections remplies et attends l'accord. Il ne doit plus rester aucun « À REMPLIR ».
+Montre les sections remplies et le script, et attends l'accord. Il ne doit plus rester aucun « À REMPLIR ».
 
 ## 4. Configurer les skills
 
@@ -63,6 +66,6 @@ Lance `scripts/claude-md.sh write`.
 
 ## 7. Conclure
 
-Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md=filled`, `skills_setup=yes`, `claude_md=import-only`.
+Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md=filled`, `checks=filled`, `skills_setup=yes`, `claude_md=import-only`.
 
 Propose de commiter ces fichiers, sans le faire sans accord. Indique l'étape suivante : `/project-launch` pour passer de l'idée aux tickets.

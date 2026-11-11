@@ -83,7 +83,7 @@
       "width": 340,
       "height": 180,
       "color": "4",
-      "text": "## 4. Gates\n`checks.sh` : tests, lint, build. Rien n'avance si ça échoue.\n\n*Script · à construire*"
+      "text": "## 4. Gates\n`scripts/checks.sh` : tests, lint, build. Rien n'avance si ça échoue.\n\n*Script · posé par `/project-init`, lancé par `gate.sh`*"
     },
     {
       "id": "state",
@@ -103,7 +103,7 @@
       "width": 360,
       "height": 440,
       "color": "3",
-      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock copiés)\n- [x] `/project-init` et `/project-launch`\n- [ ] 2. Niveau feature (`/build-ticket`)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
+      "text": "## Avancement\n- [x] 1. Squelette\n- [x] Niveau projet (skills de Matt Pocock copiés)\n- [x] `/project-init` et `/project-launch`\n- [x] 2. Niveau feature (`/build-ticket`)\n- [ ] 3. Agents\n- [ ] 4. Gates et état\n- [ ] 5. Orchestrateur `/factory`\n- [ ] 6. Rendu HTML et test réel\n\n---\n**Légende**\n- Violet : agent\n- Vert : script\n- Sans couleur : structure"
     },
     {
       "id": "rules",
@@ -163,6 +163,75 @@
       "height": 140,
       "color": "6",
       "text": "## 3. Tickets\n`/to-tickets`\nDes tranches complètes, issues `ready-for-agent`.\n\n*Matt Pocock · copié dans an-forge*"
+    },
+    {
+      "id": "feature-group",
+      "type": "group",
+      "x": -1130,
+      "y": 540,
+      "width": 1820,
+      "height": 230,
+      "label": "Niveau feature : la réalisation (/build-ticket enchaîne 1 → 6, sans s'arrêter)"
+    },
+    {
+      "id": "ft-isolate",
+      "type": "text",
+      "x": -1100,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "4",
+      "text": "## 1. Isoler\n`start-ticket.sh`\nBranche `ticket/<n>-…` et worktree, depuis le dernier `main`.\n\n*Script · an-forge*"
+    },
+    {
+      "id": "ft-build",
+      "type": "text",
+      "x": -800,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "6",
+      "text": "## 2. Construire\n`/tdd`, `/diagnosing-bugs`\nTest d'abord ; pour un bug, le reproduire d'abord.\n\n*Matt Pocock*"
+    },
+    {
+      "id": "ft-test",
+      "type": "text",
+      "x": -500,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "4",
+      "text": "## 3. Tester\n`gate.sh` → `checks.sh`\nRien n'avance si ça échoue.\n\n*Script · an-forge*"
+    },
+    {
+      "id": "ft-review",
+      "type": "text",
+      "x": -200,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "6",
+      "text": "## 4. Relire\n`/code-review`\nDeux agents neufs : ticket et règles du projet.\n\n*Matt Pocock*"
+    },
+    {
+      "id": "ft-brief",
+      "type": "text",
+      "x": 100,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "6",
+      "text": "## 5. Brief\n`/before-after`, `/feature-brief`\nUne page pour le CEO : objectif, changements, avant/après.\n\n*an-forge*"
+    },
+    {
+      "id": "ft-pr",
+      "type": "text",
+      "x": 400,
+      "y": 600,
+      "width": 260,
+      "height": 150,
+      "color": "6",
+      "text": "## 6. PR\n`/pr`\n`Closes #n`, preuve, lien du brief. Jamais de merge.\n\n*Matt Pocock*"
     }
   ],
   "edges": [
@@ -250,6 +319,49 @@
       "toNode": "intake",
       "toSide": "top",
       "label": "issues ready-for-agent"
+    },
+    {
+      "id": "f1",
+      "fromNode": "ft-isolate",
+      "fromSide": "right",
+      "toNode": "ft-build",
+      "toSide": "left"
+    },
+    {
+      "id": "f2",
+      "fromNode": "ft-build",
+      "fromSide": "right",
+      "toNode": "ft-test",
+      "toSide": "left"
+    },
+    {
+      "id": "f3",
+      "fromNode": "ft-test",
+      "fromSide": "right",
+      "toNode": "ft-review",
+      "toSide": "left"
+    },
+    {
+      "id": "f4",
+      "fromNode": "ft-review",
+      "fromSide": "right",
+      "toNode": "ft-brief",
+      "toSide": "left"
+    },
+    {
+      "id": "f5",
+      "fromNode": "ft-brief",
+      "fromSide": "right",
+      "toNode": "ft-pr",
+      "toSide": "left"
+    },
+    {
+      "id": "f0",
+      "fromNode": "agents",
+      "fromSide": "bottom",
+      "toNode": "ft-isolate",
+      "toSide": "top",
+      "label": "un ticket, une session"
     }
   ]
 }

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Le gate : la branche passe-t-elle les checks du projet ?
+# À lancer depuis le worktree du ticket.
+#
+# Usage : gate.sh <base>     (par exemple origin/main)
+#
+# Échoue si la branche a modifié scripts/checks.sh (on ne change pas les règles pour passer),
+# sinon lance scripts/checks.sh. Code de sortie 0 seulement si tout passe.
+# La sortie complète est gardée dans .git du worktree (chemin affiché), la fin est affichée en cas d'échec.
+set -uo pipefail
+
+if [ $# -lt 1 ]; then
+  echo "Usage : gate.sh <base>" >&2
+  exit 2
+fi
+BASE=$1
+
+ROOT=$(git rev-parse --show-toplevel) || exit 2
+cd "$ROOT"
+
+if [ ! -f scripts/checks.sh ]; then
+  echo "GATE: FAIL — scripts/checks.sh est introuvable. Lance /project-init pour le créer." >&2
+  exit 1
+fi
+
+if ! git diff --quiet "$(git merge-base "$BASE" HEAD)" -- scripts/checks.sh; then
+  echo "GATE: FAIL — la branche modifie scripts/checks.sh. Annule ce changement : on ne change pas les checks pour faire passer une branche." >&2
+  exit 1
+fi
+
+LOG="$(git rev-parse --git-dir)/an-forge-checks.log"
+start=$(date +%s)
+bash scripts/checks.sh >"$LOG" 2>&1
+code=$?
+secs=$(( $(date +%s) - start ))
+
+if [ $code -eq 0 ]; then
+  echo "GATE: PASS (${secs}s) — sortie complète : $LOG"
+  exit 0
+fi
+
+echo "GATE: FAIL (code $code, ${secs}s) — fin de la sortie ci-dessous, complète dans $LOG" >&2
+tail -n 60 "$LOG" >&2
+exit 1

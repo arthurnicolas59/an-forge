@@ -18,25 +18,18 @@ Pour une nouvelle idée ou une grosse évolution, lance `/project-launch`. Il en
 
 ### Niveau feature : la réalisation
 
-Chaque ticket suit ces étapes, dans l'ordre, dans une session neuve.
+Pour construire un ticket `ready-for-agent`, lance `/build-ticket <numéro>` dans une session neuve. Il enchaîne, sans s'arrêter :
 
-1. **Lire** : lis le ticket, la spec dont il dépend, `GLOSSARY.md` et les ADR concernés.
-2. **Isoler** : travaille sur une branche dédiée (un worktree par tâche si plusieurs agents travaillent en parallèle). Jamais directement sur `main`.
-3. **Construire** : en TDD, une petite tranche à la fois, en suivant l'architecture existante.
-4. **Prouver** : lance les checks ci-dessous. Pour un changement visible, montre l'état avant et après.
-5. **Relire** : relis le diff par rapport à la spec et aux règles de ce fichier.
-6. **Livrer** : ouvre une pull request avec la preuve. Ne merge pas sans accord.
+1. **Isoler** : une branche et un worktree à part, depuis le dernier `main`.
+2. **Construire** : en TDD (`diagnosing-bugs` d'abord pour un bug), en suivant l'architecture existante.
+3. **Tester** : `scripts/checks.sh` doit passer. Rien n'avance tant qu'il échoue.
+4. **Relire** : un agent neuf relit le diff par rapport au ticket et aux règles de ce fichier.
+5. **Résumer** : un brief d'une page, avec l'objectif, les changements et l'avant/après, dans `docs/briefs/`.
+6. **Livrer** : une pull request. Ne merge pas sans accord.
 
 ## Checks
 
-À REMPLIR : les commandes qui doivent passer avant toute pull request.
-
-```bash
-# tests
-# lint
-# typecheck
-# build
-```
+`scripts/checks.sh` lance les tests, le lint, le typecheck et le build. Il doit passer avant toute pull request. Ne le modifie pas pour faire passer une branche.
 
 ## Règles
 

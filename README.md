@@ -35,17 +35,28 @@ Il s'arrête pour te demander ton accord avant de publier la spec, puis avant de
 
 ### Niveau feature : la réalisation
 
-Reprend les tickets `ready-for-agent` un par un, chacun dans une session neuve, jusqu'à une pull request :
-lire, isoler sur une branche, construire en TDD, prouver, relire, livrer.
-*Le skill `/build-ticket` qui enchaîne ces étapes est en cours de construction.*
+Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticket par session.
+
+**`/build-ticket <n>`** enchaîne, **sans s'arrêter** :
+
+1. **Isoler** : `start-ticket.sh` crée la branche `ticket/<n>-…` et un worktree dans `.worktrees/`, depuis le dernier `main`.
+2. **Construire** : `tdd`, test d'abord. Pour un bug, `diagnosing-bugs` le reproduit avant de le corriger.
+3. **Tester** : `gate.sh` lance `scripts/checks.sh`. Rien n'avance tant qu'il échoue, et une branche qui modifie les checks est refusée.
+4. **Relire** : `code-review` confie la relecture à deux agents neufs, qui ne voient que le diff, le ticket et les règles du projet. Deux tours au maximum.
+5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués), puis une annexe avec les fichiers touchés.
+6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. Jamais de merge : c'est toi qui décides, après lecture du brief.
+
+Sans numéro, `/build-ticket` liste les tickets prêts et non bloqués et te demande lequel prendre.
+
+Les captures et le PDF du brief utilisent Playwright : il faut Node.js 20 ou plus. La première fois, Playwright télécharge Chromium (environ 150 Mo).
 
 ## Démarrer un nouveau projet
 
 Une seule fois par projet, neuf ou existant : **`/project-init`**. À la fin, le repo est prêt.
 
 1. Inspecte le projet (git, GitHub, fichiers existants).
-2. Pose le modèle `AGENTS.md`, sans jamais écraser un fichier existant.
-3. Remplit ses sections à partir du code, et te demande le reste.
+2. Pose les modèles `AGENTS.md` et `scripts/checks.sh`, sans jamais écraser un fichier existant.
+3. Les remplit à partir du code (règles, commandes de tests, lint et build), et te demande le reste.
 4. Lance `setup-matt-pocock-skills` (outil de tickets, emplacement des docs).
 5. Crée les étiquettes GitHub (`ready-for-agent`…), sans lesquelles la publication des tickets échoue.
 6. Crée `CLAUDE.md` avec `@AGENTS.md`.
@@ -65,7 +76,11 @@ sinon dans `AGENTS.md`. Ainsi, toute la configuration reste dans `AGENTS.md`, li
 | `domain-modeling` | Glossaire et ADR, utilisé par `grill-with-docs` | Matt Pocock |
 | `to-spec` | Conversation → spec publiée en issue | Matt Pocock |
 | `to-tickets` | Spec → tickets `ready-for-agent` | Matt Pocock |
+| `build-ticket` | D'un ticket à une PR : isoler, construire, tester, relire, résumer | an-forge |
+| `before-after` | Captures des mêmes écrans avant et après un changement | an-forge |
+| `feature-brief` | Brief pour le CEO : une page de synthèse et une annexe des fichiers | an-forge |
 | `tdd` | Construire test d'abord, une tranche à la fois | Matt Pocock |
+| `diagnosing-bugs` | Reproduire un bug avant de le corriger | Matt Pocock |
 | `codebase-design` | Vocabulaire de conception, utilisé par `tdd` | Matt Pocock |
 | `code-review` | Relire le diff selon les règles et la spec | Matt Pocock |
 | `pr` | Rédiger le corps d'une pull request | Matt Pocock |
@@ -132,7 +147,7 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [x] Étape 1 : squelette
 - [x] Niveau projet : skills de Matt Pocock intégrés
 - [x] `/project-init` et `/project-launch`
-- [ ] Étape 2 : niveau feature (`/build-ticket`)
+- [x] Étape 2 : niveau feature (`/build-ticket`)
 - [ ] Étape 3 : agents
 - [ ] Étape 4 : gates et état
 - [ ] Étape 5 : orchestrateur `/factory`
