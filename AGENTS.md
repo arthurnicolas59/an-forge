@@ -23,4 +23,5 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
 - Le texte d'un skill ne dépend pas d'un outil précis. Si une étape a besoin d'une fonction propre à un outil, décris aussi comment faire sans.
 - Ce qui doit donner le même résultat à chaque fois va dans un script, pas dans des instructions.
 - Chaque skill ou agent ajouté reçoit sa carte dans `docs/factory.canvas`, et le README est mis à jour.
+- À chaque changement publié qui touche les skills, les agents ou les scripts, augmente `version` dans `.claude-plugin/plugin.json` : le dernier chiffre pour une correction (0.1.0 → 0.1.1), celui du milieu pour un ajout (0.1.0 → 0.2.0). Sans ça, les machines où an-forge est installé gardent l'ancienne version.
 - Les skills venus de `mattpocock/skills` sont copiés dans `skills/` (liste et version dans `scripts/mattpocock.lock`). Modifie-les le moins possible pour faciliter les mises à jour, et reprends les changements de Matt avec `scripts/sync-matt.sh`.
