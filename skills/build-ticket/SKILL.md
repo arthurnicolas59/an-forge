@@ -31,7 +31,7 @@ L'utilisateur suit le ticket sur un tableau de suivi, pas dans cette conversatio
 | `pr` | une fois la pull request ouverte, avec son lien |
 | `arrete` | chaque fois que tu t'arrêtes avant la PR, avec la raison |
 
-Coche aussi les critères d'acceptation du ticket, au fur et à mesure : dès qu'un critère est couvert par un test qui passe, lance `scripts/log-step.sh <n> critere <rang> "<preuve>"`. Le rang est sa place dans la liste « Acceptance criteria » du ticket (1 pour le premier). La preuve dit comment on le sait, en une phrase (« Un test vérifie que la photo s'affiche sur la fiche »). Ne coche jamais un critère sans preuve. Ne touche pas aux cases du ticket sur GitHub : un critère n'est acquis qu'au merge.
+Coche aussi les critères d'acceptation du ticket, au fur et à mesure : dès qu'un critère est couvert par un test qui passe, lance `scripts/log-step.sh <n> critere <rang> "<preuve>"`. Le rang est sa place dans la liste des critères d'acceptation du ticket (« Critères d'acceptation » ou « Acceptance criteria ») (1 pour le premier). La preuve dit comment on le sait, en une phrase (« Un test vérifie que la photo s'affiche sur la fiche »). Ne coche jamais un critère sans preuve. Ne touche pas aux cases du ticket sur GitHub : un critère n'est acquis qu'au merge.
 
 La phrase s'adresse à l'utilisateur : une ligne, sans jargon, qui dit ce qui se passe ou ce que l'étape a donné (« 3 tests écrits, puis le code qui les fait passer », « Les vérifications échouent sur l'affichage de la photo, 2e essai »). Respecte la section « L'utilisateur » d'`AGENTS.md`.
 

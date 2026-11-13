@@ -242,6 +242,16 @@
       "height": 130,
       "color": "4",
       "text": "## Journal\n`log-step.sh` : chaque étape du ticket est notée dans `~/.an-forge/journal/`, pour le tableau de suivi.\n\n*Script · an-forge*"
+    },
+    {
+      "id": "dashboard",
+      "type": "text",
+      "x": -500,
+      "y": 820,
+      "width": 560,
+      "height": 150,
+      "color": "6",
+      "text": "## Tableau de suivi\n`/dashboard` : tous les projets, les tickets restants, ce que fait chaque ticket et le déroulé de `/build-ticket`. Page locale, style VS Code, lecture seule.\n\n*Skill · an-forge*"
     }
   ],
   "edges": [
@@ -380,6 +390,14 @@
       "toNode": "ft-journal",
       "toSide": "top",
       "label": "chaque étape"
+    },
+    {
+      "id": "f7",
+      "fromNode": "ft-journal",
+      "fromSide": "right",
+      "toNode": "dashboard",
+      "toSide": "left",
+      "label": "lu par"
     }
   ]
 }
