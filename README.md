@@ -51,6 +51,8 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués), puis une annexe avec les fichiers touchés.
 6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. L'agent ne merge pas de lui-même : tu lis le brief, puis tu dis « merge la PR ». `merge-pr.sh` ne merge que si la PR contient le dernier `main` et que les checks ont passé sur exactement cette version.
 
+À chaque étape, `log-step.sh` note dans un journal ce qui se passe, en une phrase simple : `~/.an-forge/journal/<projet>/<ticket>.jsonl`, hors du projet, pour ne créer aucun commit. Il coche aussi les critères d'acceptation du ticket dès qu'un test les prouve, et inscrit le projet dans `~/.an-forge/projects`. Ce journal alimentera le tableau de suivi de tous les projets.
+
 Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
 
 `/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Ce sera le rôle de l'orchestrateur `/factory` de choisir quels tickets peuvent avancer ensemble.
@@ -161,6 +163,9 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [x] Image du lancement d'un projet (docs/lancement-projet.svg)
 - [x] Image du traitement d'un ticket (docs/traitement-ticket.svg)
 - [ ] Étape 6 : test sur un vrai projet
+- [x] Tableau de suivi, 1 : journal des étapes (`log-step.sh`)
+- [ ] Tableau de suivi, 2 : la page (`/dashboard`)
+- [ ] Tableau de suivi, 3 : les boutons pour agir
 
 ## Inspirations
 

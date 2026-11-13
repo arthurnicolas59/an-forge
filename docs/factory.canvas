@@ -232,6 +232,16 @@
       "height": 150,
       "color": "6",
       "text": "## 6. PR\n`/pr`\n`Closes #n`, preuve, lien du brief. Jamais de merge.\n\n*Matt Pocock*"
+    },
+    {
+      "id": "ft-journal",
+      "type": "text",
+      "x": -1100,
+      "y": 820,
+      "width": 560,
+      "height": 130,
+      "color": "4",
+      "text": "## Journal\n`log-step.sh` : chaque étape du ticket est notée dans `~/.an-forge/journal/`, pour le tableau de suivi.\n\n*Script · an-forge*"
     }
   ],
   "edges": [
@@ -362,6 +372,14 @@
       "toNode": "ft-isolate",
       "toSide": "top",
       "label": "un ticket, une session"
+    },
+    {
+      "id": "f6",
+      "fromNode": "feature-group",
+      "fromSide": "bottom",
+      "toNode": "ft-journal",
+      "toSide": "top",
+      "label": "chaque étape"
     }
   ]
 }
