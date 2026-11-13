@@ -119,7 +119,7 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 
 ## 10. Conclure
 
-Donne à l'utilisateur, en quelques lignes : le lien de la PR, le chemin du brief (ouvre-le si ton outil le permet), et ce qui reste ouvert.
+Donne à l'utilisateur, en quelques lignes : le lien de la PR, le chemin du brief et comment l'ouvrir pour voir les images (étape 4 du skill `feature-brief`), et ce qui reste ouvert.
 
 Puis dis-lui ce qu'il a à faire, et rien d'autre :
 
