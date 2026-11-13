@@ -103,7 +103,7 @@ Lance `python3 scripts/render.py <dossier> --base <base>`. Il écrit `<dossier>/
 
 Il refuse un brief trop long ou incomplet, en disant quoi raccourcir. Corrige `brief.json` et relance jusqu'à ce qu'il passe.
 
-Ouvre `index.html` et vérifie que les images s'affichent. Les images sont des fichiers à côté de la page : un aperçu qui ouvre la page seule (par exemple le panneau d'aperçu d'un outil d'IA) ne les montre pas. Ouvre-la donc dans le navigateur de l'ordinateur (`open index.html` sur macOS, `xdg-open` sur Linux), ou sers le dossier avec `python3 -m http.server 8765 --bind 127.0.0.1 --directory <dossier>` et ouvre `http://127.0.0.1:8765/`. Donne à l'utilisateur la même façon de l'ouvrir.
+Ouvre le brief avec `scripts/open.sh <dossier>` et vérifie que les images s'affichent. Les images sont des fichiers à côté de la page : un aperçu qui ouvre la page seule (par exemple le panneau d'aperçu d'un outil d'IA) ne les montre pas. Le script passe donc toujours par le navigateur de l'ordinateur. N'ouvre jamais le brief autrement.
 
 Si l'utilisateur veut un PDF : `scripts/to-pdf.sh <dossier>`. Il écrit `brief.pdf` dans le dossier, la synthèse en page 1 et l'annexe en page 2. Sans Node, ouvre `index.html` dans un navigateur et imprime-le en PDF.
 
