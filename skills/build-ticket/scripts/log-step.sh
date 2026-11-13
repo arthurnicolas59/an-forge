@@ -11,7 +11,7 @@
 #
 # Le journal est rangé hors du projet, pour ne créer aucun commit et survivre au ménage du ticket :
 #   ~/.an-forge/journal/<projet>/<numéro>.jsonl   une ligne JSON par étape
-#   ~/.an-forge/projects                          un chemin de projet par ligne
+#   ~/.an-forge/projects                          un projet par ligne : <chemin><TAB><owner/name>
 # La variable AN_FORGE_HOME remplace ~/.an-forge (utile pour tester).
 #
 # Le journal ne sert qu'au suivi : si ce script échoue, le ticket continue.
@@ -62,10 +62,14 @@ HOME_DIR=${AN_FORGE_HOME:-$HOME/.an-forge}
 DIR="$HOME_DIR/journal/$PROJECT"
 mkdir -p "$DIR"
 
-# Inscrit le projet dans la liste, une seule fois.
+# Inscrit le projet dans la liste, une seule fois, avec son dépôt GitHub (owner/name) :
+# le tableau de suivi en a besoin pour lire les tickets sans ouvrir le dossier du projet.
 REGISTRY="$HOME_DIR/projects"
 touch "$REGISTRY"
-grep -qxF "$ROOT" "$REGISTRY" || echo "$ROOT" >> "$REGISTRY"
+if ! cut -f1 "$REGISTRY" | grep -qxF "$ROOT"; then
+  REPO=$(git remote get-url origin 2>/dev/null | grep -E 'github\.com[:/]' | sed -E 's#.*github\.com[:/]##; s#\.git$##' || true)
+  if [ -n "$REPO" ]; then printf '%s\t%s\n' "$ROOT" "$REPO" >>"$REGISTRY"; else echo "$ROOT" >>"$REGISTRY"; fi
+fi
 
 # Échappe une chaîne pour JSON : antislash, guillemets, tabulations et retours à la ligne.
 json() {

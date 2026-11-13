@@ -26,19 +26,42 @@ MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 mkdir -p "$HOME_DIR"
 touch "$HOME_DIR/projects"
 
+# La liste des projets : une ligne par projet, <chemin>, une tabulation, puis owner/name du dépôt GitHub.
+# Le tableau a besoin du dépôt : lancé par l'app du Mac, il ne peut pas lire les dossiers des projets.
+REGISTRY="$HOME_DIR/projects"
+repo_of() {
+  git -C "$1" remote get-url origin 2>/dev/null | grep -E 'github\.com[:/]' | sed -E 's#.*github\.com[:/]##; s#\.git$##' || true
+}
+
 # Ajoute le projet courant, s'il en est un. Le projet est le checkout principal, même depuis un worktree.
+# an-forge lui-même a un AGENTS.md mais n'est pas un projet à suivre.
 if COMMON=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
   ROOT=$(dirname "$COMMON")
-  # an-forge lui-même a un AGENTS.md mais n'est pas un projet à suivre.
   if [ -f "$ROOT/AGENTS.md" ] && ! grep -qs '"name": "an-forge"' "$ROOT/.claude-plugin/plugin.json" \
-    && ! grep -qxF "$ROOT" "$HOME_DIR/projects"; then
-    echo "$ROOT" >> "$HOME_DIR/projects"
+    && ! cut -f1 "$REGISTRY" | grep -qxF "$ROOT"; then
+    printf '%s\n' "$ROOT" >> "$REGISTRY"
     echo "project=$ROOT"
   fi
 fi
 
+# Complète le dépôt des projets inscrits sans lui, quand leur dossier est lisible.
+TMP=$(mktemp)
+while IFS=$'\t' read -r P R || [ -n "$P" ]; do
+  [ -n "$P" ] || continue
+  [ -n "${R:-}" ] || R=$(repo_of "$P")
+  if [ -n "$R" ]; then printf '%s\t%s\n' "$P" "$R"; else printf '%s\n' "$P"; fi
+done <"$REGISTRY" >"$TMP"
+mv "$TMP" "$REGISTRY"
+
 # Le lanceur à chemin fixe, utilisé par l'app an-forge du Mac. Le dossier du plugin change à chaque
-# version : le lanceur prend la version installée la plus récente, sinon ce dossier-ci.
+# version : le lanceur prend la version installée la plus récente, sinon une copie du tableau rangée
+# dans ~/.an-forge/dashboard. Cette copie évite à l'app de lancer un script du Bureau ou des Documents,
+# que macOS protège.
+RUNTIME="$HOME_DIR/dashboard"
+if [ "$HERE" != "$RUNTIME" ]; then
+  mkdir -p "$RUNTIME"
+  cp "$HERE/server.mjs" "$HERE/index.html" "$HERE/start.sh" "$HERE/stop.sh" "$RUNTIME/"
+fi
 mkdir -p "$HOME_DIR/bin"
 cat >"$HOME_DIR/bin/dashboard" <<EOF
 #!/usr/bin/env bash
@@ -47,7 +70,7 @@ export PATH="$PATH"
 export AN_FORGE_HOME="$HOME_DIR"
 export AN_FORGE_DASHBOARD_PORT="$PORT"
 LATEST=\$(ls -d "\$HOME"/.claude/plugins/cache/*/an-forge/*/skills/dashboard/scripts/start.sh 2>/dev/null | sort -V | tail -1)
-exec "\${LATEST:-$HERE/start.sh}" "\$@"
+exec "\${LATEST:-$RUNTIME/start.sh}" "\$@"
 EOF
 chmod +x "$HOME_DIR/bin/dashboard"
 

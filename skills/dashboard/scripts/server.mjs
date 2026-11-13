@@ -3,9 +3,11 @@
 // ni dans les projets. Il n'écoute que sur cette machine (127.0.0.1).
 //
 // Il réunit, pour chaque projet de ~/.an-forge/projects :
-//   - les specs, les tickets et les pull requests, lus sur GitHub (une requête, gardée 20 secondes) ;
-//   - les branches ticket/<n>-… présentes sur la machine ;
+//   - les specs, les tickets, les branches ticket/<n>-… et les pull requests, lus sur GitHub
+//     (une requête par projet, gardée 20 secondes) ;
 //   - le journal écrit par /build-ticket : ~/.an-forge/journal/<projet>/<n>.jsonl.
+// Il ne lit rien dans les dossiers des projets : lancé par l'app du Mac, il n'a pas accès au Bureau
+// ni aux Documents. Le dépôt GitHub de chaque projet est donc noté dans la liste des projets.
 //
 // Usage : node server.mjs        (port : AN_FORGE_DASHBOARD_PORT, 4317 par défaut)
 // Sans dépendance : Node 18 ou plus suffit.
@@ -13,7 +15,6 @@
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { readFile, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +29,7 @@ export const STEPS = ['isoler', 'avant', 'construire', 'tester', 'relire', 'apre
 
 function run(cmd, args, cwd) {
   return new Promise((resolve, reject) => {
-    execFile(cmd, args, { cwd, maxBuffer: 20 * 1024 * 1024, timeout: 30_000 }, (err, stdout, stderr) => {
+    execFile(cmd, args, { cwd: cwd || HOME_DIR, maxBuffer: 20 * 1024 * 1024, timeout: 30_000 }, (err, stdout, stderr) => {
       if (err) reject(new Error((stderr || err.message).trim()));
       else resolve(stdout);
     });
@@ -43,9 +44,14 @@ async function readLines(file) {
   }
 }
 
-async function projectPaths() {
-  const lines = await readLines(join(HOME_DIR, 'projects'));
-  return [...new Set(lines.map((l) => l.trim()))];
+// Une ligne par projet : <chemin>, puis une tabulation et owner/name quand le dépôt est connu.
+async function projectList() {
+  const seen = new Map();
+  for (const line of await readLines(join(HOME_DIR, 'projects'))) {
+    const [path, repo] = line.split('\t').map((x) => x.trim());
+    if (path && (!seen.has(path) || repo)) seen.set(path, repo || null);
+  }
+  return [...seen].map(([path, repo]) => ({ path, repo }));
 }
 
 // owner/name depuis l'adresse du dépôt origin (https ou ssh).
@@ -56,6 +62,7 @@ export function repoFromRemote(url) {
 
 const QUERY = `query($o:String!,$n:String!){repository(owner:$o,name:$n){
   url
+  refs(refPrefix:"refs/heads/ticket/",first:100){nodes{name}}
   issues(first:100,orderBy:{field:CREATED_AT,direction:ASC}){nodes{
     number title state url body closedAt
     labels(first:20){nodes{name}}
@@ -71,12 +78,13 @@ const QUERY = `query($o:String!,$n:String!){repository(owner:$o,name:$n){
 
 const githubCache = new Map();
 
-async function githubData(path, repo) {
+async function githubData(repo) {
   const key = `${repo.owner}/${repo.name}`;
   const hit = githubCache.get(key);
   if (hit && Date.now() - hit.at < GITHUB_TTL_MS) return hit.data;
-  const out = await run('gh', ['api', 'graphql', '-f', `query=${QUERY}`, '-f', `o=${repo.owner}`, '-f', `n=${repo.name}`], path);
+  const out = await run('gh', ['api', 'graphql', '-f', `query=${QUERY}`, '-f', `o=${repo.owner}`, '-f', `n=${repo.name}`]);
   const data = JSON.parse(out).data.repository;
+  if (!data) throw new Error(`dépôt ${key} introuvable`);
   githubCache.set(key, { at: Date.now(), data });
   return data;
 }
@@ -141,48 +149,37 @@ async function readJournal(project, number) {
   return out;
 }
 
-async function localTicketBranches(path) {
-  try {
-    const out = await run('git', ['for-each-ref', '--format=%(refname:short)', 'refs/heads/ticket/', 'refs/remotes/origin/ticket/'], path);
-    const nums = new Set();
-    for (const ref of out.split('\n')) {
-      const m = ref.match(/ticket\/(\d+)-/);
-      if (m) nums.add(Number(m[1]));
-    }
-    return nums;
-  } catch {
-    return new Set();
-  }
-}
-
-async function loadProject(path) {
+async function loadProject({ path, repo }) {
   const name = basename(path);
-  const project = { name, path, repo: null, url: null, specs: [], tickets: [], error: null };
-  if (!existsSync(path)) {
-    project.error = `Le dossier n'existe plus : ${path}`;
-    return project;
-  }
-  let repo;
-  try {
-    repo = repoFromRemote(await run('git', ['remote', 'get-url', 'origin'], path));
-  } catch {
-    repo = null;
-  }
+  const project = { name, path, repo, url: null, specs: [], tickets: [], error: null };
   if (!repo) {
-    project.error = "Ce projet n'a pas de dépôt GitHub (origin).";
+    // Ancienne inscription, sans le dépôt : on essaie de le lire, ce qui marche hors de l'app du Mac.
+    try {
+      const r = repoFromRemote(await run('git', ['remote', 'get-url', 'origin'], path));
+      if (r) project.repo = `${r.owner}/${r.name}`;
+    } catch {
+      // Dossier protégé ou absent : le message ci-dessous dit quoi faire.
+    }
+  }
+  if (!project.repo) {
+    project.error = "Dépôt GitHub inconnu. Lance /dashboard une fois dans ce projet, depuis Claude Code.";
     return project;
   }
-  project.repo = `${repo.owner}/${repo.name}`;
+  const [owner, ...rest] = project.repo.split('/');
 
   let gh;
   try {
-    gh = await githubData(path, repo);
+    gh = await githubData({ owner, name: rest.join('/') });
   } catch (e) {
     project.error = `GitHub ne répond pas : ${e.message.split('\n')[0]}`;
     return project;
   }
   project.url = gh.url;
-  const branches = await localTicketBranches(path);
+  const branches = new Set();
+  for (const ref of gh.refs.nodes) {
+    const m = ref.name.match(/^(\d+)-/);
+    if (m) branches.add(Number(m[1]));
+  }
 
   // Une pull request appartient au ticket <n> si sa branche s'appelle ticket/<n>-…
   const prByTicket = new Map();
@@ -232,8 +229,7 @@ async function loadProject(path) {
 }
 
 async function state() {
-  const paths = await projectPaths();
-  const projects = await Promise.all(paths.map(loadProject));
+  const projects = await Promise.all((await projectList()).map(loadProject));
   return { generatedAt: new Date().toISOString(), home: HOME_DIR, projects };
 }
 

@@ -52,6 +52,10 @@ fi
 EOF
 chmod +x "$APP/Contents/MacOS/an-forge"
 
+# Une signature locale : macOS peut alors demander à l'utilisateur, au nom d'« an-forge », l'accès
+# aux dossiers protégés (Bureau, Documents) où sont ses projets, au lieu de refuser sans rien dire.
+codesign --force --sign - "$APP" >/dev/null 2>&1 || true
+
 # Fait connaître l'app et son icône au Finder, au Dock et à Spotlight.
 touch "$APP"
 LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
