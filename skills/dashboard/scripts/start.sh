@@ -5,6 +5,7 @@
 #   Lancé depuis un projet an-forge (un dépôt git avec un AGENTS.md), il ajoute aussi ce projet
 #   à la liste suivie, ~/.an-forge/projects.
 #   Si un tableau d'une autre version d'an-forge tourne déjà, il le remplace.
+#   Il (ré)écrit aussi ~/.an-forge/bin/dashboard, le lanceur à chemin fixe de l'app an-forge du Mac.
 #
 # Affiche des lignes clé=valeur : url, status (started|running|restarted), project (si ajouté).
 # La variable AN_FORGE_HOME remplace ~/.an-forge, AN_FORGE_DASHBOARD_PORT le port (4317).
@@ -35,6 +36,20 @@ if COMMON=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); 
     echo "project=$ROOT"
   fi
 fi
+
+# Le lanceur à chemin fixe, utilisé par l'app an-forge du Mac. Le dossier du plugin change à chaque
+# version : le lanceur prend la version installée la plus récente, sinon ce dossier-ci.
+mkdir -p "$HOME_DIR/bin"
+cat >"$HOME_DIR/bin/dashboard" <<EOF
+#!/usr/bin/env bash
+# Écrit par start.sh du skill dashboard d'an-forge. Ne pas modifier : il est réécrit à chaque lancement.
+export PATH="$PATH"
+export AN_FORGE_HOME="$HOME_DIR"
+export AN_FORGE_DASHBOARD_PORT="$PORT"
+LATEST=\$(ls -d "\$HOME"/.claude/plugins/cache/*/an-forge/*/skills/dashboard/scripts/start.sh 2>/dev/null | sort -V | tail -1)
+exec "\${LATEST:-$HERE/start.sh}" "\$@"
+EOF
+chmod +x "$HOME_DIR/bin/dashboard"
 
 PIDFILE="$HOME_DIR/dashboard.pid"
 LOG="$HOME_DIR/dashboard.log"
@@ -73,8 +88,11 @@ fi
 echo "url=$URL"
 echo "status=$STATUS"
 
+# Dans sa propre fenêtre, sans onglets ni barre d'adresse, si Google Chrome est là ; sinon dans le navigateur.
 if [ "$OPEN" = 1 ]; then
-  if command -v open >/dev/null; then open "$URL"
+  CHROME="/Applications/Google Chrome.app"
+  if [ -d "$CHROME" ]; then open -na "$CHROME" --args --app="$URL"
+  elif command -v open >/dev/null; then open "$URL"
   elif command -v xdg-open >/dev/null; then xdg-open "$URL" >/dev/null 2>&1
   fi
 fi

@@ -21,6 +21,14 @@ S'il échoue, dis pourquoi en une phrase avec son message (Node.js ou `gh` manqu
 
 Pour arrêter le tableau : `scripts/stop.sh`.
 
+Le tableau s'ouvre dans sa propre fenêtre, sans onglets ni barre d'adresse, si Google Chrome est installé ; sinon dans le navigateur par défaut.
+
+## Une icône sur le Mac
+
+Sur macOS, si `~/Applications/an-forge.app` n'existe pas, propose à l'utilisateur de créer l'app an-forge : une icône à mettre dans le Dock ou à lancer avec Spotlight, qui démarre le tableau et l'ouvre. Avec son accord, lance `scripts/install-app.sh`, puis dis-lui où elle est et comment la mettre dans le Dock (la faire glisser depuis le Finder). Ne la crée pas sans son accord.
+
+L'app passe par `~/.an-forge/bin/dashboard`, que `start.sh` réécrit à chaque lancement : elle continue de marcher après une mise à jour d'an-forge. Pour la retirer, il suffit de supprimer `an-forge.app`.
+
 ## Ce que montre le tableau
 
 Explique-le en quelques lignes si l'utilisateur l'ouvre pour la première fois :

@@ -63,6 +63,8 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 
 La page tourne sur ta machine (`http://127.0.0.1:4317`) et se met à jour toute seule. Elle lit GitHub, les branches locales et le journal. Un projet y apparaît dès que `/dashboard` ou `/build-ticket` a été lancé dedans. Il faut Node.js 18 ou plus et `gh` connecté. Les couleurs sont toutes en haut de `skills/dashboard/scripts/index.html`, pour changer de thème facilement.
 
+Sur Mac, `/dashboard` propose aussi de créer l'**app an-forge** (`install-app.sh`) : une icône dans `~/Applications`, à mettre dans le Dock, qui lance le tableau et l'ouvre dans sa propre fenêtre (avec Google Chrome, sinon dans le navigateur). Elle continue de marcher après les mises à jour d'an-forge.
+
 Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
 
 `/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Ce sera le rôle de l'orchestrateur `/factory` de choisir quels tickets peuvent avancer ensemble.
@@ -176,6 +178,7 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [ ] Étape 6 : test sur un vrai projet
 - [x] Tableau de suivi, 1 : journal des étapes (`log-step.sh`)
 - [x] Tableau de suivi, 2 : la page (`/dashboard`)
+- [x] Tableau de suivi : l'app an-forge sur le Mac
 - [ ] Tableau de suivi, 3 : les boutons pour agir
 
 ## Inspirations

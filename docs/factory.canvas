@@ -249,9 +249,9 @@
       "x": -500,
       "y": 820,
       "width": 560,
-      "height": 150,
+      "height": 170,
       "color": "6",
-      "text": "## Tableau de suivi\n`/dashboard` : tous les projets, les tickets restants, ce que fait chaque ticket et le déroulé de `/build-ticket`. Page locale, style VS Code, lecture seule.\n\n*Skill · an-forge*"
+      "text": "## Tableau de suivi\n`/dashboard` : tous les projets, les tickets restants, ce que fait chaque ticket et le déroulé de `/build-ticket`. Page locale, style VS Code, lecture seule. Sur Mac, une app an-forge à mettre dans le Dock.\n\n*Skill · an-forge*"
     }
   ],
   "edges": [
