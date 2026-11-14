@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Copie les modèles an-forge dans le projet courant : AGENTS.md à la racine et scripts/checks.sh.
+# Copie les modèles an-forge dans le projet courant : AGENTS.md à la racine, scripts/checks.sh
+# et .github/workflows/checks.yml.
 # N'écrase jamais un fichier existant.
 set -euo pipefail
 
@@ -20,4 +21,12 @@ else
   cp "$TEMPLATES/checks.sh" "$ROOT/scripts/checks.sh"
   chmod +x "$ROOT/scripts/checks.sh"
   echo "scripts/checks.sh copié depuis le modèle an-forge."
+fi
+
+if [ -e "$ROOT/.github/workflows/checks.yml" ]; then
+  echo ".github/workflows/checks.yml existe déjà : rien copié."
+else
+  mkdir -p "$ROOT/.github/workflows"
+  cp "$TEMPLATES/checks.yml" "$ROOT/.github/workflows/checks.yml"
+  echo ".github/workflows/checks.yml copié depuis le modèle an-forge."
 fi

@@ -83,7 +83,7 @@
       "width": 340,
       "height": 180,
       "color": "4",
-      "text": "## 4. Gates\n`scripts/checks.sh` : tests, lint, build. Rien n'avance si ça échoue.\n\n*Script · posé par `/project-init`, lancé par `gate.sh`*"
+      "text": "## 4. Gates\n`scripts/checks.sh` : tests, lint, build. Rien n'avance si ça échoue.\n\n*Script · posé par `/project-init`, lancé par `gate.sh`, puis par GitHub sur chaque PR*"
     },
     {
       "id": "state",
@@ -132,7 +132,7 @@
       "width": 300,
       "height": 140,
       "color": "2",
-      "text": "## 0. Init\n`/project-init`\nAGENTS.md, setup des skills, étiquettes, puis CLAUDE.md en dernier.\n\n*an-forge · en place*"
+      "text": "## 0. Init\n`/project-init`\nAGENTS.md, checks (local et GitHub), setup des skills, étiquettes, puis CLAUDE.md en dernier.\n\n*an-forge · en place*"
     },
     {
       "id": "grill",

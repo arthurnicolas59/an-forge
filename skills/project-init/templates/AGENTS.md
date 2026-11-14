@@ -29,11 +29,11 @@ Pour construire un ticket `ready-for-agent`, lance `/build-ticket <numéro>` dan
 3. **Tester** : `scripts/checks.sh` doit passer. Rien n'avance tant qu'il échoue.
 4. **Relire** : un agent neuf relit le diff par rapport au ticket et aux règles de ce fichier.
 5. **Résumer** : un brief d'une page, avec l'objectif, les changements et l'avant/après, dans `docs/briefs/`.
-6. **Livrer** : une pull request. Ne merge pas sans accord.
+6. **Livrer** : une pull request, que GitHub revérifie. Ne merge pas sans accord.
 
 ## Checks
 
-`scripts/checks.sh` lance les tests, le lint, le typecheck et le build. Il doit passer avant toute pull request. Ne le modifie pas pour faire passer une branche.
+`scripts/checks.sh` lance les tests, le lint, le typecheck et le build. Il doit passer avant toute pull request. GitHub le relance sur chaque pull request (`.github/workflows/checks.yml`). Ne modifie ni l'un ni l'autre pour faire passer une branche.
 
 ## Règles
 

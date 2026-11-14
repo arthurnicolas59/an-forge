@@ -9,6 +9,7 @@ Prépare le repo courant pour qu'il soit prêt à suivre le workflow an-forge. �
 
 - un `AGENTS.md` qui contient les règles, le workflow et la façon de parler à l'utilisateur ;
 - un `scripts/checks.sh` : le gate que `build-ticket` lance avant toute relecture, rempli tout de suite si le projet a déjà du code, sinon par `/project-launch` ;
+- un `.github/workflows/checks.yml` : il fait relancer `scripts/checks.sh` par GitHub sur chaque pull request, et la branche `main` est protégée quand GitHub le permet ;
 - la configuration des skills (`docs/agents/`) et un bloc « Agent skills » dans `AGENTS.md` ;
 - les étiquettes GitHub utilisées par les tickets ;
 - un `CLAUDE.md` qui contient une seule ligne : `@AGENTS.md`.
@@ -27,11 +28,11 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`), dis-le et arrête-toi. Sinon, ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`, `ci` différent de `absent`), dis-le, lance quand même `scripts/protect-main.sh` (étape 7) si le projet est sur GitHub, et arrête-toi. Sinon, ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
-Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modèle `scripts/checks.sh`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections que `missing_sections` liste, à la même place que dans le modèle. N'ajoute pas une section qui existe déjà sous un autre nom (par exemple « Commandes » pour « Checks »). Une section ajoutée arrive avec son marqueur, rempli à l'étape 3 : pour « L'utilisateur », c'est la question « Êtes-vous développeur ? ».
+Lance `scripts/install-template.sh`. Il copie les modèles `AGENTS.md`, `scripts/checks.sh` et `.github/workflows/checks.yml`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections que `missing_sections` liste, à la même place que dans le modèle. N'ajoute pas une section qui existe déjà sous un autre nom (par exemple « Commandes » pour « Checks »). Une section ajoutée arrive avec son marqueur, rempli à l'étape 3 : pour « L'utilisateur », c'est la question « Êtes-vous développeur ? ».
 
 ## 3. Remplir AGENTS.md et checks.sh
 
@@ -44,8 +45,8 @@ Lance `scripts/install-template.sh`. Il copie le modèle `AGENTS.md` et le modè
 
 Le reste dépend de `code` :
 
-- **`code=yes`** (le projet a déjà du code) : déduis du repo (README, `package.json`, `pyproject.toml`, `Makefile`, CI, code) ce qu'il fait, pour qui, sa stack et ses conventions. Remplace les « À DÉCIDER AVEC /project-launch » de « Le projet » et de « Règles ». Remplis `scripts/checks.sh` : remplace ses deux dernières lignes par les commandes réelles de tests, lint, typecheck et build, dans cet ordre, retire celles qui n'existent pas et retire le commentaire « À REMPLIR ». Si le projet a déjà un script qui fait tout (`make check`…), appelle-le. Lance ensuite `scripts/checks.sh` une fois : s'il échoue, montre l'erreur à l'utilisateur. Ce que le repo ne dit pas reste « À DÉCIDER AVEC /project-launch ».
-- **`code=no`** (projet neuf) : remplace seulement `<Nom du projet>` par le nom du dossier. Laisse « Le projet », « Règles » et `scripts/checks.sh` tels quels : `/project-launch` les remplira une fois l'idée et la stack choisies.
+- **`code=yes`** (le projet a déjà du code) : déduis du repo (README, `package.json`, `pyproject.toml`, `Makefile`, CI, code) ce qu'il fait, pour qui, sa stack et ses conventions. Remplace les « À DÉCIDER AVEC /project-launch » de « Le projet » et de « Règles ». Remplis `scripts/checks.sh` : remplace ses deux dernières lignes par les commandes réelles de tests, lint, typecheck et build, dans cet ordre, retire celles qui n'existent pas et retire le commentaire « À REMPLIR ». Si le projet a déjà un script qui fait tout (`make check`…), appelle-le. Lance ensuite `scripts/checks.sh` une fois : s'il échoue, montre l'erreur à l'utilisateur. Remplis aussi `.github/workflows/checks.yml` si `ci=to-fill` : à l'endroit indiqué, ajoute l'installation des outils dont `scripts/checks.sh` a besoin (le langage et sa version, le cache des dépendances), puis retire le commentaire « À REMPLIR ». Ne renomme pas le job `checks`. Si le projet a déjà un workflow qui lance ses tests, garde-le tel quel. Ce que le repo ne dit pas reste « À DÉCIDER AVEC /project-launch ».
+- **`code=no`** (projet neuf) : remplace seulement `<Nom du projet>` par le nom du dossier. Laisse « Le projet », « Règles », `scripts/checks.sh` et `.github/workflows/checks.yml` tels quels : `/project-launch` les remplira une fois l'idée et la stack choisies.
 
 Il ne doit plus rester aucun « À REMPLIR » dans `AGENTS.md`. Montre en quelques lignes ce que tu as rempli.
 
@@ -68,6 +69,14 @@ Lance `scripts/claude-md.sh write`.
 
 ## 7. Conclure
 
-Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md` vaut `filled` ou `launch-pending`, `skills_setup=yes`, `claude_md=import-only`. Pour un projet neuf, `checks=to-fill` est normal à ce stade.
+Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pour vérifier : `agents_md` vaut `filled` ou `launch-pending`, `skills_setup=yes`, `claude_md=import-only`. Pour un projet neuf, `checks=to-fill` et `ci=to-fill` sont normaux à ce stade.
 
-Propose de commiter ces fichiers sur `main` **et de les pousser**, sans le faire sans accord : chaque ticket part du `main` de GitHub, il doit donc avoir ces fichiers. Indique l'étape suivante : `/project-launch` pour passer de l'idée aux tickets.
+Propose de commiter ces fichiers sur `main` **et de les pousser**, sans le faire sans accord : chaque ticket part du `main` de GitHub, il doit donc avoir ces fichiers.
+
+Une fois le push fait, si le projet est sur GitHub, lance `scripts/protect-main.sh` et lis sa première ligne :
+
+- `protection=on` ou `already` : GitHub refuse de merger une pull request tant que ses checks ne sont pas verts. Dis-le en une phrase.
+- `protection=unavailable` : GitHub ne protège pas un repo privé avec un compte gratuit. Explique-le simplement : les checks tournent quand même sur chaque pull request et `/build-ticket` les respecte, mais le bouton « Merge » de GitHub ne vérifie rien. Ne propose pas de rendre le repo public.
+- `protection=no-branch` : le push n'a pas été fait. Dis qu'il suffira de relancer `/project-init` après le premier push.
+
+Indique l'étape suivante : `/project-launch` pour passer de l'idée aux tickets.

@@ -26,13 +26,14 @@ Cette étape est finie quand il ne reste plus de question ouverte **et** que l'u
 
 ## 2. Fixer le cadre du projet
 
-Seulement s'il reste des « À DÉCIDER AVEC /project-launch » dans `AGENTS.md`, ou si `scripts/checks.sh` contient encore « À REMPLIR ».
+Seulement s'il reste des « À DÉCIDER AVEC /project-launch » dans `AGENTS.md`, ou si `scripts/checks.sh` ou `.github/workflows/checks.yml` contient encore « À REMPLIR ».
 
 1. **La stack**, si l'interrogatoire ne l'a pas déjà fixée. Choisis-la à partir de ce que l'utilisateur veut faire, pas l'inverse. Présente deux ou trois options, chacune avec ses forces et ses faiblesses en une ligne, en mots simples (coût, simplicité, hébergement, ce qu'elle permet plus tard). Puis donne ta recommandation et pourquoi. Attends la validation. Note le choix dans un ADR.
 2. **`AGENTS.md`** : remplace les « À DÉCIDER AVEC /project-launch ». Dans « Le projet », mets ce qu'il fait, pour qui, et sa stack. Dans « Règles », mets les conventions qui découlent de la stack, sans en inventer d'autres.
 3. **`scripts/checks.sh`** : remplace ses deux dernières lignes par les commandes de tests, lint, typecheck et build prévues pour cette stack, et retire le commentaire « À REMPLIR ». Elles n'existent peut-être pas encore : le premier ticket les mettra en place (étape 4).
+4. **`.github/workflows/checks.yml`**, s'il existe : à l'endroit indiqué, ajoute l'installation des outils dont `scripts/checks.sh` a besoin pour cette stack (le langage et sa version, le cache des dépendances), puis retire le commentaire « À REMPLIR ». Ne renomme pas le job `checks`. C'est ce fichier qui fait relancer les checks par GitHub sur chaque pull request.
 
-Montre en quelques lignes ce que tu as rempli. Puis demande : « Je commite et je pousse ces fichiers sur main ? » (`AGENTS.md`, `scripts/checks.sh`, `GLOSSARY.md`, les ADR). Attends un oui explicite. Chaque ticket part du `main` de GitHub : sans ce push, il ne verrait ni la stack, ni les checks, ni le glossaire.
+Montre en quelques lignes ce que tu as rempli. Puis demande : « Je commite et je pousse ces fichiers sur main ? » (`AGENTS.md`, `scripts/checks.sh`, `.github/workflows/checks.yml`, `GLOSSARY.md`, les ADR). Attends un oui explicite. Chaque ticket part du `main` de GitHub : sans ce push, il ne verrait ni la stack, ni les checks, ni le glossaire.
 
 ## 3. Écrire la spec
 
@@ -46,7 +47,7 @@ La spec n'est pas un ticket : elle ne doit pas porter l'étiquette `ready-for-ag
 Demande : « Je découpe la spec en tickets ? ». Attends un oui explicite.
 Lance ensuite le skill `to-tickets` sur la spec qui vient d'être publiée. Chaque ticket doit être une sous-issue de la spec.
 
-Pour un projet neuf, le premier ticket est le **socle** : il crée le projet avec sa stack et rend `scripts/checks.sh` vert. Tous les autres tickets en dépendent.
+Pour un projet neuf, le premier ticket est le **socle** : il crée le projet avec sa stack et rend `scripts/checks.sh` vert, chez l'agent comme sur GitHub. Tous les autres tickets en dépendent.
 
 ## 5. Conclure
 

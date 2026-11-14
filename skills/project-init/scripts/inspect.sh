@@ -54,8 +54,17 @@ else
   echo "checks=filled"
 fi
 
+# Le workflow qui relance les checks sur GitHub, à chaque pull request.
+if [ ! -f .github/workflows/checks.yml ]; then
+  echo "ci=absent"
+elif grep -q "À REMPLIR" .github/workflows/checks.yml; then
+  echo "ci=to-fill"
+else
+  echo "ci=filled"
+fi
+
 [ -f docs/agents/issue-tracker.md ] && echo "skills_setup=yes" || echo "skills_setup=no"
-if [ -n "$(git ls-files --cached --others --exclude-standard 2>/dev/null | grep -vE '^(AGENTS|CLAUDE|README)\.md$|^scripts/checks\.sh$|^docs/agents/|^\.gitignore$' | head -1)" ]; then
+if [ -n "$(git ls-files --cached --others --exclude-standard 2>/dev/null | grep -vE '^(AGENTS|CLAUDE|README)\.md$|^scripts/checks\.sh$|^\.github/workflows/checks\.yml$|^docs/agents/|^\.gitignore$' | head -1)" ]; then
   echo "code=yes"
 else
   echo "code=no"

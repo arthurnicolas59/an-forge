@@ -8,7 +8,7 @@ description: Construit un ticket ready-for-agent de bout en bout, sans s'arrête
 Le niveau feature du workflow an-forge : un ticket `ready-for-agent` entre, une pull request et un brief d'une page sortent.
 
 ```
-Isoler → Avant → Construire → Tester → Relire → Après → Brief → PR
+Isoler → Avant → Construire → Tester → Relire → Après → Brief → PR → Checks GitHub
 ```
 
 Tout se fait **sans s'arrêter ni poser de question** : l'utilisateur n'intervient qu'à la fin, en lisant le brief puis en décidant de merger. Lance ce skill dans une session neuve, un ticket par session. Par défaut, un ticket à la fois : on construit le suivant une fois le précédent mergé. Le parallèle est possible (une session par ticket, chacune réserve un ticket différent), mais deux tickets corrects séparément peuvent se contredire, et des ressources comme une base de données de développement restent partagées.
@@ -75,7 +75,7 @@ Suis le skill `tdd`, en respectant l'architecture existante et les règles d'`AG
 
 ## 6. Tester
 
-Lance `scripts/gate.sh <base>` depuis le worktree. Il refuse une branche qui modifie `scripts/checks.sh`, puis lance les checks du projet.
+Lance `scripts/gate.sh <base>` depuis le worktree. Il refuse une branche qui modifie `scripts/checks.sh` ou `.github/workflows/checks.yml`, puis lance les checks du projet.
 
 - `GATE: PASS` : continue.
 - `GATE: FAIL` : corrige la cause, commit, relance. Si le même échec revient **trois fois**, arrête-toi : pas de PR. Résume l'échec, ce que tu as essayé, et laisse le worktree en place.
@@ -115,6 +115,13 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 - les interfaces testées (étape 5) ;
 - ce que la relecture a laissé ouvert, s'il reste quelque chose.
 
+**Attends ensuite le verdict de GitHub**, qui relance les checks de son côté, sur une machine neutre : `scripts/pr-checks.sh <numéro de la PR> --wait`. La commande peut durer plusieurs minutes : donne-lui un délai long.
+
+- `checks=ok` : continue.
+- `checks=pending` : les checks tournent encore. Relance la même commande.
+- `checks=fail` : le gate a passé chez toi mais pas chez GitHub. Lis l'erreur (la commande est affichée), corrige la cause, commit, relance `scripts/gate.sh <base>`, pousse, puis attends de nouveau. La cause est souvent une différence entre ta machine et celle de GitHub : un outil non installé, un fichier non commité, une variable d'environnement. Si le même échec revient **trois fois**, arrête-toi : laisse la PR ouverte et dis dans ta conclusion que GitHub la refuse, et pourquoi.
+- `checks=none` : ce projet n'a pas de `.github/workflows/checks.yml`. Continue, et dis dans ta conclusion que GitHub ne revérifie rien tant que `/project-init` n'a pas été relancé.
+
 **Ne merge pas de toi-même**, même si tout est vert. Si les tickets sont des fichiers locaux, arrête-toi après le commit du brief.
 
 ## 10. Conclure
@@ -132,12 +139,14 @@ Seulement quand l'utilisateur le demande, dans cette session ou une autre : lanc
 - Code 0 : c'est mergé. Dis-le en une ligne.
 - Code 4, pas à jour : un autre ticket a été mergé entre-temps. Refais l'étape 9 (rebase, gate, push), puis relance `scripts/merge-pr.sh`.
 - Code 5, gate à relancer : lance `scripts/gate.sh <base>` dans le worktree, corrige s'il échoue, pousse, puis relance `scripts/merge-pr.sh`.
+- Code 6, checks GitHub en échec : corrige comme à l'étape 9, puis relance `scripts/merge-pr.sh`.
+- Code 7, checks GitHub en cours : attends avec `scripts/pr-checks.sh <numéro de la PR> --wait`, puis relance `scripts/merge-pr.sh`.
 
-Si l'utilisateur merge lui-même avec le bouton vert « Merge pull request » de GitHub, rien n'est vérifié : c'est sans risque quand un seul ticket est en cours, pas quand plusieurs avancent en parallèle.
+Si l'utilisateur merge lui-même avec le bouton vert « Merge pull request » de GitHub : quand `main` est protégée, GitHub refuse tant que ses checks ne sont pas verts, sauf si le propriétaire confirme qu'il passe outre. Quand elle ne l'est pas (repo privé avec un compte gratuit), rien n'est vérifié.
 
 ## Règles
 
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
-- Ne modifie jamais `scripts/checks.sh` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
+- Ne modifie jamais `scripts/checks.sh`, `.github/workflows/checks.yml` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
 - Si tu t'arrêtes avant la PR, dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre : relancer `/build-ticket <n>` réutilise le worktree.
