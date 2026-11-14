@@ -4,7 +4,7 @@
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation) · [Les 5 étapes](#les-5-étapes) · [La vie d'un ticket](#la-vie-dun-ticket) · [Sous le capot](#sous-le-capot) · [Avancement](#avancement)
+[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [Les 5 étapes](#les-5-étapes) · [La vie d'un ticket](#la-vie-dun-ticket) · [Sous le capot](#sous-le-capot) · [Avancement](#avancement)
 
 ---
 
@@ -84,58 +84,6 @@ flowchart LR
 | **Brief** | La page de synthèse que tu lis avant de merger | Le compte rendu du chef d'équipe |
 | **Skill** | Une fiche d'instructions qui apprend à l'agent une façon de travailler | Une fiche de procédure de l'atelier |
 | **Plugin** | Le paquet qui installe tous les skills d'an-forge d'un coup | La caisse à outils livrée complète |
-
-## Un exemple de bout en bout
-
-Tu as une app de recettes, et tu voudrais pouvoir **imprimer une recette**. C'est une petite demande : un seul comportement, on passe donc par le chemin court, `/quick-ticket`. Pour une grosse évolution, ce serait `/project-launch`, qui commence par une spec.
-
-```mermaid
-sequenceDiagram
-    actor T as Toi
-    participant A as Agent
-    participant S as Scripts
-    participant G as GitHub
-
-    rect rgba(245,158,11,0.12)
-    Note over T,G: Session 1 : écrire le ticket
-    T->>A: /quick-ticket « Je veux imprimer une recette »
-    A->>A: lit le code de l'app
-    A->>T: 3 questions au plus (avec la photo ?)
-    T->>A: tes réponses
-    A->>T: le ticket : « Je le publie ? »
-    T->>A: oui
-    A->>G: ticket n°12, étiquette ready-for-agent
-    end
-
-    Note over T,G: Session 2 : construire, sans aucune question
-    T->>A: /build-ticket 12
-    A->>G: réserve le ticket
-    A->>A: branche à part, capture « avant »
-    A->>A: écrit le test, puis le code
-    A->>S: lance les checks
-    S-->>A: échec : à corriger
-    A->>S: relance les checks
-    S-->>A: tout passe
-    A->>A: 2 agents neufs relisent le travail
-    A->>A: capture « après », écrit le brief
-    A->>G: ouvre la pull request
-    G-->>A: checks relancés chez GitHub : verts
-
-    rect rgba(245,158,11,0.12)
-    Note over T,G: Ta décision
-    A->>T: le brief s'ouvre dans ton navigateur
-    T->>A: « merge la PR »
-    A->>S: merge-pr.sh
-    S->>G: vérifie tout, puis merge et fait le ménage
-    end
-```
-
-Ce qu'il faut retenir :
-
-- **Deux sessions, deux rôles.** La première prépare le travail avec toi, la seconde l'exécute seule. Une session neuve par ticket : l'agent démarre l'esprit clair, sans les détours de la conversation précédente.
-- **Les échecs sont normaux.** Des checks qui échouent, puis l'agent qui corrige, c'est la chaîne qui fait son travail. Ce que tu reçois a déjà passé tous les contrôles.
-- **Si le brief ne te plaît pas**, tu ne dis pas « merge » mais ce qui ne va pas (« le bouton est trop petit »). L'agent corrige, refait les contrôles et te donne un brief à jour.
-- **Si l'agent bloque** (le ticket est trop flou, ou une erreur revient trois fois), il ne devine pas : il écrit sa question ou son problème sur le ticket, sur GitHub, et s'arrête.
 
 🗺️ Pour tout voir d'un coup : [la carte interactive d'an-forge](docs/skill-map/index.html). Un double-clic sur un skill ouvre son détail, jusqu'aux scripts.
 
