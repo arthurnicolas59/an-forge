@@ -11,6 +11,13 @@
     --low: #2e7d4f; --medium: #b06f00; --high: #b3261e;
     --added: #2e7d4f; --modified: #0d2240; --deleted: #b3261e; --renamed: #6a717a;
   }
+  /* Zoom : un clic sur une capture ou un schéma l'ouvre en grand */
+  figure img, pre.mermaid svg { cursor: zoom-in; }
+  .zoom { font-size: 11px; position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 3vh 3vw; background: rgba(13, 34, 64, 0.88); cursor: zoom-out; }
+  .zoom[hidden] { display: none; }
+  .zoom > * { max-width: 100%; max-height: 100%; background: #fff; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35); }
+  .zoom > svg { width: 100%; height: auto; padding: 24px; }
+  @media print { .zoom { display: none; } }
   @page { size: A4; margin: 18mm 17mm 16mm; }
   * { box-sizing: border-box; }
   body {
@@ -65,7 +72,7 @@
   figure img { display: block; width: 100%; max-height: 230px; object-fit: contain; object-position: top left; border: 1px solid var(--rule); background: #fafbfc; }
   pre.mermaid { margin: 0; padding: 10px; border: 1px solid var(--rule); background: #fafbfc; font-size: 11px; white-space: pre-wrap; overflow: hidden; }
   pre.mermaid svg { max-width: 100%; height: auto; max-height: 120px; }
-  pre.mermaid .label { text-transform: none; letter-spacing: 0; font-size: inherit; font-weight: normal; color: inherit; }
+  pre.mermaid .label, .zoom .label { text-transform: none; letter-spacing: 0; font-size: inherit; font-weight: normal; color: inherit; }
   .pair-images.schemas { grid-template-columns: 1fr; gap: 10px; }
   figcaption { font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   .text-box { border-top: 2px solid var(--rule); padding-top: 8px; }
@@ -136,6 +143,24 @@
 {{ANNEXE}}
   <footer><span>Branche {{BRANCHE}}</span><span>an-forge</span></footer>
 </main>
+<div class="zoom" hidden></div>
+<script>
+  // Zoom des captures et des schémas : un clic ouvre, un clic ou Échap ferme.
+  (() => {
+    const zoom = document.querySelector(".zoom");
+    const close = () => { zoom.hidden = true; zoom.replaceChildren(); };
+    document.addEventListener("click", (e) => {
+      if (!zoom.hidden) return close();
+      const target = e.target.closest("figure img, pre.mermaid svg");
+      if (!target) return;
+      const copy = target.cloneNode(true);
+      copy.removeAttribute("style");
+      zoom.replaceChildren(copy);
+      zoom.hidden = false;
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  })();
+</script>
 {{SCRIPTS}}
 </body>
 </html>
