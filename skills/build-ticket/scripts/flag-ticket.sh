@@ -58,7 +58,8 @@ echo "Ticket #$N : étiquette needs-info posée, question écrite en commentaire
 COMMON=$(git rev-parse --path-format=absolute --git-common-dir) || exit 0
 ROOT=$(dirname "$COMMON")
 cd "$ROOT"
-WT="$ROOT/.worktrees/ticket-$N"
+WT="$(dirname "$ROOT")/$(basename "$ROOT").worktrees/ticket-$N"
+[ -d "$ROOT/.worktrees/ticket-$N" ] && WT="$ROOT/.worktrees/ticket-$N"
 BASE=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || echo main)
 for branch in $(git for-each-ref --format='%(refname:short)' "refs/heads/ticket/$N-*"); do
   if [ -d "$WT" ] && [ -n "$(git -C "$WT" status --porcelain)" ]; then

@@ -202,7 +202,7 @@ Une flèche veut dire « doit être fini avant ». La spec ne se construit pas :
 **Ce que l'agent fait** :
 
 1. **Le ménage** : il range les tickets déjà mergés (script `cleanup.sh`).
-2. **Il réserve le ticket** et crée sa **branche**, `ticket/12-…`, à partir de la dernière version de `main`. Il travaille dans un dossier à part, le *worktree*, rangé dans `.worktrees/`.
+2. **Il réserve le ticket** et crée sa **branche**, `ticket/12-…`, à partir de la dernière version de `main`. Il travaille dans un dossier à part, le *worktree*, rangé à côté du projet (`<projet>.worktrees/`).
 3. **Il capture « l'avant »** : des captures d'écran si le changement se voit, ou la reproduction exacte du bug.
 4. **Il construit en TDD** (skill `tdd`) : d'abord un test qui échoue, puis le code qui le fait passer, une petite tranche à la fois, avec une sauvegarde (un *commit*) après chaque tranche.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Isole un ticket : une branche ticket/<n>-<titre> et un worktree .worktrees/ticket-<n>,
-# créés depuis le dernier main. Si le worktree du ticket existe déjà, le réutilise.
+# Isole un ticket : une branche ticket/<n>-<titre> et un worktree <projet>.worktrees/ticket-<n>,
+# rangé à côté du projet, créés depuis le dernier main. Si le worktree du ticket existe déjà, le réutilise.
 #
 # Usage : start-ticket.sh [--new] <numéro> <titre-court>
 #   --new  réserve un ticket neuf : échoue (code 3) si une autre session l'a déjà pris,
@@ -43,13 +43,12 @@ COMMON=$(git rev-parse --path-format=absolute --git-common-dir)
 ROOT=$(dirname "$COMMON")
 cd "$ROOT"
 
-WT="$ROOT/.worktrees/ticket-$NUM"
+# Le worktree est rangé à côté du projet, pas dedans : rangé dedans, les outils (Node, TypeScript,
+# ESLint…) remontent les dossiers et tombent sur la configuration du projet principal, sans ses
+# dépendances. Un worktree créé à l'ancien endroit (.worktrees/ dans le projet) reste reconnu.
+WT="$(dirname "$ROOT")/$(basename "$ROOT").worktrees/ticket-$NUM"
+[ -d "$ROOT/.worktrees/ticket-$NUM" ] && WT="$ROOT/.worktrees/ticket-$NUM"
 BRANCH="ticket/$NUM-$SLUG"
-
-# Le dossier .worktrees ne doit jamais être commité : on l'exclut localement, sans toucher .gitignore.
-EXCLUDE="$COMMON/info/exclude"
-mkdir -p "$(dirname "$EXCLUDE")"
-grep -qxF '/.worktrees/' "$EXCLUDE" 2>/dev/null || echo '/.worktrees/' >> "$EXCLUDE"
 
 # Branche de base : main d'origin si possible, à jour.
 if git remote get-url origin >/dev/null 2>&1; then

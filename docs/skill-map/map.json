@@ -329,9 +329,9 @@
       "id": "start-ticket-sh",
       "label": "start-ticket.sh",
       "kind": "script",
-      "what": "Crée la **branche** `ticket/<n>-…` et le **worktree** `.worktrees/ticket-<n>` depuis le dernier `main`.",
+      "what": "Crée la **branche** `ticket/<n>-…` et le **worktree** `<projet>.worktrees/ticket-<n>` depuis le dernier `main`.",
       "when": "Étape 1 de `/build-ticket`.",
-      "how": "Met à jour `main` depuis GitHub, puis crée la branche `ticket/<n>-<titre>` à partir de là. Crée le dossier de travail `.worktrees/ticket-<n>` sur cette branche, et l'exclut de git. Si la branche existe déjà, ici ou sur GitHub, une autre session a le ticket : il s'arrête. Si le worktree du ticket existe déjà, le réutilise pour reprendre le travail.",
+      "how": "Met à jour `main` depuis GitHub, puis crée la branche `ticket/<n>-<titre>` à partir de là. Crée le dossier de travail `<projet>.worktrees/ticket-<n>`, à côté du projet, sur cette branche. Si la branche existe déjà, ici ou sur GitHub, une autre session a le ticket : il s'arrête. Si le worktree du ticket existe déjà, le réutilise pour reprendre le travail.",
       "source": "skills/build-ticket/scripts/start-ticket.sh"
     },
     {
