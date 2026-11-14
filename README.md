@@ -4,7 +4,7 @@
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation)
+[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation) · [Les 5 étapes](#les-5-étapes) · [La vie d'un ticket](#la-vie-dun-ticket)
 
 ---
 
@@ -143,103 +143,259 @@ Ce qu'il faut retenir :
 
 ---
 
-> [!NOTE]
-> La suite du README n'est pas encore réécrite.
-
 ## Installation
 
-Une seule fois par machine, selon ton agent. an-forge contient tout ce dont il a besoin.
+an-forge est un **plugin** : une caisse à outils qu'on installe une fois sur sa machine, et qui sert ensuite dans tous ses projets. Une seule commande suffit, selon l'outil que tu utilises :
 
 ```bash
-# Claude Code (mises à jour automatiques)
+# Claude Code (les mises à jour arrivent toutes seules)
 claude plugin marketplace add arthurnicolas59/an-forge
 claude plugin install an-forge@an-forge
 
-# Autres agents (copie les skills dans le projet)
+# Autres agents : Codex, Cursor, Copilot, Gemini… (copie les skills dans le projet)
 npx skills@latest add arthurnicolas59/an-forge
 ```
 
 > [!NOTE]
-> N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en double.
+> N'installe pas en plus le plugin de Matt Pocock : an-forge contient déjà ses skills, et chacun apparaîtrait en double.
 
-Si le plugin ne se met pas à jour seul : `claude plugin marketplace update an-forge`, puis `claude plugin update an-forge@an-forge`.
+Si le plugin ne se met pas à jour tout seul : `claude plugin marketplace update an-forge`, puis `claude plugin update an-forge@an-forge`.
 
-Les captures et le PDF du brief utilisent Playwright : il faut Node.js 20 ou plus. La première fois, Playwright télécharge Chromium (environ 150 Mo).
+Les captures d'écran et le PDF du brief utilisent **Playwright**, un outil qui pilote un navigateur invisible. Il demande Node.js 20 ou plus. La première fois, il télécharge son navigateur, Chromium (environ 150 Mo).
+
+## Les 5 étapes
+
+Chaque étape est décrite de la même façon : **ce que tu fais**, **ce que l'agent fait**, **ce que tu obtiens**, et surtout **pourquoi** c'est fait comme ça.
+
+```mermaid
+flowchart LR
+    e1["1. Initier<br/>une fois par projet"] --> e2["2. Cadrer<br/>une fois par idée"]
+    e2 --> e3["3. Construire"]
+    e3 --> e4["4. Vérifier"]
+    e4 --> e5["5. Livrer"]
+    e5 -.->|"ticket suivant"| e3
+
+    subgraph bt["Un seul ordre : /build-ticket"]
+        e3
+        e4
+        e5
+    end
+```
+
+Les étapes 3, 4 et 5 s'enchaînent toutes seules : une seule commande, `/build-ticket`, les fait toutes. On les sépare ici pour bien comprendre ce qui se passe.
 
 ## 1. Initier le projet
 
-Une seule fois par projet, neuf ou existant : **`/project-init`**.
+**Ce que tu fais** : une seule fois par projet, neuf ou existant, tu tapes `/project-init`. Tu réponds à une seule question : « Êtes-vous développeur ? ».
 
-- Inspecte le projet (git, GitHub, fichiers existants).
-- Pose `AGENTS.md`, `scripts/checks.sh` et `.github/workflows/checks.yml`, sans jamais écraser un fichier existant.
-- Te demande seulement si tu es développeur. Sur un projet existant, il déduit les règles et les checks du code ; sur un projet neuf, c'est `/project-launch` qui les fixe.
-- Lance `setup-matt-pocock-skills` (outil de tickets, emplacement des docs), crée les étiquettes GitHub (`ready-for-agent`…), puis crée `CLAUDE.md` avec `@AGENTS.md`.
-- Après le premier push, protège `main`.
+**Ce que l'agent fait** : il regarde ce que contient déjà le projet, puis il y installe le nécessaire, sans jamais écraser un fichier existant.
 
-`CLAUDE.md` est créé en dernier exprès : le setup écrit sa configuration dans `CLAUDE.md` s'il existe, sinon dans `AGENTS.md`. Toute la configuration reste ainsi dans `AGENTS.md`, lisible par tous les outils.
+```mermaid
+flowchart LR
+    init(["Tu tapes /project-init"]) --> a["AGENTS.md<br/>le règlement de l'atelier"]
+    init --> c["checks.sh<br/>la liste des contrôles"]
+    init --> w["checks.yml<br/>GitHub refait les contrôles"]
+    init --> e["Étiquettes GitHub<br/>ready-for-agent, needs-info…"]
+    init --> m["CLAUDE.md<br/>renvoie vers AGENTS.md"]
+    init --> p["main protégée<br/>quand GitHub le permet"]
+```
+
+**Ce que tu obtiens** : un projet prêt à recevoir des tickets.
+
+**Pourquoi.**
+- **Ta réponse à la question change tout le reste.** Si tu n'es pas développeur, c'est écrit dans `AGENTS.md`, et tous les agents le liront : aucune question technique brute ne te sera posée. Tu recevras une recommandation expliquée simplement, que tu n'auras qu'à valider.
+- **Un seul règlement, `AGENTS.md`, pour tous les outils.** Claude Code, Codex ou Cursor le lisent tous. `CLAUDE.md` ne fait que renvoyer vers lui, pour que les règles ne soient jamais écrites en double.
+- **Sur un projet existant**, l'agent déduit du code les règles et les contrôles à lancer. **Sur un projet neuf**, il n'y a encore rien à déduire : ce sera fait à l'étape 2, une fois la stack choisie (la *stack*, c'est l'ensemble des technologies du projet : langage, base de données, hébergement).
 
 ## 2. Cadrer le projet
 
-| Demande | Commande | Résultat |
-|---------|----------|----------|
-| Un projet, une grosse évolution | `/project-launch` | une spec et des tickets `ready-for-agent` |
-| Un bug, une retouche, un petit ajout | `/quick-ticket` | un seul ticket `ready-for-agent` |
+**Ce que tu fais** : tu racontes ce que tu veux. Selon la taille de la demande, tu prends l'un des deux chemins.
 
-`/project-launch` enchaîne, dans une seule conversation :
+```mermaid
+flowchart LR
+    demande(["Ta demande"]) --> petite{"Petite ou grosse ?"}
+    petite -->|"petite : un bug,<br/>une retouche"| qt["Tu tapes /quick-ticket<br/>3 questions au plus"]
+    qt --> okt{{"« Je publie<br/>ce ticket ? »"}}
+    okt --> un(["1 ticket"])
+    qt -.->|"trop gros<br/>pour un ticket"| grill
+    petite -->|"grosse : un projet,<br/>une évolution"| pl["Tu tapes /project-launch"]
+    pl --> grill["Interrogatoire<br/>jusqu'à ce que tout soit clair"]
+    grill --> stack{{"Tu valides la stack<br/>(projet neuf)"}}
+    stack --> spec{{"« Je publie<br/>la spec ? »"}}
+    spec --> dec{{"« Je découpe<br/>en tickets ? »"}}
+    dec --> plusieurs(["Plusieurs tickets"])
 
-1. `grill-with-docs` : un interrogatoire serré, qui tient à jour `GLOSSARY.md` et les ADR.
-2. Le cadre : pour un projet neuf, le choix de la stack (deux ou trois options, une recommandation à valider), puis `AGENTS.md`, `checks.sh` et le workflow GitHub remplis et poussés.
-3. `to-spec` : la conversation devient une spec, publiée en issue. Elle ne se construit pas et se ferme avec son dernier ticket.
-4. `to-tickets` : la spec est découpée en tranches complètes, chacune dans une session, avec leurs dépendances. Pour un projet neuf, le premier ticket est le socle.
+    classDef toi fill:#f59e0b,stroke:#b45309,color:#000
+    class okt,stack,spec,dec toi
+```
 
-Il s'arrête pour ton accord avant de pousser le cadre, de publier la spec, puis de créer les tickets. Si tu n'es pas développeur, aucune question technique ne t'est posée brute : tu reçois une recommandation expliquée simplement.
+**Ce que l'agent fait**, sur le chemin long (`/project-launch`), dans une seule conversation :
 
-`/quick-ticket` pose trois questions au plus. Si la demande est trop grosse pour un ticket, il te renvoie vers `/project-launch`.
+1. **Il t'interroge** (skill `grill-with-docs`) jusqu'à ce qu'il ne reste plus de question ouverte. Au passage, il tient à jour deux documents : `GLOSSARY.md`, le lexique de ton projet, et les **ADR**, des fiches courtes qui notent chaque décision importante et sa raison.
+2. **Il fixe le cadre** si le projet est neuf : il te propose deux ou trois stacks, avec leurs forces et leurs faiblesses, et une recommandation. Une fois ton choix fait, il remplit `AGENTS.md` et la liste des contrôles.
+3. **Il écrit la spec** (skill `to-spec`) et la publie sur GitHub.
+4. **Il la découpe en tickets** (skill `to-tickets`), en notant lesquels doivent attendre les autres.
+
+**Ce que tu obtiens** : une spec et des tickets étiquetés `ready-for-agent`, c'est-à-dire « prêts pour un agent ». Par exemple :
+
+```mermaid
+flowchart LR
+    s["Spec n°1<br/>le document de référence"] -.- t2 & t3 & t4
+    t2["Ticket n°2<br/>Socle"] --> t3["Ticket n°3<br/>Profil de goûts"]
+    t3 --> t4["Ticket n°4<br/>Idées du soir"]
+    t2 --> t4
+```
+
+Une flèche veut dire « doit être fini avant ». La spec ne se construit pas : elle se ferme toute seule quand son dernier ticket est mergé.
+
+**Pourquoi.**
+- **Un interrogatoire serré avant tout.** Une ambiguïté coûte une question maintenant, ou un ticket entier à refaire plus tard.
+- **Des tickets petits et complets.** Chaque ticket livre un comportement entier (de l'écran jusqu'aux données), assez petit pour tenir dans une session. On peut ainsi le vérifier seul, et une erreur ne touche qu'un ticket.
+- **Pour un projet neuf, le premier ticket est le « socle »** : il crée le squelette du projet et fait passer les contrôles au vert. Tous les autres tickets en dépendent.
+- **Tout le cadrage se fait dans une seule conversation**, parce que la spec et les tickets s'appuient sur tout ce que l'interrogatoire a établi.
 
 ## 3. Construire le ticket
 
-**`/build-ticket <n>`** construit un ticket `ready-for-agent` dans une session neuve, un ticket par session. Sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. Il ne pose aucune question et enchaîne les étapes 3, 4 et 5, sans s'arrêter, jusqu'à la pull request.
+**Ce que tu fais** : tu ouvres une **session neuve** et tu tapes `/build-ticket 12`, ou `/build-ticket` tout court pour prendre le premier ticket libre. Ensuite, tu n'as plus rien à faire jusqu'au brief.
 
-Pour construire :
+**Ce que l'agent fait** :
 
-1. **Ménage** : `cleanup.sh` supprime les tickets déjà mergés et ferme les specs terminées.
-2. **Isoler** : `start-ticket.sh` crée la branche `ticket/<n>-…` et un worktree dans `.worktrees/`, depuis le dernier `main`.
-3. **Coder** : `tdd`, test d'abord, une tranche à la fois. Pour un bug, `diagnosing-bugs` le reproduit avant de le corriger.
+1. **Le ménage** : il range les tickets déjà mergés (script `cleanup.sh`).
+2. **Il réserve le ticket** et crée sa **branche**, `ticket/12-…`, à partir de la dernière version de `main`. Il travaille dans un dossier à part, le *worktree*, rangé dans `.worktrees/`.
+3. **Il capture « l'avant »** : des captures d'écran si le changement se voit, ou la reproduction exacte du bug.
+4. **Il construit en TDD** (skill `tdd`) : d'abord un test qui échoue, puis le code qui le fait passer, une petite tranche à la fois, avec une sauvegarde (un *commit*) après chaque tranche.
 
-**Le choix du modèle.** Chaque ticket a une taille (`taille:petit`, `taille:moyen`, `taille:gros`), posée par `/quick-ticket` et `/to-tickets` ; sans étiquette, un agent Haiku la décide. `scripts/pick-model.sh` en tire le modèle de l'agent qui construit.
+```mermaid
+gitGraph
+    commit id: "main"
+    branch ticket-12
+    checkout ticket-12
+    commit id: "test 1"
+    commit id: "code 1"
+    commit id: "test 2"
+    commit id: "code 2"
+    commit id: "brief"
+    checkout main
+    merge ticket-12 id: "merge"
+```
 
-| Commande | Taille | Modèle de construction |
-|----------|--------|------------------------|
-| `/build-ticket` | petit | Sonnet |
-| `/build-ticket` | moyen, gros | Opus |
-| `/build-ticket --eco` | toutes | Sonnet |
-| `/build-ticket --max` | toutes | Opus |
+*La branche part de `main`, accumule ses sauvegardes à part, et n'y revient qu'au merge, après ta décision.*
 
-Les relectures restent toujours sur le plus capable. Pour un projet déjà préparé, relance `create-labels.sh` du skill `project-init` pour créer les trois étiquettes. Les tests : `bash tests/test-pick-model.sh`.
+**Ce que tu obtiens** : rien de visible pour l'instant. Le travail continue tout seul vers l'étape 4.
 
-**Quand ça coince, ça se voit sur GitHub.**
-- Un ticket impossible à construire sans deviner : l'agent écrit sa question sur le ticket, avec l'étiquette `needs-info`, et passe au suivant.
-- Une construction qui s'arrête en route (checks en échec trois fois, par exemple) : commentaire sur le ticket, avec l'étiquette `ready-for-human`.
+**Pourquoi.**
+- **Une session neuve par ticket** : l'agent démarre l'esprit clair, sans les détours d'une conversation précédente.
+- **Une branche et un dossier à part** : tant que tu n'as pas dit « merge », la version officielle n'est jamais touchée. Si le ticket tourne mal, on jette la photocopie, l'original est intact.
+- **Le test d'abord** oblige l'agent à dire ce qu'il compte faire *avant* de le faire. Un test qui passe, c'est une preuve, pas une promesse.
+- **La réservation** : créer la branche, c'est réserver le ticket. Deux sessions lancées en même temps ne peuvent pas prendre le même.
 
-**Un ticket à la fois par défaut.** Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de développement reste partagée. Choisir quels tickets avancent ensemble serait le rôle d'un futur orchestrateur `/factory`, qui n'existe pas encore.
+**Le choix du modèle.** Il existe plusieurs tailles de modèles d'IA : **Haiku** (rapide et économique), **Sonnet** (le milieu) et **Opus** (le plus capable, et le plus cher). Chaque ticket a une taille (`taille:petit`, `taille:moyen` ou `taille:gros`) et le script `pick-model.sh` en déduit qui construit :
+
+| Commande | Taille du ticket | Qui construit | Qui relit |
+|----------|------------------|---------------|-----------|
+| `/build-ticket` | petit | Sonnet | Opus |
+| `/build-ticket` | moyen, gros | Opus | Opus |
+| `/build-ticket --eco` | toutes | Sonnet | Opus |
+| `/build-ticket --max` | toutes | Opus | Opus |
+
+On n'envoie pas l'ingénieur en chef changer une ampoule. Mais l'inspecteur, lui, est toujours le meilleur : la relecture ne descend jamais sous Opus. Si un ticket n'a pas de taille, un petit agent Haiku la décide.
+
+**Un ticket à la fois**, par défaut. On peut en construire plusieurs en parallèle, avec une session par ticket, mais deux changements justes séparément peuvent se contredire une fois réunis. Choisir quels tickets avancent ensemble sera le rôle d'un futur chef d'orchestre, `/factory`, qui n'existe pas encore.
 
 ## 4. Vérifier le ticket
 
-Rien n'avance tant que la vérification échoue.
+**Ce que tu fais** : rien. Rien n'avance tant qu'une vérification échoue.
 
-1. **Tester** : `gate.sh` lance `scripts/checks.sh`. Une branche qui modifie les checks est refusée.
-2. **Relire** : des agents neufs, qui ne voient que le diff, le ticket et les règles du projet. `code-review` vérifie les règles et la fidélité au ticket ; `risk-review` cherche les bugs, les failles de sécurité et les risques pour les données, et donne le niveau de risque. Deux tours au maximum.
-3. **Recontrôler chez GitHub** : à l'ouverture de la PR, GitHub relance les checks sur une machine neutre, et l'agent corrige s'ils échouent.
+**Ce que l'agent fait** : il fait passer son travail par trois contrôles successifs. À chaque refus, il corrige et repasse le contrôle.
+
+```mermaid
+flowchart LR
+    code(["Code prêt"]) --> gate{"1. Les checks<br/>chez l'agent"}
+    gate -->|"échec"| c1["Corrige"] --> gate
+    gate -->|"OK"| relire{"2. Deux relecteurs neufs"}
+    relire -->|"à corriger"| c2["Corrige"] --> gate
+    relire -->|"OK, ou 2 tours faits"| pr["Brief et PR"]
+    pr --> gh{"3. Les checks<br/>chez GitHub"}
+    gh -->|"échec"| c3["Corrige"] --> gate
+    gh -->|"vert"| fin(["Prêt pour toi"])
+    c1 -.->|"3 échecs de suite"| stop(["Arrêt, noté<br/>sur le ticket"])
+```
+
+1. **Les checks chez l'agent** : le script `gate.sh` lance tous les contrôles du projet (`scripts/checks.sh`). Il refuse d'office une branche qui modifie la liste des contrôles.
+2. **Deux relecteurs neufs**, deux agents qui ne voient que le changement, le ticket et les règles du projet :
+   - `code-review` : le code respecte-t-il les règles du projet, et fait-il ce que le ticket demande ?
+   - `risk-review` : qu'est-ce qui pourrait mal tourner (bugs, failles de sécurité, données perdues) ? Il donne un **niveau de risque**.
+   Deux tours au plus : ce qui reste ensuite est écrit dans le brief.
+3. **Les checks chez GitHub** : à l'ouverture de la pull request, GitHub relance les mêmes contrôles sur une machine neutre.
+
+**Ce que tu obtiens** : un travail qui a passé les trois contrôles, ou un arrêt expliqué.
+
+**Pourquoi.**
+- **Des relecteurs neufs**, parce qu'on ne relit bien que ce qu'on n'a pas écrit. Ils ne voient pas le raisonnement du constructeur, donc ils ne peuvent pas être convaincus par lui : ils jugent seulement le résultat.
+- **Les checks deux fois**, comme un contrôle technique fait par un garage indépendant plutôt que par le vendeur. Ça passe chez l'agent mais pas chez GitHub ? C'est souvent un oubli : un fichier pas sauvegardé, un outil installé seulement sur la machine de l'agent.
+- **Interdit de toucher aux contrôles.** Sinon, le plus simple pour « réussir » serait de retirer le test qui échoue.
 
 ## 5. Livrer le ticket
 
-1. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués, comment l'essayer), puis une annexe avec les critères du ticket, chacun avec sa preuve, et les fichiers touchés.
-2. **Ouvrir la PR** : une pull request avec `Closes #<n>` et le lien du brief.
-3. **Merger** : tu lis le brief, puis tu dis « merge la PR ». `merge-pr.sh` ne merge que si la PR contient le dernier `main`, que les checks ont passé sur exactement cette version, et que ceux de GitHub sont verts.
+**Ce que tu fais** : tu lis le brief, qui s'ouvre tout seul dans ton navigateur. Puis tu réponds de l'une de deux façons :
+- **« merge la PR »** si le résultat te convient ;
+- **ce qui ne va pas** (« le bouton est trop petit »). L'agent corrige alors, refait tous les contrôles et te redonne un brief à jour. Si ta demande sort du ticket, il te propose d'en faire un nouveau, avec `/quick-ticket`.
 
-**Après le brief**, deux réponses possibles : « merge la PR », ou dire ce qui ne convient pas. L'agent corrige alors, relance checks et relectures, et redonne un brief à jour. Une demande qui sort du ticket devient un nouveau ticket (`/quick-ticket`).
+**Ce que l'agent fait** : avant ta décision, il prépare le brief (skills `before-after` et `feature-brief`) et ouvre la pull request. Après ton « merge », il ne merge pas les yeux fermés : le script `merge-pr.sh` vérifie d'abord trois choses.
 
-L'état d'un ticket vit sur GitHub (étiquettes, commentaires, sous-issues), pas dans des fichiers locaux.
+```mermaid
+flowchart LR
+    toi{{"Tu dis<br/>« merge la PR »"}} --> q1{"La PR contient-elle<br/>le dernier main ?"}
+    q1 -->|"non"| maj["L'agent la met à jour"] --> q1
+    q1 -->|"oui"| q2{"Checks passés sur<br/>exactement cette version ?"}
+    q2 -->|"non"| rel["L'agent les relance"] --> q2
+    q2 -->|"oui"| q3{"Checks GitHub<br/>verts ?"}
+    q3 -->|"non"| cor["L'agent corrige"] --> q1
+    q3 -->|"oui"| merge(["Merge,<br/>puis ménage"])
+
+    classDef toi fill:#f59e0b,stroke:#b45309,color:#000
+    class toi toi
+```
+
+**Ce que tu obtiens** : le brief, rangé dans `docs/briefs/`, c'est-à-dire :
+- **une page de synthèse** : la décision à prendre, l'objectif, les captures avant/après, la fiabilité, les choix faits en route et comment l'essayer toi-même ;
+- **une annexe** : chaque critère du ticket avec sa preuve, et la liste des fichiers touchés.
+
+**Pourquoi.**
+- **L'agent ne merge jamais de lui-même**, même si tout est vert : la dernière décision est toujours la tienne.
+- **Le brief contient trois informations que l'agent qui a codé ne peut pas embellir** : le niveau de risque (donné par le relecteur indépendant), le résultat des checks et la liste des tests existants supprimés ou modifiés (calculés par des scripts).
+- **Les trois vérifications avant le merge**, parce qu'un autre ticket a pu être mergé pendant ce temps. Deux changements justes séparément peuvent se contredire : on revérifie donc sur la version réunie.
+
+## La vie d'un ticket
+
+Tout l'état d'un ticket est sur GitHub, sous forme d'étiquettes et de commentaires. Il n'y a rien à suivre ailleurs : un coup d'œil à la liste des tickets suffit pour savoir où on en est.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> pret: ticket publié
+    pret: ready-for-agent
+    pret --> enCours: /build-ticket le réserve
+    enCours: en construction
+    enCours --> question: ticket trop flou
+    question: needs-info
+    question --> pret: tu réponds sur le ticket
+    enCours --> bloque: blocage
+    bloque: ready-for-human
+    bloque --> enCours: /build-ticket reprend
+    enCours --> attente: PR ouverte
+    attente: PR en attente de ta décision
+    attente --> enCours: « change ceci »
+    attente --> [*]: « merge la PR »
+```
+
+- **`needs-info`** : l'agent n'a pas voulu deviner. Il a écrit une question précise sur le ticket, avec sa recommandation, puis il est passé à autre chose. Une fois que tu as répondu, `/build-ticket 12` reprend.
+- **`ready-for-human`** : l'agent s'est arrêté en route, par exemple parce que les checks ont échoué trois fois. Il a écrit sur le ticket où il s'est arrêté, ce qui bloque et ce qu'il a essayé. Son travail est gardé, et `/build-ticket 12` repart de là.
+
+---
+
+> [!NOTE]
+> La suite du README n'est pas encore réécrite.
 
 ## Skills
 
