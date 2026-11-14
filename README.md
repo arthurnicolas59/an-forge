@@ -4,7 +4,7 @@
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation) · [Les 5 étapes](#les-5-étapes) · [La vie d'un ticket](#la-vie-dun-ticket)
+[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation) · [Les 5 étapes](#les-5-étapes) · [La vie d'un ticket](#la-vie-dun-ticket) · [Sous le capot](#sous-le-capot) · [Avancement](#avancement)
 
 ---
 
@@ -394,89 +394,160 @@ stateDiagram-v2
 
 ---
 
-> [!NOTE]
-> La suite du README n'est pas encore réécrite.
+## Sous le capot
 
-## Skills
+Tu n'as pas besoin de cette partie pour te servir d'an-forge. Elle explique de quoi la factory est faite, et comment la faire évoluer.
+
+### Les skills et qui les appelle
+
+Tu ne tapes que quatre commandes. Chacune appelle d'autres skills en coulisse, comme un chef d'équipe qui répartit le travail.
+
+```mermaid
+flowchart LR
+    subgraph cmd["Ce que tu tapes"]
+        direction TB
+        pi["/project-init"]
+        pl["/project-launch"]
+        qt["/quick-ticket"]
+        bt["/build-ticket"]
+    end
+
+    pi --> setup["setup-matt-pocock-skills"]
+    pl --> grill["grill-with-docs"]
+    grill --> grilling["grilling"]
+    grill --> dm["domain-modeling"]
+    pl --> spec["to-spec"]
+    pl --> tickets["to-tickets"]
+    bt --> tdd["tdd"]
+    tdd --> design["codebase-design"]
+    bt --> diag["diagnosing-bugs"]
+    bt --> cr["code-review"]
+    bt --> rr["risk-review"]
+    bt --> ba["before-after"]
+    bt --> fb["feature-brief"]
+    bt --> pr["pr"]
+
+    classDef anforge fill:#dbeafe,stroke:#2563eb,color:#000
+    classDef matt fill:#dcfce7,stroke:#16a34a,color:#000
+    class pi,pl,qt,bt,rr,ba,fb anforge
+    class setup,grill,grilling,dm,spec,tickets,tdd,design,diag,cr,pr matt
+```
+
+*En bleu, les skills écrits pour an-forge. En vert, ceux repris de Matt Pocock.* Un dix-neuvième skill, `visual` (repris d'Eric Tech), sert à part : il dessine des pages visuelles, comme les cartes d'an-forge.
 
 | Étape | Skill | Rôle | Origine |
 |-------|-------|------|---------|
-| 1 | [`project-init`](skills/project-init/SKILL.md) | Prépare un repo pour la factory | an-forge |
-| 1 | [`setup-matt-pocock-skills`](skills/setup-matt-pocock-skills/SKILL.md) | Configure un projet (tickets, étiquettes, docs) | Matt Pocock |
-| 2 | [`project-launch`](skills/project-launch/SKILL.md) | De l'idée aux tickets : grill, spec, tickets | an-forge |
+| 1 | [`project-init`](skills/project-init/SKILL.md) | Prépare un projet pour la factory | an-forge |
+| 1 | [`setup-matt-pocock-skills`](skills/setup-matt-pocock-skills/SKILL.md) | Note où vivent les tickets et les docs du projet | Matt Pocock |
+| 2 | [`project-launch`](skills/project-launch/SKILL.md) | De l'idée aux tickets : interrogatoire, spec, tickets | an-forge |
 | 2 | [`quick-ticket`](skills/quick-ticket/SKILL.md) | D'une petite demande à un seul ticket | an-forge |
-| 2 | [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | Interrogatoire, glossaire et ADR | Matt Pocock |
-| 2 | [`grilling`](skills/grilling/SKILL.md) | L'interrogatoire, utilisé par `grill-with-docs` | Matt Pocock |
-| 2 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | Glossaire et ADR, utilisé par `grill-with-docs` | Matt Pocock |
-| 2 | [`to-spec`](skills/to-spec/SKILL.md) | Conversation → spec publiée en issue | Matt Pocock |
-| 2 | [`to-tickets`](skills/to-tickets/SKILL.md) | Spec → tickets `ready-for-agent` | Matt Pocock |
-| 3 à 5 | [`build-ticket`](skills/build-ticket/SKILL.md) | D'un ticket à une PR ; reprise sur demande | an-forge |
+| 2 | [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | L'interrogatoire, qui tient à jour le lexique et les ADR | Matt Pocock |
+| 2 | [`grilling`](skills/grilling/SKILL.md) | La technique d'interrogatoire | Matt Pocock |
+| 2 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | La tenue du lexique et des ADR | Matt Pocock |
+| 2 | [`to-spec`](skills/to-spec/SKILL.md) | La conversation devient une spec, publiée sur GitHub | Matt Pocock |
+| 2 | [`to-tickets`](skills/to-tickets/SKILL.md) | La spec devient des tickets `ready-for-agent` | Matt Pocock |
+| 3 à 5 | [`build-ticket`](skills/build-ticket/SKILL.md) | D'un ticket à une PR, et reprise après ta demande de changement | an-forge |
 | 3 | [`tdd`](skills/tdd/SKILL.md) | Construire test d'abord, une tranche à la fois | Matt Pocock |
 | 3 | [`diagnosing-bugs`](skills/diagnosing-bugs/SKILL.md) | Reproduire un bug avant de le corriger | Matt Pocock |
-| 3 | [`codebase-design`](skills/codebase-design/SKILL.md) | Vocabulaire de conception, utilisé par `tdd` | Matt Pocock |
-| 4 | [`risk-review`](skills/risk-review/SKILL.md) | Bugs, failles, risques pour les données ; niveau de risque | an-forge |
-| 4 | [`code-review`](skills/code-review/SKILL.md) | Relire le diff selon les règles et la spec | Matt Pocock |
+| 3 | [`codebase-design`](skills/codebase-design/SKILL.md) | Le vocabulaire pour bien découper le code | Matt Pocock |
+| 4 | [`code-review`](skills/code-review/SKILL.md) | Relire : règles du projet et fidélité au ticket | Matt Pocock |
+| 4 | [`risk-review`](skills/risk-review/SKILL.md) | Relire : bugs, failles, données ; niveau de risque | an-forge |
 | 5 | [`before-after`](skills/before-after/SKILL.md) | Captures des mêmes écrans avant et après | an-forge |
-| 5 | [`feature-brief`](skills/feature-brief/SKILL.md) | Brief pour le CEO : synthèse et annexe | an-forge |
-| 5 | [`pr`](skills/pr/SKILL.md) | Rédiger le corps d'une pull request | Matt Pocock |
-| transversal | [`visual`](skills/visual/SKILL.md) | Une page HTML : résumé de branche, plan, carte de skills | Eric Tech |
+| 5 | [`feature-brief`](skills/feature-brief/SKILL.md) | Le brief : une page de synthèse et une annexe | an-forge |
+| 5 | [`pr`](skills/pr/SKILL.md) | Rédiger le texte de la pull request | Matt Pocock |
+| à part | [`visual`](skills/visual/SKILL.md) | Une page visuelle : résumé, plan, carte de skills | Eric Tech |
 
-## Garde-fous
+### Les scripts : les machines de contrôle
 
-| Garde-fou | Ce qu'il fait |
-|-----------|---------------|
-| Checks en double | Une fois chez l'agent (`gate.sh`), une fois chez GitHub (`checks.yml`), comme un contrôle technique fait par un garage indépendant plutôt que par le vendeur |
-| `merge-pr.sh` | Ne merge que si la PR contient le dernier `main`, que les checks ont passé sur exactement cette version, et que ceux de GitHub sont verts |
-| Checks protégés | Une branche qui modifie les checks est refusée |
-| Relecteurs neufs | Ils ne voient que le diff, le ticket et les règles du projet |
-| Pas de merge seul | L'agent ne merge jamais de lui-même |
-| `cleanup.sh` | Ménage automatique des tickets mergés et des specs terminées |
+Un skill est une fiche d'instructions que l'agent lit et interprète. Un script, lui, est un programme qui fait toujours exactement la même chose. Tout ce qui doit être exact (compter, vérifier, refuser) est donc confié à un script, que chaque skill emporte dans son dossier.
 
-**Ce que l'agent ne peut pas embellir.** Dans le brief, trois informations ne viennent pas de l'agent qui a codé : le niveau de risque (donné par le relecteur indépendant), le résultat des checks et la liste des tests existants supprimés ou modifiés (calculés par les scripts).
+| Script | Ce qu'il fait | Étape |
+|--------|---------------|-------|
+| `inspect.sh` | Fait l'état des lieux du projet : git, GitHub, fichiers déjà là | 1 |
+| `install-template.sh` | Pose `AGENTS.md`, `checks.sh` et `checks.yml` sans rien écraser | 1 |
+| `create-labels.sh` | Crée les étiquettes sur GitHub | 1 |
+| `claude-md.sh` | Crée `CLAUDE.md`, qui renvoie vers `AGENTS.md` | 1 |
+| `protect-main.sh` | Demande à GitHub de refuser un merge tant que les checks ne sont pas verts | 1 |
+| `cleanup.sh` | Fait le ménage des tickets mergés et ferme les specs terminées | 3 |
+| `tickets.sh` | Trouve le premier ticket libre, ou dit pourquoi un ticket ne peut pas démarrer | 3 |
+| `start-ticket.sh` | Réserve le ticket : crée sa branche et son dossier de travail | 3 |
+| `pick-model.sh` | Choisit le modèle d'après la taille du ticket | 3 |
+| `gate.sh` | Lance les checks, et refuse une branche qui les modifie | 4 |
+| `pr-checks.sh` | Attend le verdict des checks chez GitHub | 4 |
+| `flag-ticket.sh` | Pose `needs-info` ou `ready-for-human`, avec le message, sur le ticket | 3 à 5 |
+| `capture.sh` | Prend les captures d'écran avant et après | 5 |
+| `render.py`, `to-pdf.sh`, `open.sh` | Fabriquent le brief (page web et PDF) et l'ouvrent | 5 |
+| `merge-pr.sh` | Merge seulement si c'est sans danger, puis fait le ménage | 5 |
+
+### Les garde-fous
+
+Chaque garde-fou existe pour empêcher une erreur précise.
+
+| Garde-fou | Sans lui, l'agent pourrait… |
+|-----------|-----------------------------|
+| **Pas de merge sans toi** | … mettre en place un changement que tu n'as pas vu |
+| **Checks interdits de modification** (`gate.sh`) | … faire « passer » les contrôles en retirant le test qui échoue |
+| **Checks en double**, chez l'agent puis chez GitHub | … livrer un code qui ne marche que sur sa machine |
+| **Relecteurs neufs** | … être relu par quelqu'un qui partage ses angles morts |
+| **Chiffres du brief calculés par des scripts** | … présenter son travail sous un jour trop favorable |
+| **Trois vérifications avant le merge** (`merge-pr.sh`) | … casser `main` en réunissant deux tickets qui se contredisent |
+| **Arrêt après trois échecs** | … tourner en rond sans fin, ou finir par contourner le problème |
+| **Question plutôt que supposition** (`needs-info`) | … construire avec soin la mauvaise chose |
 
 > [!NOTE]
-> Avec un compte GitHub gratuit, la protection de `main` n'existe que sur un repo public. Sur un repo privé, les checks tournent quand même et `merge-pr.sh` les respecte, mais le bouton « Merge » de GitHub ne vérifie rien.
+> Avec un compte GitHub gratuit, la protection de `main` n'existe que sur un repo public. Sur un repo privé, les checks tournent quand même et `merge-pr.sh` les respecte, mais le bouton vert « Merge » de GitHub, lui, ne vérifie rien : passe toujours par « merge la PR ».
 
+### Faire évoluer an-forge
 
-## Cartes
+an-forge est lui-même un repo, avec ses règles écrites dans [`AGENTS.md`](AGENTS.md). Voici ce qui se passe quand on modifie un skill :
 
-On ne modifie que les données (`docs/skill-map/map.json`), puis :
-
-```bash
-scripts/build-maps.sh            # reconstruit les pages, vérifie que chaque skill figure sur la carte
-scripts/build-maps.sh --thumbs   # refait aussi les vignettes de la page d'accueil
+```mermaid
+flowchart LR
+    m["Modifier<br/>un skill"] --> carte["Mettre à jour la carte<br/>docs/skill-map/map.json"]
+    carte --> build["Lancer<br/>build-maps.sh"]
+    build --> readme["Mettre à jour<br/>le README"]
+    readme --> v["Augmenter la version<br/>plugin.json"]
+    v --> push["Pousser<br/>sur GitHub"]
+    push --> machines(["Les machines où an-forge<br/>est installé se mettent à jour"])
 ```
 
-La vérification de la carte (flèches qui se croisent, étiquettes qui se chevauchent) utilise Google Chrome. Sans Chrome, les pages se construisent quand même, sans cette vérification.
+- **La version** est le numéro du plugin, par exemple `0.13.0`. Une correction augmente le dernier chiffre (`0.13.0` → `0.13.1`), un ajout celui du milieu (`0.13.0` → `0.14.0`). C'est ce numéro qui signale aux machines qu'il y a du nouveau : sans lui, elles gardent l'ancienne version.
+- **Les cartes** ([page d'accueil](docs/index.html)) sont des pages fabriquées à partir de données. On ne modifie que les données, puis on relance le script :
 
-## Mises à jour
+  ```bash
+  scripts/build-maps.sh            # reconstruit les pages et vérifie que chaque skill est sur la carte
+  scripts/build-maps.sh --thumbs   # refait aussi les vignettes de la page d'accueil
+  ```
 
-Pour voir ce qui a changé chez Matt ou chez Eric depuis la dernière copie :
+  Le script vérifie aussi la mise en page (flèches qui se croisent, étiquettes qui se chevauchent) avec Google Chrome. Sans Chrome, les pages se construisent quand même, sans cette vérification.
+- **Les skills venus d'ailleurs** (Matt Pocock, Eric Tech) sont des copies, qu'on modifie le moins possible. Pour voir ce qui a changé chez eux depuis la dernière copie :
 
-```bash
-scripts/sync-upstream.sh                     # toutes les sources, résumé
-scripts/sync-upstream.sh mattpocock --full   # une source, diff complet
-```
+  ```bash
+  scripts/sync-upstream.sh                     # toutes les sources, en résumé
+  scripts/sync-upstream.sh mattpocock --full   # une seule source, en détail
+  ```
 
-## Structure du repo
+### Ce que contient ce repo
 
 ```text
-AGENTS.md         les règles de la factory (source unique, lisible par tous les outils)
-CLAUDE.md         importe AGENTS.md pour Claude Code
-skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
+AGENTS.md         les règles d'an-forge (lisibles par tous les outils)
+CLAUDE.md         renvoie vers AGENTS.md, pour Claude Code
+skills/           un dossier par skill : ses instructions (SKILL.md) et ses scripts
 agents/           un fichier par sous-agent (vide pour l'instant)
-tests/            tests des scripts (tests/test-pick-model.sh)
-scripts/          sync-upstream.sh, build-maps.sh, un .lock par source copiée
-licenses/         licences des skills venus d'ailleurs
-docs/             les cartes (données en map.json, pages générées par build-maps.sh)
-.claude-plugin/   l'emballage pour Claude Code
+scripts/          les scripts d'an-forge lui-même : cartes, mises à jour des copies
+tests/            les tests de ces scripts
+licenses/         les licences des skills venus d'ailleurs
+docs/             les cartes interactives
+.claude-plugin/   l'emballage qui fait d'an-forge un plugin Claude Code
 ```
+
+an-forge n'est pas réservé à Claude Code :
 
 | Élément | Claude Code | Autres outils (Codex, Cursor, Copilot, Gemini…) |
 |---------|-------------|--------------------------------------------------|
-| Règles et workflow | `AGENTS.md` via `CLAUDE.md` | `AGENTS.md` lu directement |
-| Skills | plugin | `npx skills add` |
-| Sous-agents | plugin | à adapter selon l'outil |
+| Règles et workflow | `AGENTS.md`, via `CLAUDE.md` | `AGENTS.md`, lu directement |
+| Skills | installés par le plugin | copiés par `npx skills add` |
+| Sous-agents | installés par le plugin | à adapter selon l'outil |
 
 ## Avancement
 
@@ -501,7 +572,7 @@ Fait :
 - `setup-matt-pocock-skills`, `grill-with-docs`, `to-spec` et `to-tickets` ne sont plus réservés au lancement manuel, pour qu'un skill an-forge puisse les appeler. Leur description demande de ne jamais les lancer de sa propre initiative.
 - Les métadonnées de `pr` ont été retirées de l'en-tête ; les crédits restent dans `skills/pr/CREDITS.md`.
 
-**Eric Tech.** Copiés depuis [EricTechPro/super-board](https://github.com/EricTechPro/super-board) (licence MIT, voir [licenses/super-board.txt](licenses/super-board.txt)) : le skill `visual`, le moteur de la carte de Matt (`docs/_shared/`) et la carte de Matt Pocock. `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur, seuls la barre du haut, la liste des cartes, la comparaison entre packs et la reconnaissance des noms de skills dans un texte accentué ont été adaptés. Le design de ce README s'en inspire.
+**Eric Tech.** Copiés depuis [EricTechPro/super-board](https://github.com/EricTechPro/super-board) (licence MIT, voir [licenses/super-board.txt](licenses/super-board.txt)) : le skill `visual`, le moteur de la carte de Matt (`docs/_shared/`) et la carte de Matt Pocock. `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur, seuls la barre du haut, la liste des cartes, la comparaison entre packs et la reconnaissance des noms de skills dans un texte accentué ont été adaptés.
 
 **Inspirations** (idées seulement) :
 [rstack](https://github.com/michaelshimeles/rstack) · [zazencodes software factory v2](https://github.com/zazencodes/zazencodes-season-3/tree/main/src/software-factory-claude-code-v2)
