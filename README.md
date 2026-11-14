@@ -137,6 +137,15 @@ branche de feature restent permis. Pour pousser sur `main` en connaissance de ca
 `SB_ALLOW_PROTECTED_PUSH=1`. Sans hooks (autres outils), `build-ticket` rappelle les mêmes interdits.
 Les tests : `bash tests/test-guard-hooks.sh`.
 
+### Le choix du modèle
+
+Chaque ticket a une taille (`taille:petit`, `taille:moyen`, `taille:gros`), posée par `/quick-ticket` et `/to-tickets` ;
+sans étiquette, un agent Haiku la décide. `/build-ticket` en tire le modèle de l'agent qui construit :
+Sonnet pour un petit ticket, Opus pour un moyen ou un gros (`scripts/pick-model.sh`). Les relectures restent
+toujours sur le plus capable. `/build-ticket --eco` force Sonnet, `/build-ticket --max` force Opus.
+Pour un projet déjà préparé, relance `create-labels.sh` du skill `project-init` pour créer les trois étiquettes.
+Les tests : `bash tests/test-pick-model.sh`.
+
 ### Mises à jour
 
 Pour voir ce qui a changé chez Matt ou chez Eric depuis la dernière copie :

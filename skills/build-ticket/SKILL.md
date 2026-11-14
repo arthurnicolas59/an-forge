@@ -13,6 +13,8 @@ Isoler → Avant → Construire → Tester → Relire → Après → Brief → P
 
 Tout se fait **sans s'arrêter ni poser de question** : l'utilisateur n'intervient qu'à la fin, en lisant le brief puis en décidant de merger ou de demander un changement (étape 12). Une seule exception : un ticket qu'on ne peut pas construire sans deviner (étape 2). Lance ce skill dans une session neuve, un ticket par session. Par défaut, un ticket à la fois : on construit le suivant une fois le précédent mergé. Le parallèle est possible (une session par ticket, chacune réserve un ticket différent), mais deux tickets corrects séparément peuvent se contredire, et des ressources comme une base de données de développement restent partagées.
 
+**Options** : `/build-ticket --eco` construit toujours sur le modèle moyen (Sonnet), `/build-ticket --max` toujours sur le plus capable (Opus), quelle que soit la taille du ticket. Elles se combinent avec un numéro (`/build-ticket --eco 12`). Les relectures restent sur le plus capable dans tous les cas (étape 2, « Choisir les modèles »).
+
 Les scripts cités sont dans le dossier `scripts/` à côté de ce fichier. Pour lancer un skill depuis celui-ci, si ton outil ne sait pas le faire, lis son `SKILL.md` et suis-le.
 
 ## 0. Vérifier que le projet est prêt
@@ -60,6 +62,20 @@ Note les **critères d'acceptation** du ticket, mot pour mot : chacun devra avoi
 
 Dans ce cas, lance `scripts/flag-ticket.sh needs-info <n> "<message>"`. Le message pose **une question précise**, avec les réponses possibles et celle que tu recommandes, écrite pour l'utilisateur décrit dans `AGENTS.md`. Le script écrit la question sur le ticket, pose l'étiquette `needs-info` et libère le ticket. Donne la même question à l'utilisateur, dis-lui que le ticket reprendra avec `/build-ticket <n>` une fois sa réponse donnée, et arrête-toi. Si le ticket avait été choisi sans numéro, dis aussi que `/build-ticket` seul prendra le ticket suivant.
 
+### Choisir les modèles
+
+Le ticket a une **taille** : `taille=` dans la sortie de `scripts/tickets.sh check <n>` (étiquette `taille:petit`, `taille:moyen` ou `taille:gros` sur GitHub ; ligne `**Taille:**` du fichier pour un ticket local).
+
+- **Petit** : un seul endroit du code, peu de fichiers, rien de nouveau à inventer.
+- **Moyen** : plusieurs fichiers ou plusieurs couches, mais une seule fonctionnalité.
+- **Gros** : touche aux données (schéma, migration), aux accès, aux paiements, ou change beaucoup de fichiers d'un coup.
+
+Si le ticket n'a pas de taille (`inconnue`) et que tu n'as reçu ni `--eco` ni `--max`, fais-la décider par **un sous-agent sur le plus petit modèle (Haiku)** : donne-lui le ticket et les trois définitions ci-dessus, et demande un seul mot : `petit`, `moyen` ou `gros`. Pose-la ensuite sur le ticket (`gh issue edit <n> --add-label taille:<taille>`, ou la ligne `**Taille:**` d'un fichier local) pour que la décision se voie. Si l'étiquette n'existe pas encore, relance `create-labels.sh` du skill `project-init`, ou continue sans la poser.
+
+Lance ensuite `scripts/pick-model.sh <taille> [--eco|--max]` : il donne `build=` (le modèle de la construction, Sonnet pour un petit ticket, Opus pour un moyen ou un gros) et `review=` (toujours Opus). Annonce-les en une ligne avec la taille.
+
+Dans Claude Code, passe ces noms en paramètre `model` du sous-agent. Dans un autre outil, prends le modèle équivalent (moyen / le plus capable). Si ton outil ne sait pas choisir le modèle d'un sous-agent, saute ce choix : construis toi-même, sur le modèle de la session, et dis-le dans la PR.
+
 ## 3. Travailler dans le worktree
 
 **À partir d'ici, tout se passe dans le worktree.** Commence chaque commande par `cd <worktree> &&`, donne des chemins absolus sous le worktree, et ne modifie jamais le checkout principal. Installe les dépendances dans le worktree si `AGENTS.md` le demande.
@@ -78,7 +94,9 @@ Note l'« avant » en une phrase compréhensible par quelqu'un qui ne lit pas le
 
 ## 5. Construire
 
-Suis le skill `tdd`, en respectant l'architecture existante et les règles d'`AGENTS.md`.
+Confie la construction (étapes 5 et 6) à **un sous-agent** sur le modèle `build=`, lancé dans le worktree, et orchestre toi-même le reste. Donne-lui, copiés en entier parce qu'il ne voit rien d'autre : le ticket et ses critères, la spec, les règles d'`AGENTS.md`, le chemin du worktree et de la base, et les consignes de cette étape et de la suivante. Demande-lui de rendre : les commits faits, le résultat du gate, la liste des interfaces testées, les choix faits là où le ticket ne disait rien, et ce qui semble faux dans le ticket. Si ton outil ne sait pas lancer de sous-agent, construis toi-même.
+
+Le constructeur suit le skill `tdd`, en respectant l'architecture existante et les règles d'`AGENTS.md`.
 
 - Le skill `tdd` demande de valider avec l'utilisateur où placer les tests. Ici, **ne l'attends pas** : choisis toi-même les interfaces à tester, en suivant ses critères, et garde-en la liste pour la PR.
 - Pour un bug, termine `diagnosing-bugs` : le test de régression fait partie du travail.
@@ -87,7 +105,7 @@ Suis le skill `tdd`, en respectant l'architecture existante et les règles d'`AG
 
 ## 6. Tester
 
-Lance `scripts/gate.sh <base>` depuis le worktree. Il refuse une branche qui modifie `scripts/checks.sh` ou `.github/workflows/checks.yml`, puis lance les checks du projet.
+Lance `scripts/gate.sh <base>` depuis le worktree, même si le constructeur l'a déjà lancé : le résultat qui compte est le tien. Il refuse une branche qui modifie `scripts/checks.sh` ou `.github/workflows/checks.yml`, puis lance les checks du projet.
 
 - `GATE: PASS` : continue.
 - `GATE: FAIL` : corrige la cause, commit, relance. Si le même échec revient **trois fois**, arrête-toi : pas de PR. Résume l'échec, ce que tu as essayé, et laisse le worktree en place (voir « S'arrêter en route »).
@@ -102,7 +120,7 @@ Lance, avec `<base>` comme point fixe et le ticket comme spec, les deux skills d
 - `code-review` : le code suit-il les règles du projet, et fait-il ce que le ticket demande ?
 - `risk-review` : qu'est-ce qui peut mal se passer (bugs, sécurité, données, tests) ? Il donne aussi le **niveau de risque**.
 
-Ils confient la relecture à des agents neufs, qui ne voient que le diff, le ticket et les règles du projet, pas ton raisonnement : c'est ce qui rend la relecture indépendante.
+Lance-les sur le modèle `review=` (toujours le plus capable, même avec `--eco`). Ils confient la relecture à des agents neufs, qui ne voient que le diff, le ticket et les règles du projet, pas ton raisonnement : c'est ce qui rend la relecture indépendante.
 
 Si ton outil ne sait pas lancer de sous-agent, arrête-toi avant la PR et demande à l'utilisateur de lancer `code-review` puis `risk-review` dans une nouvelle session, depuis le worktree.
 
@@ -192,6 +210,7 @@ Si tu dois t'arrêter avant la fin (le gate échoue trois fois, GitHub refuse tr
 ## Règles
 
 - Les interdits suivants sont aussi imposés par les hooks du plugin an-forge (`hooks/`), mais ils valent même sans hooks : ne lis jamais `.env` ni une clé (`.env.example` suffit pour les noms), n'écris jamais une clé en dur, ne supprime rien hors du projet, ne crée un worktree que sous `.worktrees/`, ne pousse jamais sur `main`.
+- Les relectures ne descendent jamais sous le modèle `review=`, même avec `--eco`.
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
 - Ne modifie jamais `scripts/checks.sh`, `.github/workflows/checks.yml` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.

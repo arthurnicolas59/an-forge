@@ -9,6 +9,7 @@
 #                                Une ligne par ticket : <numéro><TAB><titre>
 #   tickets.sh next [spec]       le premier ticket libre (même format), ou rien
 #   tickets.sh check <n>         décrit le ticket <n> en lignes clé=valeur et termine par
+#                                taille=petit|moyen|gros|inconnue (étiquette taille:… du ticket) puis
 #                                verdict=ok|spec|closed|needs-info|human|not-ready|blocked|assigned
 #                                (needs-info : une question attend l'utilisateur ; human : la construction
 #                                s'est arrêtée et attend un humain)
@@ -87,6 +88,9 @@ case "${1:-}" in
     echo "parent=$parent"
     echo "open_blockers=$blockers"
     echo "assignees=$assignees"
+    taille=$(gh api "repos/$REPO/issues/$n" --jq '[.labels[].name | select(startswith("taille:")) | sub("taille:"; "")] | first // "inconnue"')
+    case "$taille" in petit | moyen | gros) ;; *) taille=inconnue ;; esac
+    echo "taille=$taille"
     if [ "$is_pr" = "true" ]; then
       echo "verdict=not-ready"
     elif [ "$subs" != "0" ]; then
@@ -118,7 +122,7 @@ case "${1:-}" in
     ;;
 
   *)
-    sed -n '3,17p' "$0" >&2
+    sed -n '3,18p' "$0" >&2
     exit 2
     ;;
 esac

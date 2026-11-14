@@ -76,7 +76,9 @@ Montre le titre et le ticket à l'utilisateur. S'il n'est pas développeur, ajou
 
 Publie le ticket selon `docs/agents/issue-tracker.md`, avec l'étiquette `ready-for-agent`, et les blocages posés comme ce fichier le décrit. Un ticket de ce skill n'a pas de spec parente.
 
-Si les tickets sont des fichiers locaux, écris-le dans `.scratch/quick/issues/<NN>-<titre-court>.md`, avec une ligne `**Status:** ready-for-agent`.
+Donne-lui aussi une **taille**, qui choisira le modèle de `/build-ticket` : `taille:petit` (un seul endroit du code, peu de fichiers), `taille:moyen` (plusieurs fichiers ou couches, une seule fonctionnalité) ou `taille:gros` (données, accès, paiements, ou changement large). Un ticket de ce skill est le plus souvent petit. Si l'étiquette n'existe pas encore, relance `create-labels.sh` du skill `project-init`.
+
+Si les tickets sont des fichiers locaux, écris-le dans `.scratch/quick/issues/<NN>-<titre-court>.md`, avec une ligne `**Status:** ready-for-agent` et une ligne `**Taille:** petit` (ou moyen, gros).
 
 ## 6. Conclure
 

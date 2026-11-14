@@ -1,5 +1,6 @@
 # Skills copiés depuis https://github.com/mattpocock/skills (licence MIT, voir licenses/mattpocock-skills.txt).
 # Mis à jour avec scripts/sync-upstream.sh.
+# Retouche locale de to-tickets : une phrase et une ligne de modèle ajoutent la taille du ticket (taille:petit|moyen|gros), lue par build-ticket pour choisir le modèle.
 repo https://github.com/mattpocock/skills.git
 commit 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
 skill setup-matt-pocock-skills skills/engineering/setup-matt-pocock-skills
