@@ -4,7 +4,8 @@
 #     un worktree qui contient du travail non commité est gardé, et signalé ;
 #   - ferme chaque spec dont tous les tickets sont fermés, avec un commentaire ;
 #   - retire l'étiquette ready-for-agent de ce qui n'est pas un ticket à construire :
-#     les issues fermées et les specs ; et ready-for-human et needs-info des issues fermées.
+#     les issues fermées et les specs ; et ready-for-human et needs-info des issues fermées ;
+#   - remet le dossier principal à jour avec GitHub, s'il est sur la branche principale et sans travail en cours.
 #
 # Usage : cleanup.sh        (depuis n'importe où dans le repo)
 set -uo pipefail
@@ -39,6 +40,22 @@ for branch in $(git for-each-ref --format='%(refname:short)' 'refs/heads/ticket/
   fi
 done
 git worktree prune
+
+# 1 bis. Le dossier principal : les merges se font sur GitHub, il faut les ramener ici.
+# Seulement en avance rapide, sur la branche principale et sans travail en cours : rien n'est écrasé.
+default=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null)
+default=${default:-main}
+if [ "$(git branch --show-current)" = "$default" ] && git fetch -q origin "$default" 2>/dev/null; then
+  if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$default")" ]; then
+    if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+      echo "Pas mis à jour : le dossier principal a des modifications en cours ($ROOT)."
+    elif git merge -q --ff-only "origin/$default" 2>/dev/null; then
+      echo "Mis à jour : le dossier principal est au niveau de GitHub ($default)."
+    else
+      echo "Pas mis à jour : le dossier principal a des commits que GitHub n'a pas ($ROOT)."
+    fi
+  fi
+fi
 
 # 2. Les specs : une spec n'est pas un ticket à construire, et elle se ferme quand tous ses tickets sont fermés.
 for n in $(gh issue list --state open --limit 200 --json number --jq '.[].number'); do

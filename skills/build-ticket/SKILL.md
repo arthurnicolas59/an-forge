@@ -164,7 +164,7 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 
 **Attends ensuite le verdict de GitHub**, qui relance les checks de son côté, sur une machine neutre : `scripts/pr-checks.sh <numéro de la PR> --wait`. La commande peut durer plusieurs minutes : donne-lui un délai long.
 
-- `checks=ok` : continue.
+- `checks=ok` : continue. Si la commande affiche aussi `preview=<adresse>`, c'est la version de test de la PR, publiée par l'hébergeur : mets cette adresse en tête de `essayer` dans le brief (« Ouvrez <adresse>, puis… »), relance `render.py`, commite le brief seul, pousse, et attends de nouveau les checks.
 - `checks=pending` : les checks tournent encore. Relance la même commande.
 - `checks=fail` : le gate a passé chez toi mais pas chez GitHub. Lis l'erreur (la commande est affichée), corrige la cause, commit, relance `scripts/gate.sh <base>`, pousse, puis attends de nouveau. La cause est souvent une différence entre ta machine et celle de GitHub : un outil non installé, un fichier non commité, une variable d'environnement. Si le même échec revient **trois fois**, arrête-toi : laisse la PR ouverte et dis dans ta conclusion que GitHub la refuse, et pourquoi (voir « S'arrêter en route »).
 - `checks=none` : ce projet n'a pas de `.github/workflows/checks.yml`. Continue, et dis dans ta conclusion que GitHub ne revérifie rien tant que `/project-init` n'a pas été relancé.

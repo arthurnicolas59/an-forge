@@ -10,6 +10,7 @@
 #   fail     au moins un check a échoué ; leurs noms et leurs liens sont affichés
 #   pending  des checks tournent encore
 #   none     GitHub ne lance aucun check sur ce projet (pas de .github/workflows)
+# Puis, si un hébergeur a publié une version de test de la PR (Netlify, Vercel…), une ligne preview=<adresse>.
 # Codes : 0 ok ou none · 1 fail · 8 pending
 set -uo pipefail
 
@@ -67,6 +68,11 @@ while :; do
 done
 
 echo "checks=$s"
+preview=$(gh pr view "$N" --json statusCheckRollup --jq '
+  [ (.statusCheckRollup // [])[]
+    | select(((.name // .context // "") | test("preview"; "i")) and ((.conclusion // .state // "") == "SUCCESS"))
+    | (.detailsUrl // .targetUrl // "") | select(startswith("https://")) ] | first // empty' 2>/dev/null)
+[ -n "$preview" ] && echo "preview=$preview"
 case "$s" in
   ok|none) exit 0 ;;
   fail)
