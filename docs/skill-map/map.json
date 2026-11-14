@@ -377,17 +377,16 @@
       "id": "root",
       "parent": null,
       "title": "an-forge par phase",
-      "caption": "Le projet se prépare une fois avec /project-init. Ensuite, deux chemins : /project-launch pour une idée ou une grosse évolution, /quick-ticket pour une petite demande. Les deux mènent à des tickets, que /build-ticket construit, fait relire et livre. Double-clic sur une carte pour son détail.",
+      "caption": "Le projet se prépare une fois avec /project-init. Pour cadrer, tu lances /project-launch (une idée ou une grosse évolution : il enchaîne /grill-with-docs, /to-spec puis /to-tickets) ou /quick-ticket (une petite demande : un seul ticket). Les deux mènent à des tickets. /build-ticket prend le premier ticket libre et, tout seul, isole, construit, teste, fait relire, écrit le brief et ouvre la PR : double-clic sur sa carte pour voir ces six étapes. Toi, tu lis le brief et tu décides de merger.",
       "nodeIds": [
         "project-init",
         "project-launch",
+        "grill-with-docs",
+        "to-spec",
+        "to-tickets",
         "quick-ticket",
         "tickets",
         "build-ticket",
-        "tdd",
-        "code-review",
-        "risk-review",
-        "feature-brief",
         "pull-request"
       ],
       "edges": [
@@ -398,8 +397,33 @@
         },
         {
           "from": "project-launch",
+          "to": "grill-with-docs",
+          "label": "lance"
+        },
+        {
+          "from": "project-launch",
+          "to": "to-spec",
+          "label": "lance"
+        },
+        {
+          "from": "project-launch",
+          "to": "to-tickets",
+          "label": "lance"
+        },
+        {
+          "from": "grill-with-docs",
+          "to": "to-spec",
+          "label": ""
+        },
+        {
+          "from": "to-spec",
+          "to": "to-tickets",
+          "label": ""
+        },
+        {
+          "from": "to-tickets",
           "to": "tickets",
-          "label": "spec + tickets"
+          "label": ""
         },
         {
           "from": "quick-ticket",
@@ -413,31 +437,6 @@
         },
         {
           "from": "build-ticket",
-          "to": "tdd",
-          "label": "test d'abord"
-        },
-        {
-          "from": "tdd",
-          "to": "code-review",
-          "label": "gate vert"
-        },
-        {
-          "from": "tdd",
-          "to": "risk-review",
-          "label": "gate vert"
-        },
-        {
-          "from": "code-review",
-          "to": "feature-brief",
-          "label": ""
-        },
-        {
-          "from": "risk-review",
-          "to": "feature-brief",
-          "label": "niveau de risque"
-        },
-        {
-          "from": "feature-brief",
           "to": "pull-request",
           "label": "PR + brief"
         }
@@ -455,6 +454,9 @@
           "label": "Cadrer",
           "nodeIds": [
             "project-launch",
+            "grill-with-docs",
+            "to-spec",
+            "to-tickets",
             "quick-ticket",
             "tickets"
           ]
@@ -463,23 +465,13 @@
           "id": "ph-construire",
           "label": "Construire",
           "nodeIds": [
-            "build-ticket",
-            "tdd"
-          ]
-        },
-        {
-          "id": "ph-verifier",
-          "label": "Vérifier",
-          "nodeIds": [
-            "code-review",
-            "risk-review"
+            "build-ticket"
           ]
         },
         {
           "id": "ph-livrer",
           "label": "Livrer",
           "nodeIds": [
-            "feature-brief",
             "pull-request"
           ]
         }
@@ -489,42 +481,61 @@
           0,
           0
         ],
-        "quick-ticket": [
-          1,
-          1
-        ],
         "project-launch": [
           1,
           0
         ],
-        "tickets": [
+        "grill-with-docs": [
           2,
-          0
+          1
         ],
-        "build-ticket": [
+        "to-spec": [
           3,
-          0
+          1
         ],
-        "tdd": [
+        "to-tickets": [
           4,
-          0
+          1
         ],
-        "code-review": [
-          5,
-          0
+        "quick-ticket": [
+          1,
+          2
         ],
-        "risk-review": [
+        "tickets": [
           5,
           1
         ],
-        "feature-brief": [
+        "build-ticket": [
           6,
-          0
+          1
         ],
         "pull-request": [
           7,
-          0
+          1
         ]
+      },
+      "nodeOverrides": {
+        "build-ticket": {
+          "sublabel": "6 étapes, sans s'arrêter"
+        },
+        "project-launch": {
+          "sublabel": "Lance la suite des skills"
+        },
+        "quick-ticket": {
+          "sublabel": "Lancer : petite demande"
+        },
+        "grill-with-docs": {
+          "label": "/grill-with-docs",
+          "sublabel": "Questions → glossaire + ADR"
+        },
+        "to-spec": {
+          "label": "/to-spec",
+          "sublabel": "Publie la spec en issue"
+        },
+        "to-tickets": {
+          "label": "/to-tickets",
+          "sublabel": "Spec → issues tickets"
+        }
       }
     },
     {
@@ -586,12 +597,12 @@
         "inspect-sh": {
           "label": "inspect.sh",
           "sublabel": "Vérifie git, GitHub, AGENTS.md",
-          "kind": "step"
+          "kind": "script"
         },
         "install-template-sh": {
           "label": "install-template.sh",
           "sublabel": "Copie AGENTS.md, checks.sh",
-          "kind": "step"
+          "kind": "script"
         },
         "setup-matt-pocock-skills": {
           "label": "/setup-matt-pocock-skills",
@@ -600,17 +611,17 @@
         "create-labels-sh": {
           "label": "create-labels.sh",
           "sublabel": "Crée les étiquettes GitHub",
-          "kind": "step"
+          "kind": "script"
         },
         "claude-md-sh": {
           "label": "claude-md.sh",
           "sublabel": "CLAUDE.md = @AGENTS.md",
-          "kind": "step"
+          "kind": "script"
         },
         "protect-main-sh": {
           "label": "protect-main.sh",
           "sublabel": "Merge interdit si rouge",
-          "kind": "step"
+          "kind": "script"
         }
       }
     },
@@ -895,22 +906,22 @@
         "cleanup-sh": {
           "label": "cleanup.sh",
           "sublabel": "Supprime les worktrees mergés",
-          "kind": "step"
+          "kind": "script"
         },
         "tickets-sh": {
           "label": "tickets.sh",
           "sublabel": "Trouve le 1er ticket libre",
-          "kind": "step"
+          "kind": "script"
         },
         "start-ticket-sh": {
           "label": "start-ticket.sh",
           "sublabel": "Crée branche + worktree",
-          "kind": "step"
+          "kind": "script"
         },
         "flag-ticket-sh": {
           "label": "flag-ticket.sh",
           "sublabel": "Question sur l'issue",
-          "kind": "step"
+          "kind": "script"
         }
       }
     },
@@ -1002,12 +1013,12 @@
         "gate-sh": {
           "label": "gate.sh",
           "sublabel": "Lance tests, lint, build",
-          "kind": "step"
+          "kind": "script"
         },
         "flag-ticket-sh": {
           "label": "flag-ticket.sh",
           "sublabel": "Échec noté sur l'issue",
-          "kind": "step"
+          "kind": "script"
         }
       }
     },
@@ -1131,7 +1142,7 @@
         "pr-checks-sh": {
           "label": "pr-checks.sh",
           "sublabel": "Attend les checks GitHub",
-          "kind": "step"
+          "kind": "script"
         },
         "pull-request": {
           "label": "Pull request + brief",
@@ -1140,7 +1151,7 @@
         "merge-pr-sh": {
           "label": "merge-pr.sh",
           "sublabel": "Vérifie, puis merge sur main",
-          "kind": "step"
+          "kind": "script"
         }
       }
     },

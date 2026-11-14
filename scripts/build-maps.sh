@@ -50,6 +50,7 @@ python3 skills/visual/scripts/visual.py render --map docs/skill-map/map.json \
   --out docs/skill-map/index.html --no-open \
   --source-base https://github.com/arthurnicolas59/an-forge/blob/main/ \
   --shots "${TMPDIR:-/tmp}/an-forge-map-shots"
+python3 scripts/translate-map.py docs/skill-map/index.html
 
 if [ "${1:-}" = "--thumbs" ]; then
   CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
