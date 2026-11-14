@@ -50,6 +50,35 @@ WT="$(dirname "$ROOT")/$(basename "$ROOT").worktrees/ticket-$NUM"
 [ -d "$ROOT/.worktrees/ticket-$NUM" ] && WT="$ROOT/.worktrees/ticket-$NUM"
 BRANCH="ticket/$NUM-$SLUG"
 
+# Hors du projet, le worktree est hors de la zone de travail de l'outil d'IA, qui demanderait la
+# permission à chaque fichier. Pour Claude Code, on ajoute son dossier aux dossiers autorisés,
+# dans le réglage local du projet (.claude/settings.local.json) : propre à cette machine, jamais
+# commité, et relu sans redémarrer la session. Les autres outils ont leur propre réglage.
+allow_worktrees_dir() {
+  local dir settings
+  dir=$(dirname "$WT")
+  settings="$ROOT/.claude/settings.local.json"
+  command -v python3 >/dev/null 2>&1 || { echo "Note : python3 absent, ajoute $dir aux dossiers autorisés de ton outil." >&2; return 0; }
+  mkdir -p "$ROOT/.claude"
+  python3 - "$settings" "$dir" <<'PY' || echo "Note : $settings illisible, ajoute $dir aux dossiers autorisés de ton outil." >&2
+import json, os, sys
+path, folder = sys.argv[1], sys.argv[2]
+data = {}
+if os.path.exists(path):
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+dirs = data.setdefault("permissions", {}).setdefault("additionalDirectories", [])
+if folder not in dirs:
+    dirs.append(folder)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+PY
+  grep -qxF '/.claude/settings.local.json' "$COMMON/info/exclude" 2>/dev/null ||
+    echo '/.claude/settings.local.json' >> "$COMMON/info/exclude"
+}
+case "$WT" in "$ROOT"/*) ;; *) allow_worktrees_dir ;; esac
+
 # Branche de base : main d'origin si possible, à jour.
 if git remote get-url origin >/dev/null 2>&1; then
   git fetch -q origin
