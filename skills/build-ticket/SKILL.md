@@ -191,6 +191,7 @@ Si tu dois t'arrêter avant la fin (le gate échoue trois fois, GitHub refuse tr
 
 ## Règles
 
+- Les interdits suivants sont aussi imposés par les hooks du plugin an-forge (`hooks/`), mais ils valent même sans hooks : ne lis jamais `.env` ni une clé (`.env.example` suffit pour les noms), n'écris jamais une clé en dur, ne supprime rien hors du projet, ne crée un worktree que sous `.worktrees/`, ne pousse jamais sur `main`.
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
 - Ne modifie jamais `scripts/checks.sh`, `.github/workflows/checks.yml` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
