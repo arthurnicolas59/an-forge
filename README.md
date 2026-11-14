@@ -11,16 +11,17 @@ jugement et des **scripts** font le travail qui doit être exact.
 - [an-forge par phase](docs/skill-map/index.html) : le départ (`/project-init`), puis deux chemins (`/project-launch` ou `/quick-ticket`) et chaque phase (cadrer, construire, vérifier, livrer) ; un double-clic sur un skill ouvre son détail, jusqu'aux scripts ;
 - [la carte de Matt Pocock](docs/mattpocock/index.html) : tous ses skills, dont an-forge reprend une partie.
 
-## Les 6 parties
+## Les 5 phases
 
-| # | Partie | Qui | Rôle |
-|---|--------|-----|------|
-| 1 | Intake | agent | Décide si une demande vaut la peine d'être construite, et à quelle échelle |
-| 2 | Orchestrateur | skill `/factory` | Lance les jobs et passe chaque étape au bon agent |
-| 3 | Agents | agents | Un par rôle : spec, build, review, approbation |
-| 4 | Gates | script | Tests, lint, build : rien n'avance si ça échoue |
-| 5 | État | fichiers | Où en est chaque job, pour pouvoir reprendre après un arrêt |
-| 6 | Sortie | GitHub | Une pull request que je merge |
+| # | Phase | Qui | Rôle |
+|---|-------|-----|------|
+| 1 | Cadrer | skills (`/project-launch`, `/quick-ticket`) | Transformer une idée ou une petite demande en tickets `ready-for-agent` |
+| 2 | Construire | skill `/build-ticket` | Une branche isolée, le code en TDD, un ticket par session |
+| 3 | Vérifier | scripts + agents neufs | `gate.sh` et les checks GitHub : rien n'avance s'ils échouent. `code-review` et `risk-review` relisent le diff |
+| 4 | Résumer | skills (`before-after`, `feature-brief`) | Captures avant/après et brief d'une page pour le CEO |
+| 5 | Livrer | GitHub + `merge-pr.sh` | Une pull request que je merge |
+
+L'état d'un ticket vit sur GitHub (étiquettes, commentaires, sous-issues), pas dans des fichiers locaux.
 
 ## Le workflow : deux niveaux, et un chemin court
 
@@ -64,7 +65,7 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 
 Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
 
-`/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Ce sera le rôle de l'orchestrateur `/factory` de choisir quels tickets peuvent avancer ensemble.
+`/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Choisir quels tickets peuvent avancer ensemble serait le rôle d'un futur orchestrateur `/factory`, qui n'existe pas encore.
 
 Les captures et le PDF du brief utilisent Playwright : il faut Node.js 20 ou plus. La première fois, Playwright télécharge Chromium (environ 150 Mo).
 
@@ -164,7 +165,7 @@ Sans Chrome, les pages se construisent quand même, sans cette vérification.
 AGENTS.md         les règles de la factory (source unique, lisible par tous les outils)
 CLAUDE.md         importe AGENTS.md pour Claude Code
 skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
-agents/           un fichier par sous-agent
+agents/           un fichier par sous-agent (vide pour l'instant)
 tests/            tests des scripts (tests/test-pick-model.sh)
 scripts/          scripts d'an-forge (sync-upstream.sh, build-maps.sh, un .lock par source copiée)
 licenses/         licences des skills venus d'ailleurs
@@ -199,15 +200,20 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 
 ## Avancement
 
-- [x] Étape 1 : squelette
-- [x] Niveau projet : skills de Matt Pocock intégrés
-- [x] `/project-init` et `/project-launch`
-- [x] Étape 2 : niveau feature (`/build-ticket`)
-- [ ] Étape 3 : agents
-- [ ] Étape 4 : gates et état
-- [ ] Étape 5 : orchestrateur `/factory`
-- [x] Cartes interactives de la factory (docs/)
-- [ ] Étape 6 : test sur un vrai projet
+Fait :
+- [x] Squelette et skills de Matt Pocock intégrés
+- [x] `/project-init`, `/project-launch`, `/quick-ticket`
+- [x] `/build-ticket` : isolation, TDD, checks, relectures, brief, PR, merge contrôlé
+- [x] Checks relancés par GitHub, étiquettes `needs-info` / `ready-for-human`
+- [x] Choix du modèle par taille de ticket
+- [x] Cartes interactives de la factory (`docs/`)
+
+À faire :
+- [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
+- [ ] Sous-agents dédiés (`agents/` est vide : les relectures passent par des skills)
+- [ ] Tests automatiques des scripts et contrôle du bump de version
+- [ ] Aperçu de déploiement par PR dans le ticket socle
+- [ ] Orchestrateur `/factory` et parallèle, seulement après 10 à 20 tickets faits à la main
 
 ## Inspirations
 
