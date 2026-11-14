@@ -29,6 +29,7 @@ LIMITS = {
     "objectif": 300,
     "changement": 140,
     "texte_avant_apres": 280,
+    "schema": 400,
     "fiabilite": 140,
     "choix": 700,
     "a_decider": 160,
@@ -38,6 +39,33 @@ LIMITS = {
     "critere": 160,
 }
 MAX_CRITERES = 12
+MAX_BOITES = 5
+MERMAID = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs"
+# Pose html[data-ready] quand la page est prête, schémas dessinés ou non : to-pdf.sh l'attend.
+READY = "<script>document.documentElement.dataset.ready = '1';</script>"
+READY_MERMAID = (
+    '<script type="module">\n'
+    "try {\n"
+    f'  const {{ default: mermaid }} = await import("{MERMAID}");\n'
+    '  mermaid.initialize({ startOnLoad: false, theme: "neutral", flowchart: { useMaxWidth: false } });\n'
+    "  await mermaid.run();\n"
+    "} finally { document.documentElement.dataset.ready = '1'; }\n"
+    "</script>"
+)
+
+
+def check_schema(code, where, errors):
+    """Un schéma Mermaid court et de gauche à droite : 5 boîtes au plus."""
+    if not isinstance(code, str) or not code.strip():
+        errors.append(f"{where} : vide")
+        return
+    if len(code) > LIMITS["schema"]:
+        errors.append(f"{where} : {len(code)} caractères, {LIMITS['schema']} au maximum")
+    if not code.strip().startswith("flowchart LR"):
+        errors.append(f"{where} : commence par « flowchart LR » (un schéma de gauche à droite)")
+    boites = set(re.findall(r"\b([A-Za-z]\w*)\s*[\[\(\{]", code))
+    if len(boites) > MAX_BOITES:
+        errors.append(f"{where} : {len(boites)} boîtes, {MAX_BOITES} au maximum")
 # Un fichier de test : un dossier de tests, ou un nom en .test. / .spec. / _test. / test_*.py
 TEST_FILE = re.compile(
     r"(^|/)(tests?|__tests__|specs?|e2e|cypress)/"
@@ -273,8 +301,13 @@ def main():
     aa = data.get("avant_apres") or {}
     ecrans = aa.get("ecrans") or []
     texte = aa.get("texte")
-    if bool(ecrans) == bool(texte):
-        errors.append("avant_apres : mets soit « ecrans » (captures), soit « texte », pas les deux")
+    schemas = aa.get("schemas")
+    if sum(bool(x) for x in (ecrans, schemas, texte)) != 1:
+        errors.append("avant_apres : mets une seule forme : « ecrans » (captures), « schemas » ou « texte »")
+    if schemas:
+        if schemas.get("avant"):
+            check_schema(schemas["avant"], "avant_apres.schemas.avant", errors)
+        check_schema(schemas.get("apres"), "avant_apres.schemas.apres", errors)
     if len(ecrans) > 2:
         errors.append("avant_apres.ecrans : 2 écrans au maximum")
     for i, ecran in enumerate(ecrans, 1):
@@ -374,6 +407,18 @@ def main():
                 "</div></div>"
             )
         avant_apres = "\n".join(rows)
+    elif schemas:
+        avant = (schemas.get("avant") or "").strip()
+        avant_apres = (
+            '<div class="pair"><div class="pair-images schemas">'
+            + (
+                f'<figure><pre class="mermaid">{esc(avant)}</pre><figcaption>Avant</figcaption></figure>'
+                if avant
+                else '<div class="text-box"><p class="label">Avant</p><p>Cela n’existait pas.</p></div>'
+            )
+            + f'<figure><pre class="mermaid">{esc(schemas["apres"].strip())}</pre><figcaption>Après</figcaption></figure>'
+            "</div></div>"
+        )
     else:
         avant_apres = (
             '<div class="text-pair">'
@@ -412,6 +457,7 @@ def main():
         "ESSAYER": essayer_html,
         "REVISION": revision_html,
         "ANNEXE": annexe,
+        "SCRIPTS": READY_MERMAID if schemas else READY,
     }
     for key, value in values.items():
         page = page.replace("{{" + key + "}}", value)

@@ -31,5 +31,6 @@ if ! out=$(npx -y "$PLAYWRIGHT" install chromium 2>&1); then
   echo "Impossible d'installer Chromium pour Playwright." >&2
   exit 1
 fi
-npx -y "$PLAYWRIGHT" pdf --paper-format A4 "file://$DIR/index.html" "$OUT" >/dev/null
+# Attend que la page soit prête : les schémas avant/après sont dessinés au chargement.
+npx -y "$PLAYWRIGHT" pdf --paper-format A4 --wait-for-selector "html[data-ready]" "file://$DIR/index.html" "$OUT" >/dev/null
 echo "PDF écrit : $OUT"

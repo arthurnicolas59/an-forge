@@ -32,7 +32,7 @@ flowchart LR
 Tu n'interviens qu'**à deux moments**, en orange :
 
 1. **Avant** : tu valides *ce qui va être construit*. L'agent te pose des questions, puis te montre la spec et les tickets. Rien n'est publié sans ton oui.
-2. **Après** : tu valides *ce qui a été construit*. Tu lis un brief d'une page, avec des captures d'écran avant/après, puis tu dis « merge la PR » ou ce qu'il faut changer.
+2. **Après** : tu valides *ce qui a été construit*. Tu lis un brief d'une page, avec des captures d'écran avant/après (ou deux petits schémas si le changement ne se voit pas), puis tu dis « merge la PR » ou ce qu'il faut changer.
 
 Entre les deux, l'agent travaille seul, sans te poser de questions.
 

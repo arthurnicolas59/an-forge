@@ -137,7 +137,7 @@ Garde du dernier `risk-review` le niveau de risque, sa phrase d'explication et l
 ## 8. Capturer l'après et écrire le brief
 
 - **Changement visible** : suis les étapes 3 et 4 du skill `before-after`.
-- **Sinon** : l'« après » est la même commande ou le même test qu'à l'étape 4, qui passe maintenant.
+- **Sinon** : l'« après » est la même commande ou le même test qu'à l'étape 4, qui passe maintenant. Dans le brief, montre-le avec deux petits schémas avant/après (`avant_apres.schemas` du skill `feature-brief`) dès qu'il y a un enchaînement à dessiner.
 
 Puis suis le skill `feature-brief` avec le dossier du brief, `<base>`, les résultats du dernier gate et des relectures, et les choix que tu as faits en construisant. En plus de ce qu'il demande :
 
@@ -157,7 +157,7 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 
 - `Closes #<n>` en première ligne. Si `scripts/tickets.sh last-of-spec <n>` affiche un numéro, c'est le dernier ticket ouvert de sa spec : ajoute `Closes #<spec>`, pour que la spec se ferme avec ce merge ;
 - le chemin du brief (`docs/briefs/<n>-<titre>/index.html`) ;
-- les captures « après » du brief, affichées dans le texte et pas seulement citées : `![<nom de l'écran>](https://github.com/<owner>/<repo>/raw/<sha>/docs/briefs/<n>-<titre>/<image>.png)`, avec le SHA du dernier commit poussé, pour que l'image reste visible après le merge et la suppression de la branche ;
+- l'avant/après du brief, en image et pas seulement cité. Les captures : `![<nom de l'écran>](https://github.com/<owner>/<repo>/raw/<sha>/docs/briefs/<n>-<titre>/<image>.png)`, avec le SHA du dernier commit poussé, pour que l'image reste visible après le merge et la suppression de la branche. Les schémas : recopie-les tels quels dans un bloc ```` ```mermaid ````, que GitHub dessine ;
 - les interfaces testées (étape 5) ;
 - les tests existants supprimés ou modifiés, avec la raison de chacun, s'il y en a ;
 - ce que les relectures ont laissé ouvert, s'il reste quelque chose.
