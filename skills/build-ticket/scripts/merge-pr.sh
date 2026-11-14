@@ -33,6 +33,11 @@ fi
 wt=$(git worktree list --porcelain | awk -v b="refs/heads/$head" '/^worktree /{p=$2} $0=="branch "b{print p}')
 if [ -n "$wt" ]; then
   passed=$(cat "$(git -C "$wt" rev-parse --git-dir)/an-forge-gate-pass" 2>/dev/null || true)
+  # Le gate vaut aussi pour une version qui n'ajoute que le brief à celle qu'il a testée.
+  if [ -n "$passed" ] && [ "$passed" != "$sha" ] && git merge-base --is-ancestor "$passed" "$sha" 2>/dev/null &&
+    git diff --quiet "$passed" "$sha" -- ':(top)' ':(top,exclude)docs/briefs/'; then
+    passed=$sha
+  fi
   if [ "$passed" != "$sha" ]; then
     echo "GATE À RELANCER : le gate n'a pas passé sur la version poussée de la PR #$N. Lance gate.sh dans $wt, pousse si besoin, puis relance." >&2
     exit 5

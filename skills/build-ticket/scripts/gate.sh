@@ -6,6 +6,7 @@
 #
 # Échoue si la branche a modifié scripts/checks.sh ou .github/workflows/checks.yml
 # (on ne change pas les règles pour passer), sinon lance scripts/checks.sh. Code de sortie 0 seulement si tout passe.
+# Signale aussi, sans échouer, les tests existants que la branche a supprimés ou dont elle a retiré des lignes.
 # Quand tout passe sans modification en cours, retient le commit testé (lu par merge-pr.sh).
 # La sortie complète est gardée dans .git du worktree (chemin affiché), la fin est affichée en cas d'échec.
 set -uo pipefail
@@ -31,12 +32,22 @@ for f in scripts/checks.sh .github/workflows/checks.yml; do
   fi
 done
 
+# Les tests qui existaient avant : supprimés, ou avec des lignes retirées. Un signal, pas un refus :
+# le ticket peut le demander. Mais un test qu'on retire pour faire passer les checks doit se voir.
+TEST_FILE='(^|/)(tests?|__tests__|specs?|e2e|cypress)/|[._-](test|spec)\.[^/]+$|(^|/)test_[^/]+\.py$'
+MB=$(git merge-base "$BASE" HEAD)
+TOUCHED=$(
+  git diff --name-only --diff-filter=D "$MB" | grep -E "$TEST_FILE" | sed 's/^/  supprimé : /'
+  git diff --numstat --diff-filter=M "$MB" | awk -F'\t' '$2 != "0" && $2 != "-" {print $3}' | grep -E "$TEST_FILE" | sed 's/^/  modifié  : /'
+)
+
 LOG="$(git rev-parse --git-dir)/an-forge-checks.log"
 PASSED="$(git rev-parse --git-dir)/an-forge-gate-pass"
 rm -f "$PASSED"
 # Sans modification en cours, ce qui est testé est exactement le dernier commit : on pourra le prouver au merge.
+# Le dossier des briefs ne compte pas : ses images et son texte ne changent rien aux checks.
 CLEAN=0
-[ -z "$(git status --porcelain)" ] && CLEAN=1
+[ -z "$(git status --porcelain -- ':(top)' ':(top,exclude)docs/briefs/')" ] && CLEAN=1
 start=$(date +%s)
 bash scripts/checks.sh >"$LOG" 2>&1
 code=$?
@@ -45,6 +56,10 @@ secs=$(( $(date +%s) - start ))
 if [ $code -eq 0 ]; then
   [ "$CLEAN" = 1 ] && git rev-parse HEAD >"$PASSED"
   echo "GATE: PASS (${secs}s) — sortie complète : $LOG"
+  if [ -n "$TOUCHED" ]; then
+    echo "TESTS EXISTANTS TOUCHÉS — remets-les en l'état, sauf si le ticket le demande ; ce qui reste sera affiché dans le brief :"
+    echo "$TOUCHED"
+  fi
   exit 0
 fi
 

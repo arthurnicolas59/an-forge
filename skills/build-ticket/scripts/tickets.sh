@@ -9,7 +9,9 @@
 #                                Une ligne par ticket : <numéro><TAB><titre>
 #   tickets.sh next [spec]       le premier ticket libre (même format), ou rien
 #   tickets.sh check <n>         décrit le ticket <n> en lignes clé=valeur et termine par
-#                                verdict=ok|spec|closed|not-ready|blocked|assigned
+#                                verdict=ok|spec|closed|needs-info|human|not-ready|blocked|assigned
+#                                (needs-info : une question attend l'utilisateur ; human : la construction
+#                                s'est arrêtée et attend un humain)
 #   tickets.sh last-of-spec <n>  affiche le numéro de la spec si <n> est son dernier ticket encore ouvert,
 #                                sinon rien
 set -euo pipefail
@@ -74,8 +76,8 @@ case "${1:-}" in
 
   check)
     n=${2:?Usage : tickets.sh check <n>}
-    info=$(gh api "repos/$REPO/issues/$n" --jq '[.state, ([.labels[].name] | index("ready-for-agent") != null), (.assignees | length), (.sub_issues_summary.total // 0), (.pull_request != null)] | @tsv')
-    IFS=$'\t' read -r state ready assignees subs is_pr <<<"$info"
+    info=$(gh api "repos/$REPO/issues/$n" --jq '[.state, ([.labels[].name] | index("ready-for-agent") != null), (.assignees | length), (.sub_issues_summary.total // 0), (.pull_request != null), ([.labels[].name] | index("needs-info") != null), ([.labels[].name] | index("ready-for-human") != null)] | @tsv')
+    IFS=$'\t' read -r state ready assignees subs is_pr needs_info human <<<"$info"
     parent=$(parent_of "$n")
     parent=${parent:-none}
     blockers=$(open_blockers "$n")
@@ -91,6 +93,10 @@ case "${1:-}" in
       echo "verdict=spec"
     elif [ "$state" != "open" ]; then
       echo "verdict=closed"
+    elif [ "$needs_info" = "true" ]; then
+      echo "verdict=needs-info"
+    elif [ "$human" = "true" ]; then
+      echo "verdict=human"
     elif [ "$ready" != "true" ]; then
       echo "verdict=not-ready"
     elif [ "$blockers" != "0" ]; then
@@ -112,7 +118,7 @@ case "${1:-}" in
     ;;
 
   *)
-    sed -n '3,15p' "$0" >&2
+    sed -n '3,17p' "$0" >&2
     exit 2
     ;;
 esac

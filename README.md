@@ -21,7 +21,7 @@ jugement et des **scripts** font le travail qui doit être exact.
 | 5 | État | fichiers | Où en est chaque job, pour pouvoir reprendre après un arrêt |
 | 6 | Sortie | GitHub | Une pull request que je merge |
 
-## Le workflow : deux niveaux
+## Le workflow : deux niveaux, et un chemin court
 
 ### Niveau projet : la direction
 
@@ -38,6 +38,10 @@ Il s'arrête pour te demander ton accord avant de pousser le cadre, de publier l
 
 Si tu n'es pas développeur (`/project-init` te le demande), aucune question technique ne t'est posée brute : tu reçois une recommandation expliquée simplement, à valider.
 
+### Le chemin court : une petite demande
+
+Pour un bug, une retouche ou un petit ajout, pas besoin de spec : **`/quick-ticket`** pose trois questions au plus, écrit un seul ticket `ready-for-agent` avec ses critères d'acceptation, et le publie avec ton accord. Si la demande est trop grosse pour un ticket, il te renvoie vers `/project-launch`.
+
 ### Niveau feature : la réalisation
 
 Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticket par session.
@@ -47,9 +51,15 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 1. **Isoler** : `start-ticket.sh` crée la branche `ticket/<n>-…` et un worktree dans `.worktrees/`, depuis le dernier `main`.
 2. **Construire** : `tdd`, test d'abord. Pour un bug, `diagnosing-bugs` le reproduit avant de le corriger.
 3. **Tester** : `gate.sh` lance `scripts/checks.sh`. Rien n'avance tant qu'il échoue, et une branche qui modifie les checks est refusée.
-4. **Relire** : `code-review` confie la relecture à deux agents neufs, qui ne voient que le diff, le ticket et les règles du projet. Deux tours au maximum.
-5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués), puis une annexe avec les fichiers touchés.
+4. **Relire** : des agents neufs, qui ne voient que le diff, le ticket et les règles du projet. `code-review` vérifie les règles et la fidélité au ticket ; `risk-review` cherche les bugs, les failles de sécurité et les risques pour les données, et donne le niveau de risque. Deux tours au maximum.
+5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués, comment l'essayer), puis une annexe avec les critères du ticket, chacun avec sa preuve, et les fichiers touchés.
 6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. GitHub relance alors les checks de son côté, sur une machine neutre, et l'agent corrige s'ils échouent. L'agent ne merge pas de lui-même : tu lis le brief, puis tu dis « merge la PR ». `merge-pr.sh` ne merge que si la PR contient le dernier `main`, que les checks ont passé sur exactement cette version, et que ceux de GitHub sont verts.
+
+**Ce que l'agent ne peut pas embellir.** Dans le brief, trois informations ne viennent pas de l'agent qui a codé : le niveau de risque (donné par le relecteur indépendant), le résultat des checks et la liste des tests existants supprimés ou modifiés (calculés par les scripts).
+
+**Après le brief**, tu as deux réponses possibles : « merge la PR », ou dire ce qui ne te convient pas. Dans ce cas l'agent corrige, relance les checks et les relectures, et te redonne un brief à jour. Une demande qui sort du ticket devient un nouveau ticket (`/quick-ticket`).
+
+**Quand ça coince, ça se voit sur GitHub.** Un ticket qu'on ne peut pas construire sans deviner n'est pas construit : l'agent écrit sa question sur le ticket, avec l'étiquette `needs-info`, et passe au suivant. Une construction qui s'arrête en route (checks en échec trois fois, par exemple) laisse un commentaire sur le ticket, avec l'étiquette `ready-for-human`.
 
 Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
 
@@ -80,19 +90,21 @@ sinon dans `AGENTS.md`. Ainsi, toute la configuration reste dans `AGENTS.md`, li
 |-------|------|---------|
 | `project-init` | Prépare un repo pour la factory | an-forge |
 | `project-launch` | De l'idée aux tickets : grill, spec, tickets | an-forge |
+| `quick-ticket` | D'une petite demande (bug, retouche) à un seul ticket | an-forge |
 | `setup-matt-pocock-skills` | Configure un projet (tickets, étiquettes, docs) | Matt Pocock |
 | `grill-with-docs` | Interrogatoire + glossaire et ADR | Matt Pocock |
 | `grilling` | L'interrogatoire, utilisé par `grill-with-docs` | Matt Pocock |
 | `domain-modeling` | Glossaire et ADR, utilisé par `grill-with-docs` | Matt Pocock |
 | `to-spec` | Conversation → spec publiée en issue | Matt Pocock |
 | `to-tickets` | Spec → tickets `ready-for-agent` | Matt Pocock |
-| `build-ticket` | D'un ticket à une PR : isoler, construire, tester, relire, résumer | an-forge |
+| `build-ticket` | D'un ticket à une PR : isoler, construire, tester, relire, résumer ; puis reprendre sur demande | an-forge |
 | `before-after` | Captures des mêmes écrans avant et après un changement | an-forge |
 | `feature-brief` | Brief pour le CEO : une page de synthèse et une annexe des fichiers | an-forge |
 | `tdd` | Construire test d'abord, une tranche à la fois | Matt Pocock |
 | `diagnosing-bugs` | Reproduire un bug avant de le corriger | Matt Pocock |
 | `codebase-design` | Vocabulaire de conception, utilisé par `tdd` | Matt Pocock |
 | `code-review` | Relire le diff selon les règles et la spec | Matt Pocock |
+| `risk-review` | Chercher les bugs, les failles et les risques pour les données ; donner le niveau de risque | an-forge |
 | `pr` | Rédiger le corps d'une pull request | Matt Pocock |
 
 ### Skills venus de Matt Pocock

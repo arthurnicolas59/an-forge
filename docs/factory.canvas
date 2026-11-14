@@ -170,7 +170,7 @@
       "x": -1130,
       "y": 540,
       "width": 1820,
-      "height": 230,
+      "height": 420,
       "label": "Niveau feature : la réalisation (/build-ticket enchaîne 1 → 6, sans s'arrêter)"
     },
     {
@@ -232,6 +232,26 @@
       "height": 150,
       "color": "6",
       "text": "## 6. PR\n`/pr`\n`Closes #n`, preuve, lien du brief. Jamais de merge.\n\n*Matt Pocock*"
+    },
+    {
+      "id": "ft-risk",
+      "type": "text",
+      "x": -200,
+      "y": 780,
+      "width": 260,
+      "height": 150,
+      "color": "6",
+      "text": "## 4 bis. Risques\n`/risk-review`\nUn agent neuf cherche bugs, failles et risques pour les données. Donne le niveau de risque.\n\n*Agent · an-forge*"
+    },
+    {
+      "id": "quick",
+      "type": "text",
+      "x": -1100,
+      "y": -560,
+      "width": 300,
+      "height": 150,
+      "color": "6",
+      "text": "## Chemin court\n`/quick-ticket`\nUn bug ou une retouche devient un seul ticket, sans spec.\n\n*Agent · an-forge*"
     }
   ],
   "edges": [
@@ -362,6 +382,29 @@
       "toNode": "ft-isolate",
       "toSide": "top",
       "label": "un ticket, une session"
+    },
+    {
+      "id": "e-test-risk",
+      "fromNode": "ft-test",
+      "fromSide": "bottom",
+      "toNode": "ft-risk",
+      "toSide": "left"
+    },
+    {
+      "id": "e-risk-brief",
+      "fromNode": "ft-risk",
+      "fromSide": "right",
+      "toNode": "ft-brief",
+      "toSide": "bottom",
+      "label": "niveau de risque"
+    },
+    {
+      "id": "e-quick-intake",
+      "fromNode": "quick",
+      "fromSide": "bottom",
+      "toNode": "intake",
+      "toSide": "left",
+      "label": "un ticket ready-for-agent"
     }
   ]
 }

@@ -4,7 +4,7 @@
 #     un worktree qui contient du travail non commité est gardé, et signalé ;
 #   - ferme chaque spec dont tous les tickets sont fermés, avec un commentaire ;
 #   - retire l'étiquette ready-for-agent de ce qui n'est pas un ticket à construire :
-#     les issues fermées et les specs.
+#     les issues fermées et les specs ; et ready-for-human et needs-info des issues fermées.
 #
 # Usage : cleanup.sh        (depuis n'importe où dans le repo)
 set -uo pipefail
@@ -55,9 +55,11 @@ for n in $(gh issue list --state open --limit 200 --json number --jq '.[].number
   fi
 done
 
-# 3. Les issues fermées n'ont plus rien à construire.
-for n in $(gh issue list --state closed --label ready-for-agent --limit 200 --json number --jq '.[].number'); do
-  gh issue edit "$n" --remove-label ready-for-agent >/dev/null &&
-    echo "Étiquette retirée : #$n (fermé)"
+# 3. Les issues fermées n'ont plus rien à construire, et n'attendent plus personne.
+for l in ready-for-agent ready-for-human needs-info; do
+  for n in $(gh issue list --state closed --label "$l" --limit 200 --json number --jq '.[].number'); do
+    gh issue edit "$n" --remove-label "$l" >/dev/null &&
+      echo "Étiquette $l retirée : #$n (fermé)"
+  done
 done
 exit 0

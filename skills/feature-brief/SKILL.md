@@ -8,16 +8,18 @@ description: Écrit le brief d'une évolution pour un dirigeant : une page de sy
 Écrit le document qu'une équipe montrerait à son CEO pour présenter une évolution :
 
 - **page 1, la synthèse** : la décision à prendre, l'objectif, l'avant/après, ce qui change, la fiabilité et les choix effectués ;
-- **page 2, l'annexe** : les fichiers créés, modifiés, supprimés ou renommés, pour qui veut vérifier.
+- **page 2, l'annexe** : les critères du ticket avec leur preuve, puis les fichiers créés, modifiés, supprimés ou renommés, pour qui veut vérifier.
 
 Le lecteur ne lit pas le code. Il veut savoir pourquoi on l'a fait, ce qui change pour les utilisateurs, si c'est fiable, pourquoi on s'y est pris ainsi, et ce qu'il doit décider.
 
-Les scripts et le modèle cités sont dans les dossiers `scripts/` et `templates/` à côté de ce fichier. Tu n'écris que le contenu, dans `brief.json`. `scripts/render.py` le met en page avec le modèle fixe, pour que tous les briefs se ressemblent, et calcule lui-même la liste des fichiers avec git.
+Les scripts et le modèle cités sont dans les dossiers `scripts/` et `templates/` à côté de ce fichier. Tu n'écris que le contenu, dans `brief.json`. `scripts/render.py` le met en page avec le modèle fixe, pour que tous les briefs se ressemblent.
+
+**Ce que tu n'écris pas.** Le script calcule lui-même, avec git, ce qui doit être exact : la liste des fichiers, les tests existants supprimés ou modifiés, et si les checks ont passé sur cette version. Tu ne peux ni les écrire ni les embellir.
 
 ## Entrées
 
 - Le ticket et la spec dont il vient.
-- La branche de base (par exemple `origin/main`), les résultats des checks et de la relecture.
+- La branche de base (par exemple `origin/main`), les résultats des checks et des relectures (`code-review`, `risk-review`).
 - Les captures avant/après s'il y en a (skill `before-after`), sinon le test qui échouait puis passe.
 - Le dossier du brief. Par défaut, `docs/briefs/<ticket>-<titre-court>/`.
 
@@ -51,6 +53,12 @@ Crée `<dossier>/brief.json` :
   },
   "choix": "L'historique est gardé dans le navigateur de chaque utilisateur, pas sur nos serveurs. C'est la solution la plus simple : rien à stocker de notre côté, et aucune donnée ne quitte l'ordinateur de l'utilisateur. La contrepartie : l'historique ne suit pas l'utilisateur d'un appareil à l'autre. Si ce besoin apparaît, on pourra le déplacer sur les serveurs sans changer ce que voit l'utilisateur.",
   "a_decider": "Merger la pull request pour mettre l'historique en ligne.",
+  "essayer": "Lancez « npm run dev », ouvrez localhost:3000, faites deux calculs puis rechargez la page : ils sont toujours là.",
+  "criteres": [
+    { "critere": "Les 20 derniers calculs s'affichent", "preuve": "Test : le 21e calcul fait disparaître le plus ancien" },
+    { "critere": "L'historique reste après fermeture de la page", "preuve": "Test : les calculs reviennent après rechargement" },
+    { "critere": "L'historique se vide en un clic", "preuve": "" }
+  ],
   "fichiers": {
     "src/history.ts": "Garde et relit les 20 derniers calculs",
     "src/Calculator.tsx": "Affiche l'historique à côté de la calculatrice"
@@ -63,7 +71,10 @@ Crée `<dossier>/brief.json` :
 - **`avant_apres`** : soit `ecrans` (2 au plus, images rangées dans le dossier du brief), soit `texte` : `{ "avant": "…", "apres": "…" }` pour un changement qui ne se voit pas. Exemple : « Un montant à 0 € bloquait la facture » puis « La facture est générée, avec la mention “gratuit” ».
 - **`fiabilite.tests`** : le nombre réel de tests qui passent, d'après la dernière exécution des checks. N'invente aucun chiffre.
 - **`fiabilite.relecture`** : ce que la relecture a trouvé et ce qui a été fait.
-- **`fiabilite.risque`** : `faible`, `moyen` ou `élevé`, et dans `risque_detail` pourquoi, en disant si c'est facile à annuler. Des données modifiées ou supprimées, un paiement ou un accès touché : au moins `moyen`.
+- **`fiabilite.risque`** : `faible`, `moyen` ou `élevé`, et dans `risque_detail` pourquoi, en disant si c'est facile à annuler. **Ce n'est pas ton avis** : reprends le niveau donné par la relecture indépendante (`risk-review`), sans jamais le baisser. Sans relecture indépendante, estime-le toi-même et écris-le dans `risque_detail` : « Estimé par l'auteur du code, sans relecture indépendante. » Des données modifiées ou supprimées, un paiement ou un accès touché : au moins `moyen`.
+- **`essayer`** (facultatif, attendu pour un changement visible) : comment essayer soi-même, en une ou deux phrases : la commande ou l'adresse, puis le geste à faire et ce qu'on doit voir. Rien que tu n'aies fait toi-même.
+- **`criteres`** (facultatif, attendu quand le ticket a des critères d'acceptation) : un par critère du ticket, dans le même ordre, avec ses mots. `preuve` dit ce qui le prouve, en mots simples : un test (« Test : … », avec ce qu'il vérifie) ou une capture. Un critère sans test ni capture a une `preuve` vide : il s'affiche « Non prouvé ». N'écris jamais une preuve qui n'existe pas.
+- **`revision`** (facultatif) : si le brief est mis à jour après une demande de l'utilisateur, ce qui a changé depuis la première version, en une phrase.
 - **`choix`** : un paragraphe qui explique les choix effectués (voir l'étape 3).
 - **`a_decider`** : la décision attendue, en une phrase. S'il reste un point ouvert (une remarque de relecture non corrigée, un choix fait sans l'utilisateur), dis-le ici.
 - **`fichiers`** (facultatif) : pour les fichiers importants, ce que fait le fichier, en une phrase simple. Ils doivent faire partie du diff. Les autres apparaissent dans l'annexe sans phrase.
@@ -99,7 +110,9 @@ Les choix viennent du travail réel : le ticket, la spec, les ADR, et ce que tu 
 
 ## 4. Mettre en page
 
-Lance `python3 scripts/render.py <dossier> --base <base>`. Il écrit `<dossier>/index.html` : la synthèse, puis l'annexe des fichiers touchés entre `<base>` et la branche, sans le dossier `docs/briefs/`. Commite le code avant de le lancer : l'annexe ne voit que ce qui est commité.
+Lance `python3 scripts/render.py <dossier> --base <base>`. Il écrit `<dossier>/index.html` : la synthèse, puis l'annexe (les critères, et les fichiers touchés entre `<base>` et la branche, sans le dossier `docs/briefs/`). Il ajoute à la section « Fiabilité » les lignes qu'il calcule : les checks, les critères prouvés, les tests existants touchés. Commite le code avant de le lancer : l'annexe ne voit que ce qui est commité.
+
+Lis ces lignes calculées. Si l'une n'est pas bonne (checks non relancés, un test supprimé, un critère non prouvé), corrige la cause si tu le peux. Sinon, dis-le dans `a_decider` : le lecteur doit le savoir avant de décider.
 
 Il refuse un brief trop long ou incomplet, en disant quoi raccourcir. Corrige `brief.json` et relance jusqu'à ce qu'il passe.
 

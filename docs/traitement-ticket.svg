@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 400" width="1240" height="400" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
   <title id="t">Traiter un ticket avec an-forge</title>
-  <desc id="d">De gauche à droite, avec /build-ticket et sans s'arrêter : réserver le premier ticket libre (start-ticket.sh), construire en écrivant le test d'abord (tdd), tester avec les checks (gate.sh, jusqu'à 3 essais), faire relire par un agent neuf (code-review, 2 tours au plus), écrire le brief avec l'avant et l'après (before-after, feature-brief), ouvrir la pull request (pr), que GitHub revérifie. Puis, avec ton accord après lecture du brief, merger (merge-pr.sh).</desc>
+  <desc id="d">De gauche à droite, avec /build-ticket et sans s'arrêter : réserver le premier ticket libre (start-ticket.sh), construire en écrivant le test d'abord (tdd), tester avec les checks (gate.sh, jusqu'à 3 essais), faire relire par des agents neufs (code-review et risk-review, 2 tours au plus), écrire le brief avec l'avant et l'après (before-after, feature-brief), ouvrir la pull request (pr), que GitHub revérifie. Puis, avec ton accord après lecture du brief, merger (merge-pr.sh).</desc>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M1 1 L9 5 L1 9 Z" fill="#6d6a78"/>
@@ -26,7 +26,7 @@
 
     <rect x="551" y="160" width="138" height="72" rx="10" fill="#1b1a21" stroke="#3a3842"/>
     <text x="620" y="192" fill="#eceaf2">Relire</text>
-    <text x="620" y="214" fill="#a19fae" font-size="13" font-weight="400">par un agent neuf</text>
+    <text x="620" y="214" fill="#a19fae" font-size="13" font-weight="400">par des agents neufs</text>
 
     <rect x="717" y="160" width="138" height="72" rx="10" fill="#1b1a21" stroke="#3a3842"/>
     <text x="786" y="192" fill="#eceaf2">Brief</text>
@@ -69,6 +69,7 @@
     <text x="288" y="256">tdd</text>
     <text x="454" y="256">gate.sh</text>
     <text x="620" y="256">code-review</text>
+    <text x="620" y="272">risk-review</text>
     <text x="786" y="256">feature-brief</text>
     <text x="952" y="256">pr</text>
     <text x="1118" y="256">merge-pr.sh</text>

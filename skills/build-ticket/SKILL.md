@@ -1,6 +1,6 @@
 ---
 name: build-ticket
-description: Construit un ticket ready-for-agent de bout en bout, sans s'arrêter, jusqu'à une pull request : branche isolée, code en TDD, checks, relecture par un agent indépendant, brief d'une page pour le dirigeant. Utilise quand l'utilisateur veut construire, réaliser ou traiter un ticket, ou demande /build-ticket.
+description: Construit un ticket ready-for-agent de bout en bout, sans s'arrêter, jusqu'à une pull request : branche isolée, code en TDD, checks, relectures par des agents indépendants, brief d'une page pour le dirigeant. Reprend aussi une pull request après une demande de changement. Utilise quand l'utilisateur veut construire, réaliser, traiter ou corriger un ticket, ou demande /build-ticket.
 ---
 
 # Build ticket
@@ -11,7 +11,7 @@ Le niveau feature du workflow an-forge : un ticket `ready-for-agent` entre, une 
 Isoler → Avant → Construire → Tester → Relire → Après → Brief → PR → Checks GitHub
 ```
 
-Tout se fait **sans s'arrêter ni poser de question** : l'utilisateur n'intervient qu'à la fin, en lisant le brief puis en décidant de merger. Lance ce skill dans une session neuve, un ticket par session. Par défaut, un ticket à la fois : on construit le suivant une fois le précédent mergé. Le parallèle est possible (une session par ticket, chacune réserve un ticket différent), mais deux tickets corrects séparément peuvent se contredire, et des ressources comme une base de données de développement restent partagées.
+Tout se fait **sans s'arrêter ni poser de question** : l'utilisateur n'intervient qu'à la fin, en lisant le brief puis en décidant de merger ou de demander un changement (étape 12). Une seule exception : un ticket qu'on ne peut pas construire sans deviner (étape 2). Lance ce skill dans une session neuve, un ticket par session. Par défaut, un ticket à la fois : on construit le suivant une fois le précédent mergé. Le parallèle est possible (une session par ticket, chacune réserve un ticket différent), mais deux tickets corrects séparément peuvent se contredire, et des ressources comme une base de données de développement restent partagées.
 
 Les scripts cités sont dans le dossier `scripts/` à côté de ce fichier. Pour lancer un skill depuis celui-ci, si ton outil ne sait pas le faire, lis son `SKILL.md` et suis-le.
 
@@ -19,7 +19,7 @@ Les scripts cités sont dans le dossier `scripts/` à côté de ce fichier. Pour
 
 Le projet doit avoir été préparé par `project-init` : un `AGENTS.md` sans « À REMPLIR », un `scripts/checks.sh` sans « À REMPLIR » et un fichier `docs/agents/issue-tracker.md`. S'il manque quelque chose, propose de lancer `project-init`, et arrête-toi là.
 
-Lis `docs/agents/issue-tracker.md` : il dit comment lire un ticket et ses blocages. Si les tickets sont des fichiers locaux, tout se déroule de la même façon, mais sans push ni pull request (étape 9), et sans les scripts `tickets.sh` et `cleanup.sh`, qui lisent GitHub.
+Lis `docs/agents/issue-tracker.md` : il dit comment lire un ticket et ses blocages. Si les tickets sont des fichiers locaux, tout se déroule de la même façon, mais sans push ni pull request (étape 9), et sans les scripts `tickets.sh`, `cleanup.sh` et `flag-ticket.sh`, qui lisent GitHub : là où ce skill demande `flag-ticket.sh`, change la ligne `Status` du fichier du ticket et écris le message dessous.
 
 Sur GitHub, lance d'abord `scripts/cleanup.sh`. Il fait le ménage des tickets déjà mergés (worktree et branche) et ferme les specs dont tous les tickets sont terminés. Il garde tout dossier qui contient du travail non commité. Mentionne en une ligne ce qu'il a fait, s'il a fait quelque chose.
 
@@ -31,8 +31,9 @@ Sur GitHub, lance d'abord `scripts/cleanup.sh`. Il fait le ménage des tickets d
 - **Avec un numéro** : lance d'abord `scripts/tickets.sh check <n>` et lis le `verdict` :
   - `ok` : c'est ce ticket.
   - `spec` : ce numéro est une spec, pas un ticket. Prends `scripts/tickets.sh next <n>`, le premier ticket libre de cette spec, et dis-le en une ligne.
-  - `assigned`, avec un dossier `.worktrees/ticket-<n>` déjà présent : c'est une reprise après un arrêt. Continue sur ce ticket.
-  - `closed`, `not-ready`, `blocked` ou `assigned` sans dossier : dis en une phrase pourquoi ce ticket ne peut pas être construit maintenant (déjà terminé, pas encore prêt, en attente d'un autre ticket, déjà pris par une autre session), propose `/build-ticket` seul, et arrête-toi.
+  - `assigned` ou `human`, avec un dossier `.worktrees/ticket-<n>` déjà présent : c'est une reprise. Si sa pull request est déjà ouverte (`gh pr list --head <branche>`), le ticket est construit : va à l'étape 12 si l'utilisateur demande un changement, sinon rappelle-lui que la PR attend sa décision et arrête-toi. Sinon, c'est une reprise après un arrêt : lance `scripts/flag-ticket.sh ready <n>` et continue sur ce ticket.
+  - `needs-info` : une question attend l'utilisateur sur ce ticket. Lis ses commentaires. Si la réponse y est, ou si l'utilisateur vient de la donner (écris-la alors en commentaire du ticket), lance `scripts/flag-ticket.sh ready <n>` et prends ce ticket. Sinon, redonne la question à l'utilisateur et arrête-toi.
+  - `closed`, `not-ready`, `blocked`, ou `assigned` / `human` sans dossier : dis en une phrase pourquoi ce ticket ne peut pas être construit maintenant (déjà terminé, pas encore prêt, en attente d'un autre ticket, déjà pris par une autre session), propose `/build-ticket` seul, et arrête-toi.
 
 Si `next` ne renvoie rien, aucun ticket n'est libre. Dis pourquoi en une phrase (tout est terminé, les tickets restants attendent un ticket en cours, ou les autres sessions les ont déjà pris) et arrête-toi.
 
@@ -47,6 +48,17 @@ Annonce en une ligne le ticket que tu construis, et continue sans attendre.
 Lis le ticket en entier (commentaires compris), la spec dont il vient (son ticket parent, ou la ligne `Part of #…`), `AGENTS.md`, `GLOSSARY.md` et les ADR qui touchent la zone concernée.
 
 Respecte la section « L'utilisateur » d'`AGENTS.md` dans tout ce que tu lui écris, jusqu'au brief.
+
+Note les **critères d'acceptation** du ticket, mot pour mot : chacun devra avoir sa preuve à la fin (étape 8).
+
+**Le ticket peut-il être construit sans deviner ?** Un détail qui manque se décide : choisis la lecture la plus simple, et note-la pour la section « choix » du brief. Mais arrête-toi tout de suite, avant d'écrire du code, si une mauvaise supposition ferait construire la mauvaise chose :
+
+- le ticket contredit sa spec, un ADR ou un autre critère ;
+- deux lectures possibles donnent deux résultats différents pour l'utilisateur ;
+- il n'y a aucun critère d'acceptation, ou aucun n'est vérifiable ;
+- le ticket dépend de quelque chose qui n'existe pas (un écran, une donnée, un accès).
+
+Dans ce cas, lance `scripts/flag-ticket.sh needs-info <n> "<message>"`. Le message pose **une question précise**, avec les réponses possibles et celle que tu recommandes, écrite pour l'utilisateur décrit dans `AGENTS.md`. Le script écrit la question sur le ticket, pose l'étiquette `needs-info` et libère le ticket. Donne la même question à l'utilisateur, dis-lui que le ticket reprendra avec `/build-ticket <n>` une fois sa réponse donnée, et arrête-toi. Si le ticket avait été choisi sans numéro, dis aussi que `/build-ticket` seul prendra le ticket suivant.
 
 ## 3. Travailler dans le worktree
 
@@ -78,29 +90,44 @@ Suis le skill `tdd`, en respectant l'architecture existante et les règles d'`AG
 Lance `scripts/gate.sh <base>` depuis le worktree. Il refuse une branche qui modifie `scripts/checks.sh` ou `.github/workflows/checks.yml`, puis lance les checks du projet.
 
 - `GATE: PASS` : continue.
-- `GATE: FAIL` : corrige la cause, commit, relance. Si le même échec revient **trois fois**, arrête-toi : pas de PR. Résume l'échec, ce que tu as essayé, et laisse le worktree en place.
+- `GATE: FAIL` : corrige la cause, commit, relance. Si le même échec revient **trois fois**, arrête-toi : pas de PR. Résume l'échec, ce que tu as essayé, et laisse le worktree en place (voir « S'arrêter en route »).
+- `TESTS EXISTANTS TOUCHÉS` : le gate liste les tests qui existaient avant et que la branche a supprimés ou raccourcis. Remets chacun en l'état, sauf si le ticket demande ce changement de comportement. Ceux qui restent touchés apparaîtront dans le brief : garde pour chacun la raison, pour la PR.
 
 Ne passe jamais à la relecture avec un gate qui échoue, et ne contourne jamais un check (test désactivé, règle de lint coupée).
 
 ## 7. Relire
 
-Lance le skill `code-review` avec `<base>` comme point fixe et le ticket comme spec. Il confie la relecture à deux agents neufs, qui ne voient que le diff, le ticket et les règles du projet, pas ton raisonnement : c'est ce qui rend la relecture indépendante.
+Lance, avec `<base>` comme point fixe et le ticket comme spec, les deux skills de relecture, en même temps si ton outil le permet :
 
-Si ton outil ne sait pas lancer de sous-agent, arrête-toi avant la PR et demande à l'utilisateur de lancer `code-review` dans une nouvelle session, depuis le worktree.
+- `code-review` : le code suit-il les règles du projet, et fait-il ce que le ticket demande ?
+- `risk-review` : qu'est-ce qui peut mal se passer (bugs, sécurité, données, tests) ? Il donne aussi le **niveau de risque**.
 
-Traite le rapport :
+Ils confient la relecture à des agents neufs, qui ne voient que le diff, le ticket et les règles du projet, pas ton raisonnement : c'est ce qui rend la relecture indépendante.
+
+Si ton outil ne sait pas lancer de sous-agent, arrête-toi avant la PR et demande à l'utilisateur de lancer `code-review` puis `risk-review` dans une nouvelle session, depuis le worktree.
+
+Traite les rapports :
 
 - **Spec** : tout ce qui manque ou est faux par rapport au ticket se corrige. Ce qui dépasse le ticket se retire.
 - **Standards** : une règle d'`AGENTS.md` non respectée se corrige. Un avis (« possible … ») se corrige s'il est simple, sinon il va dans la PR.
+- **Risques** : un constat `bloquant` ou `à corriger` se corrige, avec un test qui reproduit le scénario décrit. Un constat `à noter` se corrige s'il est simple, sinon il va dans la PR. Si tu penses qu'un constat est faux, ne l'écarte pas en silence : écris pourquoi dans la PR.
 
-Commit, puis relance `scripts/gate.sh <base>`. Si tu as corrigé quelque chose, relance `code-review` une seconde fois. **Deux tours au maximum** : ce qui reste après est listé dans la PR et dans le brief.
+Commit, puis relance `scripts/gate.sh <base>`. Si tu as corrigé quelque chose, relance les deux relectures une seconde fois. **Deux tours au maximum** : ce qui reste après est listé dans la PR et dans le brief.
+
+Garde du dernier `risk-review` le niveau de risque, sa phrase d'explication et la partie « À vérifier soi-même » : ils vont dans le brief tels quels. Tu ne baisses jamais ce niveau toi-même. Si un constat `bloquant` reste après deux tours, n'ouvre pas la PR comme si de rien n'était : dis-le en première ligne de la PR et dans `a_decider` du brief.
 
 ## 8. Capturer l'après et écrire le brief
 
 - **Changement visible** : suis les étapes 3 et 4 du skill `before-after`.
 - **Sinon** : l'« après » est la même commande ou le même test qu'à l'étape 4, qui passe maintenant.
 
-Puis suis le skill `feature-brief` avec le dossier du brief, `<base>`, les résultats du dernier gate et de la relecture, et les choix que tu as faits en construisant. Commit le dossier du brief : `#<n>: brief`.
+Puis suis le skill `feature-brief` avec le dossier du brief, `<base>`, les résultats du dernier gate et des relectures, et les choix que tu as faits en construisant. En plus de ce qu'il demande :
+
+- **`criteres`** : un par critère d'acceptation du ticket (étape 2), avec le test ou la capture qui le prouve. Un critère sans preuve reste « non prouvé » : ajoute le test qui manque si c'est possible, sinon dis-le dans `a_decider`.
+- **`fiabilite.risque`** et **`risque_detail`** : ceux de `risk-review`.
+- **`essayer`** : comment l'utilisateur peut essayer lui-même, en reprenant « À vérifier soi-même » de `risk-review` quand il s'applique.
+
+Le script du brief calcule lui-même si les checks ont passé sur cette version et quels tests existants ont été touchés : lance-le après le dernier gate, sans rien modifier au code entre les deux. Commit le dossier du brief : `#<n>: brief`.
 
 ## 9. Livrer
 
@@ -113,13 +140,14 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 - `Closes #<n>` en première ligne. Si `scripts/tickets.sh last-of-spec <n>` affiche un numéro, c'est le dernier ticket ouvert de sa spec : ajoute `Closes #<spec>`, pour que la spec se ferme avec ce merge ;
 - le chemin du brief (`docs/briefs/<n>-<titre>/index.html`) ;
 - les interfaces testées (étape 5) ;
-- ce que la relecture a laissé ouvert, s'il reste quelque chose.
+- les tests existants supprimés ou modifiés, avec la raison de chacun, s'il y en a ;
+- ce que les relectures ont laissé ouvert, s'il reste quelque chose.
 
 **Attends ensuite le verdict de GitHub**, qui relance les checks de son côté, sur une machine neutre : `scripts/pr-checks.sh <numéro de la PR> --wait`. La commande peut durer plusieurs minutes : donne-lui un délai long.
 
 - `checks=ok` : continue.
 - `checks=pending` : les checks tournent encore. Relance la même commande.
-- `checks=fail` : le gate a passé chez toi mais pas chez GitHub. Lis l'erreur (la commande est affichée), corrige la cause, commit, relance `scripts/gate.sh <base>`, pousse, puis attends de nouveau. La cause est souvent une différence entre ta machine et celle de GitHub : un outil non installé, un fichier non commité, une variable d'environnement. Si le même échec revient **trois fois**, arrête-toi : laisse la PR ouverte et dis dans ta conclusion que GitHub la refuse, et pourquoi.
+- `checks=fail` : le gate a passé chez toi mais pas chez GitHub. Lis l'erreur (la commande est affichée), corrige la cause, commit, relance `scripts/gate.sh <base>`, pousse, puis attends de nouveau. La cause est souvent une différence entre ta machine et celle de GitHub : un outil non installé, un fichier non commité, une variable d'environnement. Si le même échec revient **trois fois**, arrête-toi : laisse la PR ouverte et dis dans ta conclusion que GitHub la refuse, et pourquoi (voir « S'arrêter en route »).
 - `checks=none` : ce projet n'a pas de `.github/workflows/checks.yml`. Continue, et dis dans ta conclusion que GitHub ne revérifie rien tant que `/project-init` n'a pas été relancé.
 
 **Ne merge pas de toi-même**, même si tout est vert. Si les tickets sont des fichiers locaux, arrête-toi après le commit du brief.
@@ -130,7 +158,7 @@ Donne à l'utilisateur, en quelques lignes : le lien de la PR, le chemin du brie
 
 Puis dis-lui ce qu'il a à faire, et rien d'autre :
 
-> Lisez le brief. Si l'évolution vous convient, dites-moi « merge la PR » : je vérifie d'abord qu'elle est à jour et que les checks passent, puis je la merge et je fais le ménage.
+> Lisez le brief. Si l'évolution vous convient, dites-moi « merge la PR » : je vérifie d'abord qu'elle est à jour et que les checks passent, puis je la merge et je fais le ménage. Si quelque chose ne vous convient pas, dites-moi quoi changer : je corrige et je vous redonne un brief à jour.
 
 ## 11. Merger, sur demande
 
@@ -144,9 +172,27 @@ Seulement quand l'utilisateur le demande, dans cette session ou une autre : lanc
 
 Si l'utilisateur merge lui-même avec le bouton vert « Merge pull request » de GitHub : quand `main` est protégée, GitHub refuse tant que ses checks ne sont pas verts, sauf si le propriétaire confirme qu'il passe outre. Quand elle ne l'est pas (repo privé avec un compte gratuit), rien n'est vérifié.
 
+## 12. Reprendre après le brief, sur demande
+
+Quand l'utilisateur demande un changement sur une PR ouverte, dans cette session ou dans une autre (`/build-ticket <n>` avec sa demande) :
+
+1. **Reformule** la demande en une phrase, et vérifie qu'elle reste dans le ticket. Si elle demande autre chose (un nouveau comportement, une autre zone), ne l'ajoute pas à cette PR : propose `/quick-ticket` pour en faire un ticket à part, et laisse la PR telle quelle.
+2. **Corrige** dans le worktree du ticket, comme à l'étape 5 : le test d'abord, un commit par tranche.
+3. **Revérifie** : `scripts/gate.sh <base>`, puis un tour des deux relectures (étape 7), sur tout le diff.
+4. **Mets le brief à jour** (étape 8) : refais les captures « après » si l'écran a changé, corrige ce qui n'est plus vrai dans `brief.json`, et remplis `revision` avec ce qui a changé depuis la version précédente, en une phrase. Commit.
+5. **Pousse** comme à l'étape 9 (rebase, gate, push), attends le verdict de GitHub, et écris un commentaire sur la PR : la demande, et ce qui a été fait.
+6. **Conclus** comme à l'étape 10.
+
+Une question de l'utilisateur sur le brief n'est pas une demande de changement : réponds-y sans toucher au code.
+
+## S'arrêter en route
+
+Si tu dois t'arrêter avant la fin (le gate échoue trois fois, GitHub refuse trois fois la PR, une relecture est impossible, un outil manque), l'arrêt doit se voir ailleurs que dans cette conversation. Lance `scripts/flag-ticket.sh human <n> "<message>"`, avec dans le message : l'étape où tu t'es arrêté, ce qui bloque, ce que tu as essayé, et ce qu'il faut pour reprendre. Le script l'écrit sur le ticket et pose l'étiquette `ready-for-human`. Le ticket reste réservé et son worktree reste en place : relancer `/build-ticket <n>` reprend le travail.
+
 ## Règles
 
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
 - Ne modifie jamais `scripts/checks.sh`, `.github/workflows/checks.yml` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
-- Si tu t'arrêtes avant la PR, dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre : relancer `/build-ticket <n>` réutilise le worktree.
+- Le niveau de risque, le résultat des checks et la liste des tests touchés ne sont pas ton avis : ils viennent de la relecture indépendante et des scripts.
+- Si tu t'arrêtes avant la PR, dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre, à l'utilisateur et sur le ticket (« S'arrêter en route ») : relancer `/build-ticket <n>` réutilise le worktree.

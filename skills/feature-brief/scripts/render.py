@@ -5,8 +5,11 @@ Usage : render.py <dossier-du-brief> [--base <ref>]
   lit   <dossier>/brief.json
   écrit <dossier>/index.html
 
---base <ref> ajoute l'annexe : la liste des fichiers créés, modifiés, supprimés ou renommés
-entre <ref> et HEAD, calculée par git (le dossier docs/briefs/ est exclu).
+--base <ref> ajoute ce que git sait, sans passer par l'auteur du brief :
+  - l'annexe des fichiers créés, modifiés, supprimés ou renommés entre <ref> et HEAD
+    (le dossier docs/briefs/ est exclu) ;
+  - les tests existants supprimés ou modifiés ;
+  - si les checks (gate.sh de build-ticket) ont passé sur cette version.
 
 Refuse un brief trop long ou incomplet, pour que la synthèse tienne sur une page.
 """
@@ -14,6 +17,7 @@ Refuse un brief trop long ou incomplet, pour que la synthèse tienne sur une pag
 import argparse
 import html
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -29,7 +33,17 @@ LIMITS = {
     "choix": 700,
     "a_decider": 160,
     "role": 100,
+    "essayer": 200,
+    "revision": 200,
+    "critere": 160,
 }
+MAX_CRITERES = 12
+# Un fichier de test : un dossier de tests, ou un nom en .test. / .spec. / _test. / test_*.py
+TEST_FILE = re.compile(
+    r"(^|/)(tests?|__tests__|specs?|e2e|cypress)/"
+    r"|[._-](test|spec)\.[^/]+$"
+    r"|(^|/)test_[^/]+\.py$"
+)
 RISQUES = {"faible": "low", "moyen": "medium", "élevé": "high"}
 MAX_ROWS = 60
 EXCLUDE = "docs/briefs/"
@@ -108,6 +122,75 @@ def changed_files(folder, base):
     return files
 
 
+def touched_tests(files):
+    """Les tests qui existaient avant et que la branche a supprimés, ou dont elle a retiré des lignes."""
+    deleted, modified = [], []
+    for code, path, old, added, removed in files:
+        if code == "D" and TEST_FILE.search(path):
+            deleted.append(path)
+        elif code in "MTR" and TEST_FILE.search(old or path) and removed not in ("0", "-"):
+            modified.append(path)
+    return deleted, modified
+
+
+def tests_line(deleted, modified):
+    if not deleted and not modified:
+        return "Aucun supprimé ni modifié"
+    parts = []
+    if deleted:
+        parts.append(f"{len(deleted)} supprimé{'s' if len(deleted) > 1 else ''}")
+    if modified:
+        parts.append(f"{len(modified)} modifié{'s' if len(modified) > 1 else ''}")
+    return ", ".join(parts) + " (voir l'annexe)"
+
+
+def checks_line(folder):
+    """Le gate a-t-il passé sur cette version ? Lu dans le fichier que gate.sh écrit, pas dans brief.json."""
+    res = subprocess.run(["git", "-C", str(folder), "rev-parse", "--git-dir"], capture_output=True, text=True)
+    if res.returncode != 0:
+        return None
+    git_dir = Path(res.stdout.strip())
+    if not git_dir.is_absolute():
+        git_dir = (folder / git_dir).resolve()
+    stamp = git_dir / "an-forge-gate-pass"
+    if not stamp.is_file():
+        return "Non vérifiés par le script sur cette version"
+    sha = stamp.read_text(encoding="utf-8").strip()
+    # Depuis le gate, seuls les fichiers du brief ont pu changer.
+    res = subprocess.run(
+        ["git", "-C", str(folder), "status", "--porcelain", "--", ":(top)", f":(top,exclude){EXCLUDE}"],
+        capture_output=True, text=True,
+    )
+    dirty = res.stdout.strip()
+    res = subprocess.run(
+        ["git", "-C", str(folder), "diff", "--quiet", sha, "HEAD", "--", ":(top)", f":(top,exclude){EXCLUDE}"],
+        capture_output=True, text=True,
+    )
+    if res.returncode == 0 and not dirty:
+        return f"Passés sur cette version ({sha[:7]})"
+    return "Non relancés depuis les derniers changements du code"
+
+
+def criteres_html(criteres):
+    rows = []
+    for c in criteres:
+        preuve = (c.get("preuve") or "").strip()
+        if preuve:
+            state = '<span class="status added">Prouvé</span>'
+            detail = f'<p class="role">{esc(preuve)}</p>'
+        else:
+            state = '<span class="status deleted">Non prouvé</span>'
+            detail = ""
+        rows.append(f'<tr><td>{state}</td><td><p>{esc(c["critere"].strip())}</p>{detail}</td></tr>')
+    return (
+        '<h2 class="title">Les critères du ticket</h2>\n'
+        '<p class="summary-line">Pour chaque critère d\'acceptation, le test ou la capture qui le prouve.</p>\n'
+        '<div class="table-wrap"><table class="criteres"><thead><tr><th>État</th><th>Critère</th></tr></thead><tbody>\n'
+        + "\n".join(rows)
+        + "\n</tbody></table></div>\n"
+    )
+
+
 def annexe_html(files, roles):
     labels = {
         "A": ("added", "Créé"), "M": ("modified", "Modifié"), "T": ("modified", "Modifié"),
@@ -145,10 +228,9 @@ def annexe_html(files, roles):
             + "\n</tbody></table></div>"
         )
     return (
-        '<section class="annexe">\n'
-        '<h2 class="title">Annexe : les fichiers touchés</h2>\n'
+        '<h2 class="title">Les fichiers touchés</h2>\n'
         f'<p class="summary-line">{esc(summary)}</p>\n'
-        f"{table}\n</section>"
+        f"{table}\n"
     )
 
 
@@ -223,14 +305,43 @@ def main():
         if not isinstance(role, str) or len(role) > LIMITS["role"]:
             errors.append(f"fichiers[{path}] : une phrase de {LIMITS['role']} caractères au maximum")
 
-    annexe = ""
+    essayer = (data.get("essayer") or "").strip()
+    if len(essayer) > LIMITS["essayer"]:
+        errors.append(f"essayer : {len(essayer)} caractères, {LIMITS['essayer']} au maximum")
+    revision = (data.get("revision") or "").strip()
+    if len(revision) > LIMITS["revision"]:
+        errors.append(f"revision : {len(revision)} caractères, {LIMITS['revision']} au maximum")
+
+    criteres = data.get("criteres") or []
+    if not isinstance(criteres, list) or len(criteres) > MAX_CRITERES:
+        errors.append(f"criteres : une liste de {MAX_CRITERES} critères au maximum")
+        criteres = []
+    for i, c in enumerate(criteres, 1):
+        need(c, "critere", LIMITS["critere"], f"criteres[{i}].")
+        preuve = c.get("preuve") if isinstance(c, dict) else None
+        if preuve is not None and (not isinstance(preuve, str) or len(preuve) > LIMITS["critere"]):
+            errors.append(f"criteres[{i}].preuve : une phrase de {LIMITS['critere']} caractères au maximum, ou rien")
+
+    facts = []  # lignes calculées, ajoutées à la section Fiabilité
+    sections = []
+    if criteres and not errors:
+        proven = sum(1 for c in criteres if (c.get("preuve") or "").strip())
+        facts.append(("Critères", f"{proven} sur {len(criteres)} prouvés (voir l'annexe)"))
+        sections.append(criteres_html(criteres))
     if args.base:
         files = changed_files(folder, args.base)
         known = {f[1] for f in files}
         for path in roles:
             if path not in known:
                 errors.append(f"fichiers[{path}] : ce fichier n'est pas dans le diff")
-        annexe = annexe_html(files, roles)
+        checks = checks_line(folder)
+        if checks:
+            facts.insert(0, ("Checks", checks))
+        facts.append(("Tests existants", tests_line(*touched_tests(files))))
+        sections.append(annexe_html(files, roles))
+    annexe = ""
+    if sections:
+        annexe = '<section class="annexe">\n<p class="label annexe-label">Annexe</p>\n' + "\n".join(sections) + "</section>"
 
     if errors:
         print("Brief refusé :", file=sys.stderr)
@@ -267,6 +378,14 @@ def main():
             "</div>"
         )
 
+    faits = "\n".join(f'    <p><span class="k">{esc(k)}</span><span>{esc(v)}</span></p>' for k, v in facts)
+    essayer_html = ""
+    if essayer:
+        essayer_html = f'  <section class="row"><h2>Pour l\'essayer</h2><p>{esc(essayer)}</p></section>'
+    revision_html = ""
+    if revision:
+        revision_html = f'  <p class="revision"><span class="label">Mis à jour</span> {esc(revision)}</p>'
+
     page = TEMPLATE.read_text(encoding="utf-8")
     values = {
         "TITRE": esc(titre),
@@ -284,6 +403,9 @@ def main():
         "RISQUE_DETAIL": esc(risque_detail),
         "CHOIX": esc(choix),
         "A_DECIDER": esc(a_decider),
+        "FAITS": faits,
+        "ESSAYER": essayer_html,
+        "REVISION": revision_html,
         "ANNEXE": annexe,
     }
     for key, value in values.items():
