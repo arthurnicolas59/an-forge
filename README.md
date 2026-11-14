@@ -51,20 +51,6 @@ Sert à construire un ticket `ready-for-agent`, dans une session neuve, un ticke
 5. **Résumer** : `before-after` capture les écrans avant et après, `feature-brief` écrit le brief pour le CEO dans `docs/briefs/` : une page de synthèse (décision, objectif, avant/après, fiabilité, choix effectués), puis une annexe avec les fichiers touchés.
 6. **Livrer** : une pull request avec `Closes #<n>` et le lien du brief. L'agent ne merge pas de lui-même : tu lis le brief, puis tu dis « merge la PR ». `merge-pr.sh` ne merge que si la PR contient le dernier `main` et que les checks ont passé sur exactement cette version.
 
-À chaque étape, `log-step.sh` note dans un journal ce qui se passe, en une phrase simple : `~/.an-forge/journal/<projet>/<ticket>.jsonl`, hors du projet, pour ne créer aucun commit. Il coche aussi les critères d'acceptation du ticket dès qu'un test les prouve, et inscrit le projet dans `~/.an-forge/projects`. Ce journal alimente le tableau de suivi.
-
-## Suivre ses projets : `/dashboard`
-
-**`/dashboard`** ouvre dans le navigateur un tableau de suivi de tous tes projets, dans le style de VS Code. Il ne fait que lire : rien n'est modifié, ni sur GitHub, ni dans les projets.
-
-- **Projets** : chaque projet est un dossier, chaque spec un sous-dossier, chaque ticket une ligne avec son état (en construction, à relire, arrêté, prêt, bloqué, mergé).
-- **Un ticket** : ce qu'il faut construire, ce qui va être fait (les critères d'acceptation, cochés dès qu'un test les prouve) et le déroulé de `/build-ticket`, chaque étape avec ce à quoi elle sert et ce qui s'y est passé.
-- **Pour toi** : ce qui attend ta décision. **Activité** : les dernières étapes, tous projets confondus.
-
-La page tourne sur ta machine (`http://127.0.0.1:4317`) et se met à jour toute seule. Elle lit GitHub, les branches locales et le journal. Un projet y apparaît dès que `/dashboard` ou `/build-ticket` a été lancé dedans. Il faut Node.js 18 ou plus et `gh` connecté. Les couleurs sont toutes en haut de `skills/dashboard/scripts/index.html`, pour changer de thème facilement.
-
-Sur Mac, `/dashboard` propose aussi de créer l'**app an-forge** (`install-app.sh`) : une icône dans `~/Applications`, à mettre dans le Dock, qui lance le tableau et l'ouvre dans sa propre fenêtre (avec Google Chrome, sinon dans le navigateur). Elle continue de marcher après les mises à jour d'an-forge.
-
 Au début de chaque `/build-ticket`, `cleanup.sh` fait le ménage des tickets déjà mergés et ferme les specs terminées : aucune commande à taper.
 
 `/build-ticket` ne pose aucune question : sans numéro (ou avec celui d'une spec), il prend le premier ticket libre, celui qui a le plus petit numéro. **Par défaut, un ticket à la fois** : on lance le suivant une fois le précédent mergé. Le parallèle est possible, avec une session par ticket : chaque session réserve un ticket différent en créant sa branche. Mais deux changements corrects séparément peuvent se contredire une fois réunis, et une base de données de développement reste partagée. Ce sera le rôle de l'orchestrateur `/factory` de choisir quels tickets peuvent avancer ensemble.
@@ -100,7 +86,6 @@ sinon dans `AGENTS.md`. Ainsi, toute la configuration reste dans `AGENTS.md`, li
 | `build-ticket` | D'un ticket à une PR : isoler, construire, tester, relire, résumer | an-forge |
 | `before-after` | Captures des mêmes écrans avant et après un changement | an-forge |
 | `feature-brief` | Brief pour le CEO : une page de synthèse et une annexe des fichiers | an-forge |
-| `dashboard` | Tableau de suivi de tous les projets, dans le navigateur | an-forge |
 | `tdd` | Construire test d'abord, une tranche à la fois | Matt Pocock |
 | `diagnosing-bugs` | Reproduire un bug avant de le corriger | Matt Pocock |
 | `codebase-design` | Vocabulaire de conception, utilisé par `tdd` | Matt Pocock |
@@ -176,10 +161,6 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [x] Image du lancement d'un projet (docs/lancement-projet.svg)
 - [x] Image du traitement d'un ticket (docs/traitement-ticket.svg)
 - [ ] Étape 6 : test sur un vrai projet
-- [x] Tableau de suivi, 1 : journal des étapes (`log-step.sh`)
-- [x] Tableau de suivi, 2 : la page (`/dashboard`)
-- [x] Tableau de suivi : l'app an-forge sur le Mac
-- [ ] Tableau de suivi, 3 : les boutons pour agir
 
 ## Inspirations
 

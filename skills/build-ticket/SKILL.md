@@ -15,28 +15,6 @@ Tout se fait **sans s'arrêter ni poser de question** : l'utilisateur n'intervie
 
 Les scripts cités sont dans le dossier `scripts/` à côté de ce fichier. Pour lancer un skill depuis celui-ci, si ton outil ne sait pas le faire, lis son `SKILL.md` et suis-le.
 
-## Le journal
-
-L'utilisateur suit le ticket sur un tableau de suivi, pas dans cette conversation. Dès que le ticket est réservé (étape 1), note chaque étape **au moment où elle commence** avec `scripts/log-step.sh <n> <étape> "<phrase>"` :
-
-| Étape du journal | Quand |
-|---|---|
-| `isoler` | juste après `start-ticket.sh` |
-| `avant` | au début de l'étape 4 |
-| `construire` | au début de l'étape 5 |
-| `tester` | à chaque lancement de `gate.sh`, avec le numéro de l'essai |
-| `relire` | à chaque tour de `code-review` |
-| `apres` | au début de l'étape 8 |
-| `brief` | quand tu écris le brief |
-| `pr` | une fois la pull request ouverte, avec son lien |
-| `arrete` | chaque fois que tu t'arrêtes avant la PR, avec la raison |
-
-Coche aussi les critères d'acceptation du ticket, au fur et à mesure : dès qu'un critère est couvert par un test qui passe, lance `scripts/log-step.sh <n> critere <rang> "<preuve>"`. Le rang est sa place dans la liste des critères d'acceptation du ticket (« Critères d'acceptation » ou « Acceptance criteria ») (1 pour le premier). La preuve dit comment on le sait, en une phrase (« Un test vérifie que la photo s'affiche sur la fiche »). Ne coche jamais un critère sans preuve. Ne touche pas aux cases du ticket sur GitHub : un critère n'est acquis qu'au merge.
-
-La phrase s'adresse à l'utilisateur : une ligne, sans jargon, qui dit ce qui se passe ou ce que l'étape a donné (« 3 tests écrits, puis le code qui les fait passer », « Les vérifications échouent sur l'affichage de la photo, 2e essai »). Respecte la section « L'utilisateur » d'`AGENTS.md`.
-
-Le journal ne sert qu'au suivi : si `log-step.sh` échoue, continue le ticket.
-
 ## 0. Vérifier que le projet est prêt
 
 Le projet doit avoir été préparé par `project-init` : un `AGENTS.md` sans « À REMPLIR », un `scripts/checks.sh` sans « À REMPLIR » et un fichier `docs/agents/issue-tracker.md`. S'il manque quelque chose, propose de lancer `project-init`, et arrête-toi là.
@@ -62,7 +40,7 @@ Si `next` ne renvoie rien, aucun ticket n'est libre. Dis pourquoi en une phrase 
 
 Sur GitHub, assigne-toi le ticket (`gh issue edit <n> --add-assignee @me`), pour que la réservation se voie aussi sur GitHub.
 
-Note `isoler` dans le journal. Annonce en une ligne le ticket que tu construis, et continue sans attendre.
+Annonce en une ligne le ticket que tu construis, et continue sans attendre.
 
 ## 2. Lire
 
@@ -162,4 +140,4 @@ Si l'utilisateur merge lui-même avec le bouton vert « Merge pull request » de
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
 - Ne modifie jamais `scripts/checks.sh` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
-- Si tu t'arrêtes avant la PR, note `arrete` dans le journal avec la raison, puis dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre : relancer `/build-ticket <n>` réutilise le worktree.
+- Si tu t'arrêtes avant la PR, dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre : relancer `/build-ticket <n>` réutilise le worktree.
