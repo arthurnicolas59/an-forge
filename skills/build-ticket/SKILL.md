@@ -157,6 +157,7 @@ Ouvre la pull request vers la branche de base, avec un titre court et un corps �
 
 - `Closes #<n>` en première ligne. Si `scripts/tickets.sh last-of-spec <n>` affiche un numéro, c'est le dernier ticket ouvert de sa spec : ajoute `Closes #<spec>`, pour que la spec se ferme avec ce merge ;
 - le chemin du brief (`docs/briefs/<n>-<titre>/index.html`) ;
+- les captures « après » du brief, affichées dans le texte et pas seulement citées : `![<nom de l'écran>](https://github.com/<owner>/<repo>/raw/<sha>/docs/briefs/<n>-<titre>/<image>.png)`, avec le SHA du dernier commit poussé, pour que l'image reste visible après le merge et la suppression de la branche ;
 - les interfaces testées (étape 5) ;
 - les tests existants supprimés ou modifiés, avec la raison de chacun, s'il y en a ;
 - ce que les relectures ont laissé ouvert, s'il reste quelque chose.

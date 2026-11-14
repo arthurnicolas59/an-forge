@@ -24,7 +24,7 @@ Choisis **deux écrans au plus**, ceux où le changement se voit le mieux. Donne
 
 Choisis aussi une taille de fenêtre (`--size`) qui cadre sur ce qui change : si l'écran utile n'occupe qu'un coin d'une fenêtre de 1280x800, réduis-la (par exemple `--size 900x560`). Garde la même taille pour l'avant et l'après.
 
-Pour une nouvelle page qui n'existe pas encore, capture l'endroit où elle apparaîtra (le menu, la page d'où l'on y accède).
+Pour une nouvelle page qui n'existe pas encore, capture l'endroit où elle apparaîtra (le menu, la page d'où l'on y accède). S'il n'existe encore rien à l'écran (premier écran d'un projet neuf, ou application qui ne se lance pas encore), saute l'étape 2 : l'écran n'aura que son « après ».
 
 ## 2. Capturer l'avant
 
@@ -48,6 +48,6 @@ Aucune image ne doit montrer de secret ni de vraie donnée personnelle : utilise
 
 ## Règles
 
-- Mêmes écrans, même taille et mêmes données avant et après : sinon la comparaison ne veut rien dire.
+- Mêmes écrans, même taille et mêmes données avant et après : sinon la comparaison ne veut rien dire. Seule exception : un écran qui n'existait pas n'a qu'un « après ».
 - N'envoie jamais les images vers un site extérieur. Elles restent dans le projet.
 - Garde les images légères : pas de `--full` sauf si le changement est en bas de la page.

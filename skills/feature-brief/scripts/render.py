@@ -279,7 +279,8 @@ def main():
         errors.append("avant_apres.ecrans : 2 écrans au maximum")
     for i, ecran in enumerate(ecrans, 1):
         need(ecran, "nom", 60, f"avant_apres.ecrans[{i}].")
-        for key in ("avant", "apres"):
+        # « avant » est facultatif : un écran nouveau n'avait rien à capturer avant.
+        for key in ("avant", "apres") if ecran.get("avant") else ("apres",):
             name = need(ecran, key, None, f"avant_apres.ecrans[{i}].")
             if name and not (folder / name).is_file():
                 errors.append(f"avant_apres.ecrans[{i}].{key} : image introuvable ({folder / name})")
@@ -363,8 +364,12 @@ def main():
                 '<div class="pair">'
                 + (f'<p class="pair-name">{nom}</p>' if len(ecrans) > 1 else "")
                 + '<div class="pair-images">'
-                f'<figure><img src="{esc(e["avant"].strip())}" alt="Avant : {nom}"><figcaption>Avant</figcaption></figure>'
-                '<span class="arrow" aria-hidden="true">→</span>'
+                + (
+                    f'<figure><img src="{esc(e["avant"].strip())}" alt="Avant : {nom}"><figcaption>Avant</figcaption></figure>'
+                    if (e.get("avant") or "").strip()
+                    else '<div class="text-box"><p class="label">Avant</p><p>Cet écran n’existait pas.</p></div>'
+                )
+                + '<span class="arrow" aria-hidden="true">→</span>'
                 f'<figure><img src="{esc(e["apres"].strip())}" alt="Après : {nom}"><figcaption>Après</figcaption></figure>'
                 "</div></div>"
             )
