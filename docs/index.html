@@ -1,9 +1,46 @@
-<title>an-forge</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes d'an-forge</title>
 <style>
-:root { color-scheme: dark; --bg: #15141a; }
-body { background: var(--bg); margin: 0; padding-block: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.wrap { max-width: 1240px; margin: 0 auto; overflow-x: auto; }
-.wrap img { display: block; margin-bottom: 24px; width: 100%; min-width: 760px; max-width: none; height: auto; }
+:root {
+  --bg: #ffffff; --panel: #f6f8fa; --border: #d8dee4; --text: #1f2328; --muted: #59636e; --accent: #0969da;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0d1117; --panel: #151b23; --border: #3d444d; --text: #e6edf3; --muted: #9198a1; --accent: #4493f8; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0d1117; --panel: #151b23; --border: #3d444d; --text: #e6edf3; --muted: #9198a1; --accent: #4493f8; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 48px 16px 64px; }
+h1 { font-size: 28px; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 0 0 32px; max-width: 640px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.pcard { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--panel); color: inherit; text-decoration: none; transition: border-color .15s; }
+.pcard:hover { border-color: var(--accent); }
+.pcard img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; border-bottom: 1px solid var(--border); background: var(--bg); }
+.pcard .b { padding: 14px 16px 16px; }
+.pcard h3 { margin: 0 0 4px; font-size: 16px; }
+.pcard p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.pcard .go { color: var(--accent); font-weight: 600; font-size: 14px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+footer a { color: var(--accent); }
 </style>
-<div class="wrap"><img src="lancement-projet.svg" alt="Lancer un projet avec an-forge : préparer le projet avec /project-init, puis avec /project-launch : ton idée, l'interrogatoire par l'IA, ton accord, la spec, ton accord, et les tickets prêts à construire."><img src="traitement-ticket.svg" alt="Traiter un ticket avec an-forge : avec /build-ticket et sans s'arrêter, réserver le premier ticket libre, construire en écrivant le test d'abord, tester (jusqu'à 3 essais), faire relire par un agent neuf (2 tours au plus), écrire le brief avant / après, ouvrir la pull request ; puis, avec ton accord, merger."></div>
+</head>
+<body>
+<main>
+  <h1>Cartes d'an-forge</h1>
+  <p class="sub">Une demande entre d'un côté, une pull request prête à merger sort de l'autre. Ces cartes montrent le chemin, skill par skill.</p>
+  <div class="cards">
+    <!-- explore:start (généré par _shared/sync_explore.py, ne pas modifier à la main) -->
+    <a class="pcard" href="skill-map/index.html#view=root"><img src="assets/thumbs/skill-map.png" alt="" loading="lazy"><div class="b"><h3>an-forge par phase</h3><p>Le départ, les deux chemins (une idée ou une petite demande), puis chaque phase : cadrer, construire, vérifier, livrer. Double-clic sur un skill pour son détail.</p><span class="go">Ouvrir →</span></div></a>
+    <a class="pcard" href="mattpocock/index.html"><img src="assets/thumbs/mattpocock.png" alt="" loading="lazy"><div class="b"><h3>Matt Pocock skills map</h3><p>Tous les skills de Matt Pocock, dont an-forge reprend une partie. Carte d'Eric Tech (super-board, MIT).</p><span class="go">Ouvrir →</span></div></a>
+    <!-- explore:end -->
+  </div>
+  <footer>Moteur des cartes repris de <a href="https://github.com/EricTechPro/super-board">super-board</a> d'Eric Tech (licence MIT). Code : <a href="https://github.com/arthurnicolas59/an-forge">arthurnicolas59/an-forge</a>.</footer>
+</main>
+</body>
+</html>

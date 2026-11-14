@@ -1,5 +1,6 @@
 # Skills copiés depuis https://github.com/mattpocock/skills (licence MIT, voir licenses/mattpocock-skills.txt).
-# Mis à jour avec scripts/sync-matt.sh.
+# Mis à jour avec scripts/sync-upstream.sh.
+repo https://github.com/mattpocock/skills.git
 commit 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
 skill setup-matt-pocock-skills skills/engineering/setup-matt-pocock-skills
 skill grilling skills/productivity/grilling

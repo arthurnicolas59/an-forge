@@ -10,12 +10,12 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
 
 - `skills/<nom>/SKILL.md` : un skill, au format ouvert Agent Skills.
 - `agents/<nom>.md` : un sous-agent.
-- `scripts/` : scripts propres à an-forge (dont `sync-matt.sh`).
+- `scripts/` : scripts propres à an-forge (`sync-upstream.sh`, `build-maps.sh`, et un fichier `.lock` par source copiée).
 - `licenses/` : licences des skills venus d'ailleurs.
-- `docs/factory.canvas` : la carte de la factory, au format JSON Canvas (s'ouvre dans Obsidian).
-- `docs/lancement-projet.svg` : l'image des étapes du lancement d'un projet, à tenir à jour quand ces étapes changent.
-- `docs/traitement-ticket.svg` : l'image des étapes du traitement d'un ticket (`build-ticket`), à tenir à jour quand ces étapes changent.
-- `docs/index.html` affiche ces deux images.
+- `docs/` : les cartes de la factory. On édite seulement les données, jamais les pages générées :
+  - `docs/skill-map/map.json` : la carte « an-forge par phase » (nœuds, liens, vues imbriquées), mise en page par le skill `visual` ;
+  - `docs/mattpocock/map.json` : la carte de Matt Pocock, reprise de super-board telle quelle, mise en page par le moteur `docs/_shared/` ;
+  - `docs/_shared/maps.json` : la liste des cartes, pour la barre du haut et la page d'accueil `docs/index.html`.
 - `.claude-plugin/` : l'emballage pour Claude Code. Il ne contient aucune règle.
 
 ## Règles
@@ -25,6 +25,6 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
 - Un skill fait une seule chose. Son frontmatter ne contient que `name` et `description`, pour rester lisible par tous les outils.
 - Le texte d'un skill ne dépend pas d'un outil précis. Si une étape a besoin d'une fonction propre à un outil, décris aussi comment faire sans.
 - Ce qui doit donner le même résultat à chaque fois va dans un script, pas dans des instructions.
-- Chaque skill ou agent ajouté reçoit sa carte dans `docs/factory.canvas`, et le README est mis à jour.
+- Chaque skill ajouté, retiré ou changé d'étapes est reporté dans `docs/skill-map/map.json`, puis on lance `scripts/build-maps.sh`. Le script échoue si un skill manque sur la carte. Le README est mis à jour aussi.
 - À chaque changement publié qui touche les skills, les agents ou les scripts, augmente `version` dans `.claude-plugin/plugin.json` : le dernier chiffre pour une correction (0.1.0 → 0.1.1), celui du milieu pour un ajout (0.1.0 → 0.2.0). Sans ça, les machines où an-forge est installé gardent l'ancienne version.
-- Les skills venus de `mattpocock/skills` sont copiés dans `skills/` (liste et version dans `scripts/mattpocock.lock`). Modifie-les le moins possible pour faciliter les mises à jour, et reprends les changements de Matt avec `scripts/sync-matt.sh`.
+- Les skills venus d'ailleurs sont copiés dans `skills/`, avec un fichier `.lock` par source : `scripts/mattpocock.lock` (Matt Pocock), `scripts/super-board.lock` (Eric Tech : le skill `visual` et le moteur des cartes). Modifie-les le moins possible pour faciliter les mises à jour, et reprends les changements avec `scripts/sync-upstream.sh`. Ces copies gardent leur langue d'origine.

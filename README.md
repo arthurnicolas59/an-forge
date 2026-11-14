@@ -6,9 +6,10 @@ Une demande entre d'un côté, une pull request prête à merger sort de l'autre
 Entre les deux, une chaîne fixe où des **agents** font le travail qui demande du
 jugement et des **scripts** font le travail qui doit être exact.
 
-![Lancer un projet avec an-forge](docs/lancement-projet.svg)
+**Les cartes** ([docs/index.html](docs/index.html)) montrent tout le chemin :
 
-![Traiter un ticket avec an-forge](docs/traitement-ticket.svg)
+- [an-forge par phase](docs/skill-map/index.html) : le départ (`/project-init`), puis deux chemins (`/project-launch` ou `/quick-ticket`) et chaque phase (cadrer, construire, vérifier, livrer) ; un double-clic sur un skill ouvre son détail, jusqu'aux scripts ;
+- [la carte de Matt Pocock](docs/mattpocock/index.html) : tous ses skills, dont an-forge reprend une partie.
 
 ## Les 6 parties
 
@@ -106,6 +107,7 @@ sinon dans `AGENTS.md`. Ainsi, toute la configuration reste dans `AGENTS.md`, li
 | `code-review` | Relire le diff selon les règles et la spec | Matt Pocock |
 | `risk-review` | Chercher les bugs, les failles et les risques pour les données ; donner le niveau de risque | an-forge |
 | `pr` | Rédiger le corps d'une pull request | Matt Pocock |
+| `visual` | Une page HTML : le résumé d'une branche, un plan, ou une carte de skills | Eric Tech (super-board) |
 
 ### Skills venus de Matt Pocock
 
@@ -119,12 +121,33 @@ Modifications par rapport à l'original :
   sa propre initiative.
 - Les métadonnées de `pr` ont été retirées de l'en-tête ; les crédits restent dans `skills/pr/CREDITS.md`.
 
-Pour voir ce qui a changé chez Matt depuis la dernière copie :
+### Venu de super-board (Eric Tech)
+
+Copiés depuis [EricTechPro/super-board](https://github.com/EricTechPro/super-board) (licence MIT, voir
+[licenses/super-board.txt](licenses/super-board.txt)) : le skill `visual`, le moteur de la carte de Matt
+(`docs/_shared/`) et la carte de Matt Pocock. Le skill `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur,
+seuls la barre du haut, la liste des cartes, la comparaison entre packs et la reconnaissance des noms de skills dans un texte accentué ont été adaptés.
+
+### Mises à jour
+
+Pour voir ce qui a changé chez Matt ou chez Eric depuis la dernière copie :
 
 ```bash
-scripts/sync-matt.sh          # résumé
-scripts/sync-matt.sh --full   # diff complet
+scripts/sync-upstream.sh                     # toutes les sources, résumé
+scripts/sync-upstream.sh mattpocock --full   # une source, diff complet
 ```
+
+### Les cartes
+
+On ne modifie que les données (`docs/skill-map/map.json`), puis :
+
+```bash
+scripts/build-maps.sh            # reconstruit les pages et vérifie que chaque skill figure sur la carte
+scripts/build-maps.sh --thumbs   # refait aussi les vignettes de la page d'accueil
+```
+
+La vérification de la carte (flèches qui se croisent, étiquettes qui se chevauchent) utilise Google Chrome.
+Sans Chrome, les pages se construisent quand même, sans cette vérification.
 
 ## Structure du repo
 
@@ -133,9 +156,9 @@ AGENTS.md         les règles de la factory (source unique, lisible par tous les
 CLAUDE.md         importe AGENTS.md pour Claude Code
 skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
-scripts/          scripts d'an-forge (sync-matt.sh, mattpocock.lock)
+scripts/          scripts d'an-forge (sync-upstream.sh, build-maps.sh, un .lock par source copiée)
 licenses/         licences des skills venus d'ailleurs
-docs/             la carte de la factory (factory.canvas pour Obsidian, lancement-projet.svg et traitement-ticket.svg pour tous)
+docs/             les cartes de la factory (données en map.json, pages générées par scripts/build-maps.sh)
 .claude-plugin/   l'emballage pour Claude Code
 ```
 
@@ -173,12 +196,12 @@ N'installe pas en plus le plugin de Matt Pocock : chaque skill apparaîtrait en 
 - [ ] Étape 3 : agents
 - [ ] Étape 4 : gates et état
 - [ ] Étape 5 : orchestrateur `/factory`
-- [x] Image du lancement d'un projet (docs/lancement-projet.svg)
-- [x] Image du traitement d'un ticket (docs/traitement-ticket.svg)
+- [x] Cartes interactives de la factory (docs/)
 - [ ] Étape 6 : test sur un vrai projet
 
 ## Inspirations
 
 - [mattpocock/skills](https://github.com/mattpocock/skills)
+- [EricTechPro/super-board](https://github.com/EricTechPro/super-board)
 - [michaelshimeles/rstack](https://github.com/michaelshimeles/rstack)
 - [zazencodes software factory v2](https://github.com/zazencodes/zazencodes-season-3/tree/main/src/software-factory-claude-code-v2)
