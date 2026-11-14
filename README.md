@@ -1,28 +1,150 @@
 # an-forge
 
-Une software factory, c'est une méthode de travail que l'on installe dans un projet pour le **cadrer, puis le construire ticket après ticket**, avec les bons outils à chaque étape. Cette factory suit les étapes suivantes : 
-
-1. **Initier le projet** : le repo est préparé une fois pour toutes (règles, checks, étiquettes).
-2. **Cadrer le projet** : une idée devient une spec, puis des tickets prêts à construire.
-3. **Construire le ticket** : chaque ticket est réalisé dans une branche isolée, en TDD.
-4. **Vérifier le ticket** : des checks automatiques et des relectures indépendantes bloquent ce qui n'est pas fiable.
-5. **Livrer le ticket** : une pull request et un brief clair, que tu valides avant le merge.
-
-Les **agents** font le travail qui demande du jugement, les **scripts** font le travail qui doit être exact.
-
-19 skills · 8 scripts de construction · 5 étapes · 2 cartes interactives
-
 ![version](https://img.shields.io/badge/version-0.13.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
-**🗺️ Les cartes : [docs/index.html](docs/index.html)**
+**an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer-le-projet) · [3. Construire](#3-construire-le-ticket) · [4. Vérifier](#4-vérifier-le-ticket) · [5. Livrer](#5-livrer-le-ticket) · [Skills](#skills) · [Garde-fous](#garde-fous) · [Cartes](#cartes) · [Avancement](#avancement)
+[En 30 secondes](#an-forge-en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Un exemple](#un-exemple-de-bout-en-bout) · [Installation](#installation)
+
+---
+
+## an-forge en 30 secondes
+
+Imagine **un atelier**. Tu es le chef d'atelier : tu dis ce qu'il faut fabriquer et tu valides le résultat. Les **agents** sont les ouvriers : ils réfléchissent, fabriquent et se relisent entre eux. Les **scripts** sont les machines de contrôle : elles mesurent sans jamais se tromper, et sans jamais se laisser convaincre.
+
+### La chaîne complète
+
+```mermaid
+flowchart LR
+    idee(["Ton idée"]) --> cadrer["Cadrer<br/>questions, spec"]
+    cadrer --> ok1{{"Tu valides<br/>ce qui sera construit"}}
+    ok1 --> tickets["Tickets<br/>prêts à construire"]
+    tickets --> construire["Construire<br/>et vérifier"]
+    construire --> brief["Brief<br/>+ pull request"]
+    brief --> ok2{{"Tu valides<br/>ce qui a été construit"}}
+    ok2 -->|"« merge la PR »"| fini(["En place<br/>dans le projet"])
+    ok2 -.->|"« change ceci »"| construire
+
+    classDef toi fill:#f59e0b,stroke:#b45309,color:#000
+    class ok1,ok2 toi
+```
+
+Tu n'interviens qu'**à deux moments**, en orange :
+
+1. **Avant** : tu valides *ce qui va être construit*. L'agent te pose des questions, puis te montre la spec et les tickets. Rien n'est publié sans ton oui.
+2. **Après** : tu valides *ce qui a été construit*. Tu lis un brief d'une page, avec des captures d'écran avant/après, puis tu dis « merge la PR » ou ce qu'il faut changer.
+
+Entre les deux, l'agent travaille seul, sans te poser de questions.
+
+### Qui fait quoi
+
+```mermaid
+flowchart LR
+    subgraph toi["Toi : décider"]
+        direction TB
+        t1["Dire ce que tu veux"]
+        t2["Valider la spec et les tickets"]
+        t3["Lire le brief, dire « merge »"]
+    end
+    subgraph agents["Les agents : juger"]
+        direction TB
+        a1["Poser les bonnes questions"]
+        a2["Écrire le code et les tests"]
+        a3["Relire le travail d'un autre agent"]
+    end
+    subgraph scripts["Les scripts : mesurer"]
+        direction TB
+        s1["Lancer les tests"]
+        s2["Refuser un merge risqué"]
+        s3["Calculer les chiffres du brief"]
+    end
+    toi -->|"une demande"| agents
+    agents -->|"un travail à contrôler"| scripts
+    scripts -->|"refusé : à corriger"| agents
+    agents -->|"un brief"| toi
+```
+
+**Pourquoi séparer agents et scripts ?** Un agent IA est très bon pour réfléchir, mais il peut se tromper ou présenter son travail sous un jour trop favorable. Un script fait toujours exactement la même chose. On confie donc aux agents ce qui demande du jugement, et aux scripts tout ce qui doit être exact : les tests ont-ils passé ? le projet est-il à jour ? le merge est-il sans danger ?
+
+## Les mots à connaître
+
+| Mot | En une phrase | Image |
+|-----|---------------|-------|
+| **Repo** | Le dossier du projet, avec tout son historique, rangé sur GitHub | Le classeur du projet |
+| **`main`** | La version officielle du projet, celle qui marche | L'original, rangé au coffre |
+| **Branche** | Une copie de travail à part, où l'agent modifie sans toucher `main` | Une photocopie sur laquelle on peut raturer |
+| **Spec** | La description complète d'une grosse évolution : le quoi et le pourquoi | Le cahier des charges |
+| **Ticket** | Un morceau de travail assez petit pour être construit en une fois | Une fiche de travail pour un ouvrier |
+| **Étiquette** | Un mot posé sur un ticket pour dire où il en est (`ready-for-agent`…) | Le post-it de couleur sur la fiche |
+| **Test** | Un petit programme qui vérifie qu'une fonction fait bien ce qu'on attend | Le gabarit qui vérifie qu'une pièce a la bonne taille |
+| **TDD** | Écrire le test *avant* le code | Fabriquer le gabarit avant la pièce |
+| **Checks** | L'ensemble des contrôles automatiques : tests, vérifications du code | Le contrôle qualité en sortie de chaîne |
+| **PR** (pull request) | La demande de ramener une branche dans `main` | « Voici ma photocopie corrigée, je propose qu'elle remplace l'original » |
+| **Merge** | Accepter la PR : la branche rejoint `main` | Ranger la nouvelle version au coffre |
+| **Brief** | La page de synthèse que tu lis avant de merger | Le compte rendu du chef d'équipe |
+| **Skill** | Une fiche d'instructions qui apprend à l'agent une façon de travailler | Une fiche de procédure de l'atelier |
+| **Plugin** | Le paquet qui installe tous les skills d'an-forge d'un coup | La caisse à outils livrée complète |
+
+## Un exemple de bout en bout
+
+Tu as une app de recettes, et tu voudrais pouvoir **imprimer une recette**. C'est une petite demande : un seul comportement, on passe donc par le chemin court, `/quick-ticket`. Pour une grosse évolution, ce serait `/project-launch`, qui commence par une spec.
+
+```mermaid
+sequenceDiagram
+    actor T as Toi
+    participant A as Agent
+    participant S as Scripts
+    participant G as GitHub
+
+    rect rgba(245,158,11,0.12)
+    Note over T,G: Session 1 : écrire le ticket
+    T->>A: /quick-ticket « Je veux imprimer une recette »
+    A->>A: lit le code de l'app
+    A->>T: 3 questions au plus (avec la photo ?)
+    T->>A: tes réponses
+    A->>T: le ticket : « Je le publie ? »
+    T->>A: oui
+    A->>G: ticket n°12, étiquette ready-for-agent
+    end
+
+    Note over T,G: Session 2 : construire, sans aucune question
+    T->>A: /build-ticket 12
+    A->>G: réserve le ticket
+    A->>A: branche à part, capture « avant »
+    A->>A: écrit le test, puis le code
+    A->>S: lance les checks
+    S-->>A: échec : à corriger
+    A->>S: relance les checks
+    S-->>A: tout passe
+    A->>A: 2 agents neufs relisent le travail
+    A->>A: capture « après », écrit le brief
+    A->>G: ouvre la pull request
+    G-->>A: checks relancés chez GitHub : verts
+
+    rect rgba(245,158,11,0.12)
+    Note over T,G: Ta décision
+    A->>T: le brief s'ouvre dans ton navigateur
+    T->>A: « merge la PR »
+    A->>S: merge-pr.sh
+    S->>G: vérifie tout, puis merge et fait le ménage
+    end
+```
+
+Ce qu'il faut retenir :
+
+- **Deux sessions, deux rôles.** La première prépare le travail avec toi, la seconde l'exécute seule. Une session neuve par ticket : l'agent démarre l'esprit clair, sans les détours de la conversation précédente.
+- **Les échecs sont normaux.** Des checks qui échouent, puis l'agent qui corrige, c'est la chaîne qui fait son travail. Ce que tu reçois a déjà passé tous les contrôles.
+- **Si le brief ne te plaît pas**, tu ne dis pas « merge » mais ce qui ne va pas (« le bouton est trop petit »). L'agent corrige, refait les contrôles et te donne un brief à jour.
+- **Si l'agent bloque** (le ticket est trop flou, ou une erreur revient trois fois), il ne devine pas : il écrit sa question ou son problème sur le ticket, sur GitHub, et s'arrête.
+
+🗺️ Pour tout voir d'un coup : [la carte interactive d'an-forge](docs/skill-map/index.html). Un double-clic sur un skill ouvre son détail, jusqu'aux scripts.
 
 [![an-forge par phase](docs/assets/thumbs/skill-map.png)](docs/skill-map/index.html)
 
-*La carte d'an-forge par phase. Un double-clic sur un skill ouvre son détail, jusqu'aux scripts. Il y a aussi [la carte de Matt Pocock](docs/mattpocock/index.html), dont an-forge reprend une partie.*
-
 ---
+
+> [!NOTE]
+> La suite du README n'est pas encore réécrite.
 
 ## Installation
 
