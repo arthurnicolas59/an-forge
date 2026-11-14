@@ -8,10 +8,3 @@ skill visual skills/visual
 # Retouche locale de visual : assets/template.html coupe aussi les puces du panneau avant une majuscule accentuée (À-Ý).
 copy map-engine diagrams/_shared
 copy mattpocock-map diagrams/mattpocock/map.json
-# Gardes de hooks/ (copiés de hooks/guard-*.py) et leurs tests. Retouches locales : guard-worktree-path autorise aussi .worktrees/ ; guard-protected-push : message sans merge gate ; le test s'arrête sans SIGPIPE.
-copy guard-secrets hooks/guard-secrets.py
-copy guard-key-literals hooks/guard-key-literals.py
-copy guard-delete-outside hooks/guard-delete-outside.py
-copy guard-worktree-path hooks/guard-worktree-path.py
-copy guard-protected-push hooks/guard-protected-push.py
-copy guard-tests tests/test-guard-hooks.sh

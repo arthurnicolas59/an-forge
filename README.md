@@ -125,17 +125,8 @@ Modifications par rapport à l'original :
 
 Copiés depuis [EricTechPro/super-board](https://github.com/EricTechPro/super-board) (licence MIT, voir
 [licenses/super-board.txt](licenses/super-board.txt)) : le skill `visual`, le moteur de la carte de Matt
-(`docs/_shared/`), la carte de Matt Pocock et les gardes de `hooks/`. Le skill `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur,
+(`docs/_shared/`) et la carte de Matt Pocock. Le skill `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur,
 seuls la barre du haut, la liste des cartes, la comparaison entre packs et la reconnaissance des noms de skills dans un texte accentué ont été adaptés.
-
-### Les gardes (hooks)
-
-Le plugin livre des hooks (`hooks/hooks.json`) qui s'activent partout où an-forge est installé : pas de lecture de
-`.env` ni de clés, pas de clé écrite en dur, pas de suppression hors du projet, worktrees seulement sous
-`.worktrees/` ou `.claude/worktrees/`, pas de push direct ni de force-push sur `main`. Les force-push sur une
-branche de feature restent permis. Pour pousser sur `main` en connaissance de cause, lance Claude Code avec
-`SB_ALLOW_PROTECTED_PUSH=1`. Sans hooks (autres outils), `build-ticket` rappelle les mêmes interdits.
-Les tests : `bash tests/test-guard-hooks.sh`.
 
 ### Le choix du modèle
 
@@ -174,8 +165,7 @@ AGENTS.md         les règles de la factory (source unique, lisible par tous les
 CLAUDE.md         importe AGENTS.md pour Claude Code
 skills/           un dossier par skill (SKILL.md, format ouvert Agent Skills)
 agents/           un fichier par sous-agent
-hooks/            gardes de sécurité du plugin (secrets, clés en dur, suppression hors projet, worktrees, push sur main)
-tests/            tests des gardes (tests/test-guard-hooks.sh)
+tests/            tests des scripts (tests/test-pick-model.sh)
 scripts/          scripts d'an-forge (sync-upstream.sh, build-maps.sh, un .lock par source copiée)
 licenses/         licences des skills venus d'ailleurs
 docs/             les cartes de la factory (données en map.json, pages générées par scripts/build-maps.sh)
