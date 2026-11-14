@@ -85,10 +85,6 @@ flowchart LR
 | **Skill** | Une fiche d'instructions qui apprend à l'agent une façon de travailler | Une fiche de procédure de l'atelier |
 | **Plugin** | Le paquet qui installe tous les skills d'an-forge d'un coup | La caisse à outils livrée complète |
 
-🗺️ Pour tout voir d'un coup : [la carte interactive d'an-forge](docs/skill-map/index.html). Un double-clic sur un skill ouvre son détail, jusqu'aux scripts.
-
-[![an-forge par phase](docs/assets/thumbs/skill-map.png)](docs/skill-map/index.html)
-
 ---
 
 ## Installation
@@ -140,15 +136,12 @@ Les étapes 3, 4 et 5 s'enchaînent toutes seules : une seule commande, `/build-
 
 ```mermaid
 flowchart LR
-    init(["Tu tapes /project-init"]) --> a["AGENTS.md<br/>le règlement de l'atelier"]
-    init --> c["checks.sh<br/>la liste des contrôles"]
-    init --> w["checks.yml<br/>GitHub refait les contrôles"]
-    init --> e["Étiquettes GitHub<br/>ready-for-agent, needs-info…"]
-    init --> m["CLAUDE.md<br/>renvoie vers AGENTS.md"]
-    init --> p["main protégée<br/>quand GitHub le permet"]
+    init(["/project-init"]) --> regles["Le règlement<br/>AGENTS.md"]
+    init --> controles["Les contrôles<br/>checks.sh, checks.yml"]
+    init --> etiquettes["Les étiquettes<br/>sur GitHub"]
 ```
 
-**Ce que tu obtiens** : un projet prêt à recevoir des tickets.
+**Ce que tu obtiens** : un projet prêt à recevoir des tickets. Quand GitHub le permet, `main` est en plus protégée : GitHub refuse tout merge tant que les contrôles ne sont pas au vert.
 
 **Pourquoi.**
 - **Ta réponse à la question change tout le reste.** Si tu n'es pas développeur, c'est écrit dans `AGENTS.md`, et tous les agents le liront : aucune question technique brute ne te sera posée. Tu recevras une recommandation expliquée simplement, que tu n'auras qu'à valider.
@@ -381,7 +374,7 @@ flowchart LR
     class setup,grill,grilling,dm,spec,tickets,tdd,design,diag,cr,pr matt
 ```
 
-*En bleu, les skills écrits pour an-forge. En vert, ceux repris de Matt Pocock.* Un dix-neuvième skill, `visual` (repris d'Eric Tech), sert à part : il dessine des pages visuelles, comme les cartes d'an-forge.
+*En bleu, les skills écrits pour an-forge. En vert, ceux repris de Matt Pocock.* Un dix-neuvième skill, `visual` (repris d'Eric Tech), sert à part : il dessine des pages visuelles (un résumé, un plan, une carte).
 
 | Étape | Skill | Rôle | Origine |
 |-------|-------|------|---------|
@@ -460,7 +453,7 @@ flowchart LR
 ```
 
 - **La version** est le numéro du plugin, par exemple `0.13.0`. Une correction augmente le dernier chiffre (`0.13.0` → `0.13.1`), un ajout celui du milieu (`0.13.0` → `0.14.0`). C'est ce numéro qui signale aux machines qu'il y a du nouveau : sans lui, elles gardent l'ancienne version.
-- **Les cartes** ([page d'accueil](docs/index.html)) sont des pages fabriquées à partir de données. On ne modifie que les données, puis on relance le script :
+- **Les cartes** de la factory sont des pages fabriquées à partir de données. On ne modifie que les données, puis on relance le script :
 
   ```bash
   scripts/build-maps.sh            # reconstruit les pages et vérifie que chaque skill est sur la carte
@@ -485,7 +478,7 @@ agents/           un fichier par sous-agent (vide pour l'instant)
 scripts/          les scripts d'an-forge lui-même : cartes, mises à jour des copies
 tests/            les tests de ces scripts
 licenses/         les licences des skills venus d'ailleurs
-docs/             les cartes interactives
+docs/             les cartes de la factory
 .claude-plugin/   l'emballage qui fait d'an-forge un plugin Claude Code
 ```
 
@@ -505,7 +498,6 @@ Fait :
 - [x] `/build-ticket` : isolation, TDD, checks, relectures, brief, PR, merge contrôlé
 - [x] Checks relancés par GitHub, étiquettes `needs-info` / `ready-for-human`
 - [x] Choix du modèle par taille de ticket
-- [x] Cartes interactives de la factory (`docs/`)
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
