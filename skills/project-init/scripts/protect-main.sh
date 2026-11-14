@@ -19,11 +19,26 @@ fi
 BRANCH=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null)
 BRANCH=${BRANCH:-main}
 
-if gh api "repos/$REPO/branches/$BRANCH/protection" >/dev/null 2>&1; then
+UNAVAILABLE="GitHub ne protège pas une branche d'un repo privé avec un compte gratuit. Les checks tourneront quand même sur chaque pull request, et merge-pr.sh les respecte. Seul le bouton « Merge » de GitHub reste sans garde-fou."
+
+# D'abord une simple lecture : elle suffit à reconnaître une protection en place, une branche absente
+# ou un compte qui ne permet pas la protection. On ne tente l'écriture que si elle peut réussir,
+# ce qui évite aussi un refus inutile des contrôles de permission de l'outil.
+if read_out=$(gh api "repos/$REPO/branches/$BRANCH/protection" 2>&1); then
   echo "protection=already"
   echo "La branche $BRANCH est déjà protégée : rien changé."
   exit 0
 fi
+case "$read_out" in
+  *"Upgrade to GitHub Pro"*)
+    echo "protection=unavailable"
+    echo "$UNAVAILABLE"
+    exit 0 ;;
+  *"Branch not found"*)
+    echo "protection=no-branch"
+    echo "La branche $BRANCH n'existe pas encore sur GitHub. Pousse-la, puis relance ce script."
+    exit 0 ;;
+esac
 
 out=$(gh api -X PUT "repos/$REPO/branches/$BRANCH/protection" --input - 2>&1 <<'JSON'
 {
@@ -45,7 +60,7 @@ fi
 case "$out" in
   *"Upgrade to GitHub Pro"*)
     echo "protection=unavailable"
-    echo "GitHub ne protège pas une branche d'un repo privé avec un compte gratuit. Les checks tourneront quand même sur chaque pull request, et merge-pr.sh les respecte. Seul le bouton « Merge » de GitHub reste sans garde-fou."
+    echo "$UNAVAILABLE"
     exit 0 ;;
   *"Branch not found"*)
     echo "protection=no-branch"

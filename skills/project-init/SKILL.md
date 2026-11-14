@@ -28,7 +28,7 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`, `ci` différent de `absent`), dis-le, lance quand même `scripts/protect-main.sh` (étape 7) si le projet est sur GitHub, et arrête-toi. Sinon, ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`, `ci` différent de `absent`), dis-le, donne l'état de la protection de `main` d'après la ligne `protection` (étape 7), lance `scripts/protect-main.sh` seulement si elle vaut `off` ou `no-branch`, et arrête-toi. Sinon, ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
@@ -73,7 +73,7 @@ Résume ce qui a été créé ou modifié, puis relance `scripts/inspect.sh` pou
 
 Propose de commiter ces fichiers sur `main` **et de les pousser**, sans le faire sans accord : chaque ticket part du `main` de GitHub, il doit donc avoir ces fichiers.
 
-Une fois le push fait, si le projet est sur GitHub, lance `scripts/protect-main.sh` et lis sa première ligne :
+Une fois le push fait, si le projet est sur GitHub, lance `scripts/protect-main.sh` et lis sa première ligne. **Annonce toujours le résultat à l'utilisateur**, même quand rien n'a pu être protégé. Si la commande est bloquée ou échoue, dis-le aussi :
 
 - `protection=on` ou `already` : GitHub refuse de merger une pull request tant que ses checks ne sont pas verts. Dis-le en une phrase.
 - `protection=unavailable` : GitHub ne protège pas un repo privé avec un compte gratuit. Explique-le simplement : les checks tournent quand même sur chaque pull request et `/build-ticket` les respecte, mais le bouton « Merge » de GitHub ne vérifie rien. Ne propose pas de rendre le repo public.

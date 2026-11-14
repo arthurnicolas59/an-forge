@@ -16,6 +16,21 @@ if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
   echo "gh_auth=yes"
   repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
   echo "github=${repo:-none}"
+  # Protection de la branche principale, en lecture seule : on, off, unavailable (repo privé et
+  # compte gratuit) ou no-branch (rien de poussé).
+  if [ -n "$repo" ]; then
+    default=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null)
+    if p=$(gh api "repos/$repo/branches/${default:-main}/protection" 2>&1); then
+      echo "protection=on"
+    else
+      case "$p" in
+        *"Upgrade to GitHub Pro"*) echo "protection=unavailable" ;;
+        *"Branch not found"*) echo "protection=no-branch" ;;
+        *"not protected"*) echo "protection=off" ;;
+        *) echo "protection=unknown" ;;
+      esac
+    fi
+  fi
 else
   echo "gh_auth=no"
   echo "github=unknown"
