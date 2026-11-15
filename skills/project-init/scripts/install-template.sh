@@ -9,6 +9,9 @@ ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
 if [ -e "$ROOT/AGENTS.md" ]; then
   echo "AGENTS.md existe déjà : rien copié."
+  # Sa section « Workflow » appartient à an-forge : remise à jour si elle vient d'une ancienne version.
+  HERE=$(cd "$(dirname "$0")" && pwd)
+  (cd "$ROOT" && bash "$HERE/workflow-section.sh")
 else
   cp "$TEMPLATES/AGENTS.md" "$ROOT/AGENTS.md"
   echo "AGENTS.md copié depuis le modèle an-forge."

@@ -277,7 +277,7 @@
       "kind": "script",
       "what": "Pose les modèles **`AGENTS.md`**, **`scripts/checks.sh`** et **`checks.yml`**.",
       "when": "Étape 2 de `/project-init`.",
-      "how": "Si `AGENTS.md` n'existe pas, copie le modèle an-forge (règles, workflow, section « L'utilisateur »). Si `scripts/checks.sh` n'existe pas, copie le modèle : le fichier que le gate lance pour les tests, le lint et le build. Si `.github/workflows/checks.yml` n'existe pas, copie le modèle qui fait relancer les checks par GitHub sur chaque PR. Ne remplace jamais un fichier qui existe déjà : il dit « rien copié » et passe au suivant.",
+      "how": "Copie les modèles `AGENTS.md`, `scripts/checks.sh` et `.github/workflows/checks.yml` s'ils n'existent pas. Ne remplace jamais un fichier déjà là : il dit « rien copié » et passe au suivant. Exception : la section « Workflow » d'`AGENTS.md` appartient à an-forge. `workflow-section.sh` la remet à jour si elle est ancienne.",
       "source": "skills/project-init/scripts/install-template.sh"
     },
     {

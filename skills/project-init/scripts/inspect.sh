@@ -86,3 +86,6 @@ else
 fi
 
 [ -f GLOSSARY.md ] && echo "glossary=yes" || echo "glossary=no"
+
+# La section « Workflow » d'AGENTS.md, gérée par an-forge : current, outdated, custom ou absent.
+bash "$(dirname "${BASH_SOURCE[0]}")/workflow-section.sh" --check

@@ -145,7 +145,7 @@ flowchart LR
 
 **Pourquoi.**
 - **Ta réponse à la question change tout le reste.** Si tu n'es pas développeur, c'est écrit dans `AGENTS.md`, et tous les agents le liront : aucune question technique brute ne te sera posée. Tu recevras une recommandation expliquée simplement, que tu n'auras qu'à valider.
-- **Un seul règlement, `AGENTS.md`, pour tous les outils.** Claude Code, Codex ou Cursor le lisent tous. `CLAUDE.md` ne fait que renvoyer vers lui, pour que les règles ne soient jamais écrites en double.
+- **Un seul règlement, `AGENTS.md`, pour tous les outils.** Claude Code, Codex ou Cursor le lisent tous. `CLAUDE.md` ne fait que renvoyer vers lui, pour que les règles ne soient jamais écrites en double. Sa section « Workflow » dit seulement quel skill lancer et quand : le détail des étapes reste dans les skills, qui se mettent à jour avec an-forge. Relancer `/project-init` remet cette section à jour.
 - **Sur un projet existant**, l'agent déduit du code les règles et les contrôles à lancer. **Sur un projet neuf**, il n'y a encore rien à déduire : ce sera fait à l'étape 2, une fois la stack choisie (la *stack*, c'est l'ensemble des technologies du projet : langage, base de données, hébergement).
 
 ## 2. Cadrer le projet
@@ -406,6 +406,7 @@ Un skill est une fiche d'instructions que l'agent lit et interprète. Un script,
 |--------|---------------|-------|
 | `inspect.sh` | Fait l'état des lieux du projet : git, GitHub, fichiers déjà là | 1 |
 | `install-template.sh` | Pose `AGENTS.md`, `checks.sh` et `checks.yml` sans rien écraser | 1 |
+| `workflow-section.sh` | Remet à jour la section « Workflow » d'`AGENTS.md`, la seule qui appartient à an-forge | 1 |
 | `create-labels.sh` | Crée les étiquettes sur GitHub | 1 |
 | `claude-md.sh` | Crée `CLAUDE.md`, qui renvoie vers `AGENTS.md` | 1 |
 | `protect-main.sh` | Demande à GitHub de refuser un merge tant que les checks ne sont pas verts | 1 |

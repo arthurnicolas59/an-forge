@@ -7,7 +7,7 @@ description: Prépare un repo pour la software factory an-forge, qu'il soit neuf
 
 Prépare le repo courant pour qu'il soit prêt à suivre le workflow an-forge. À la fin, le projet a :
 
-- un `AGENTS.md` qui contient les règles, le workflow et la façon de parler à l'utilisateur ;
+- un `AGENTS.md` qui contient les règles, la façon de parler à l'utilisateur, et une section « Workflow » qui dit quel skill lancer et quand. Cette section appartient à an-forge : le détail des étapes est dans les skills, jamais recopié dans le projet ;
 - un `scripts/checks.sh` : le gate que `build-ticket` lance avant toute relecture, rempli tout de suite si le projet a déjà du code, sinon par `/project-launch` ;
 - un `.github/workflows/checks.yml` : il fait relancer `scripts/checks.sh` par GitHub sur chaque pull request, et la branche `main` est protégée quand GitHub le permet ;
 - la configuration des skills (`docs/agents/`) et un bloc « Agent skills » dans `AGENTS.md` ;
@@ -28,11 +28,11 @@ Lance `scripts/inspect.sh` et lis son résultat. Règle chaque point avant de co
 - `claude_md=import-only` : lance `scripts/claude-md.sh remove-import`. Il sera recréé à l'étape 6.
 - `claude_md=custom` : montre son contenu à l'utilisateur et propose de le déplacer dans `AGENTS.md` (à l'étape 3), puis de supprimer `CLAUDE.md`. Ne continue pas tant que `CLAUDE.md` existe.
 
-Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`, `ci` différent de `absent`), dis-le, donne l'état de la protection de `main` d'après la ligne `protection` (étape 7), lance `scripts/protect-main.sh` seulement si elle vaut `off` ou `no-branch`, et arrête-toi. Sinon, ne refais que ce qui manque.
+Si tout est déjà en place (`agents_md` vaut `filled` ou `launch-pending`, `missing_sections` vide, `skills_setup=yes`, `claude_md=import-only`, `ci` différent de `absent`, `workflow` différent de `outdated`), dis-le, donne l'état de la protection de `main` d'après la ligne `protection` (étape 7), lance `scripts/protect-main.sh` seulement si elle vaut `off` ou `no-branch`, et arrête-toi. Sinon, ne refais que ce qui manque.
 
 ## 2. Poser le modèle
 
-Lance `scripts/install-template.sh`. Il copie les modèles `AGENTS.md`, `scripts/checks.sh` et `.github/workflows/checks.yml`, sans jamais écraser un fichier existant. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections que `missing_sections` liste, à la même place que dans le modèle. N'ajoute pas une section qui existe déjà sous un autre nom (par exemple « Commandes » pour « Checks »). Une section ajoutée arrive avec son marqueur, rempli à l'étape 3 : pour « L'utilisateur », c'est la question « Êtes-vous développeur ? ».
+Lance `scripts/install-template.sh`. Il copie les modèles `AGENTS.md`, `scripts/checks.sh` et `.github/workflows/checks.yml`, sans jamais écraser un fichier existant. Seule exception : si `AGENTS.md` existait déjà avec une section « Workflow » écrite par une ancienne version d'an-forge, il la remplace par celle du modèle (ligne `workflow=updated`) ; une section écrite à la main pour le projet (`workflow=custom`) n'est jamais touchée : signale-la à l'utilisateur. Si `AGENTS.md` existait déjà, garde son contenu et ajoute seulement les sections que `missing_sections` liste, à la même place que dans le modèle. N'ajoute pas une section qui existe déjà sous un autre nom (par exemple « Commandes » pour « Checks »). Une section ajoutée arrive avec son marqueur, rempli à l'étape 3 : pour « L'utilisateur », c'est la question « Êtes-vous développeur ? ».
 
 ## 3. Remplir AGENTS.md et checks.sh
 
