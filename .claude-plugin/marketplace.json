@@ -8,6 +8,11 @@
       "name": "an-forge",
       "source": "./",
       "description": "Ma software factory : skills, agents et workflows réutilisables pour tous mes projets."
+    },
+    {
+      "name": "forge-progress",
+      "source": "./plugins/forge-progress",
+      "description": "Ticket statut : panneau qui montre les tickets qu'il reste à faire sur le projet et suit en direct le ticket en cours de /build-ticket (/ticket-statut, /an-forge ticket status)."
     }
   ]
 }

@@ -105,6 +105,16 @@ npx skills@latest add arthurnicolas59/an-forge
 
 Si le plugin ne se met pas à jour tout seul : `claude plugin marketplace update an-forge`, puis `claude plugin update an-forge@an-forge`.
 
+### En option : Ticket statut
+
+Un deuxième plugin, `forge-progress`, ajoute à Claude Code un panneau **Ticket statut** : ce qu'il reste à faire sur le projet (spec par spec, avec la prochaine commande à lancer et l'objectif de chaque ticket en une phrase) et le suivi en direct du ticket en cours pendant un `/build-ticket`. Il s'ouvre avec `/ticket-statut` ou `/an-forge ticket status`.
+
+```bash
+claude plugin install forge-progress@an-forge
+```
+
+Détails dans [`plugins/forge-progress/README.md`](plugins/forge-progress/README.md).
+
 Les captures d'écran et le PDF du brief utilisent **Playwright**, un outil qui pilote un navigateur invisible. Il demande Node.js 20 ou plus. La première fois, il télécharge son navigateur, Chromium (environ 150 Mo).
 
 ## Les 5 étapes
@@ -481,6 +491,7 @@ tests/            les tests de ces scripts
 licenses/         les licences des skills venus d'ailleurs
 docs/             les cartes de la factory
 .claude-plugin/   l'emballage qui fait d'an-forge un plugin Claude Code
+plugins/          les plugins en option du marketplace (forge-progress : Ticket statut)
 ```
 
 an-forge n'est pas réservé à Claude Code :
