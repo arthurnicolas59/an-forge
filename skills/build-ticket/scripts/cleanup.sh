@@ -41,6 +41,36 @@ for branch in $(git for-each-ref --format='%(refname:short)' 'refs/heads/ticket/
 done
 git worktree prune
 
+# Le dossier des worktrees, à côté du projet : supprimé quand il ne contient plus aucun ticket, avec
+# son autorisation dans les réglages locaux de Claude Code. start-ticket.sh recrée les deux au besoin.
+WTS="$(dirname "$ROOT")/$(basename "$ROOT").worktrees"
+if [ -d "$WTS" ]; then
+  rm -f "$WTS/.DS_Store"
+  if rmdir "$WTS" 2>/dev/null; then
+    echo "Supprimé : dossier vide $WTS"
+    settings="$ROOT/.claude/settings.local.json"
+    if [ -f "$settings" ] && command -v python3 >/dev/null 2>&1; then
+      python3 - "$settings" "$WTS" <<'PY' || true
+import json, sys
+path, folder = sys.argv[1], sys.argv[2]
+with open(path, encoding="utf-8") as f:
+    data = json.load(f)
+perms = data.get("permissions", {})
+dirs = perms.get("additionalDirectories", [])
+if folder in dirs:
+    dirs.remove(folder)
+    if not dirs:
+        del perms["additionalDirectories"]
+    if not perms:
+        data.pop("permissions", None)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+PY
+    fi
+  fi
+fi
+
 # 1 bis. Le dossier principal : les merges se font sur GitHub, il faut les ramener ici.
 # Seulement en avance rapide, sur la branche principale et sans travail en cours : rien n'est écrasé.
 default=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null)
