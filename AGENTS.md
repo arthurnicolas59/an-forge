@@ -17,6 +17,7 @@ Copilot, Gemini…). `CLAUDE.md` ne fait que l'importer.
   - `docs/mattpocock/map.json` : la carte de Matt Pocock, reprise de super-board telle quelle, mise en page par le moteur `docs/_shared/` ;
   - `docs/_shared/maps.json` : la liste des cartes, pour la barre du haut et la page d'accueil `docs/index.html`.
 - `.claude-plugin/` : l'emballage pour Claude Code. Il ne contient aucune règle.
+- `plugins/<nom>/` : un plugin en option du marketplace, installé à part (`forge-progress` : le panneau Ticket statut). Il a son propre `.claude-plugin/plugin.json` et sa propre version ; le changer ne demande pas d'augmenter celle d'an-forge.
 
 ## Règles
 

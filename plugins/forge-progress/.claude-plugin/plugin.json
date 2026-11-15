@@ -1,0 +1,22 @@
+{
+  "name": "forge-progress",
+  "version": "0.1.0",
+  "description": "Suivi en direct du workflow an-forge : barre d'étapes de /build-ticket et du cadrage au-dessus du prompt, et panneau /forge (étapes, agents, coût, journal).",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "autoOpen": {
+      "type": "string",
+      "title": "Ouvrir le panneau tout seul",
+      "description": "oui : le panneau /forge s'ouvre au début d'un /build-ticket ; non : seulement avec /forge",
+      "default": "oui",
+      "options": ["oui", "non"]
+    },
+    "clawd": {
+      "type": "string",
+      "title": "Clawd animé",
+      "description": "oui : Clawd, la mascotte de Claude Code, s'anime dans la barre et le panneau selon l'avancement ; non : la barre garde l'icône ⚒",
+      "default": "oui",
+      "options": ["oui", "non"]
+    }
+  }
+}
