@@ -2,7 +2,7 @@
 # Mis à jour avec scripts/sync-upstream.sh.
 # Retouche locale de to-tickets : une phrase et une ligne de modèle ajoutent la taille du ticket (taille:petit|moyen|gros), lue par build-ticket pour choisir le modèle.
 repo https://github.com/mattpocock/skills.git
-commit 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
+commit 5863806dd4e15c63174bee4e7515a4256792ecfa
 skill setup-matt-pocock-skills skills/engineering/setup-matt-pocock-skills
 skill grilling skills/productivity/grilling
 skill domain-modeling skills/engineering/domain-modeling
