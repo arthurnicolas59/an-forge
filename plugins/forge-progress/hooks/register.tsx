@@ -1194,9 +1194,10 @@ export const register: Register = (on, options) => {
         }} />
       )
     const tabs = (
-      <Box key="tabs" flexDirection="row" gap={1} marginBottom={1}>
-        {tab('live', f && f.kind === 'build' && f.ticket && !isFinished(f) ? `⚒ Ticket en cours · #${f.ticket}` : '⚒ Ticket en cours')}
+      // Le projet à gauche, le ticket en cours à droite.
+      <Box key="tabs" flexDirection="row" justifyContent="space-between" gap={1} marginBottom={1}>
         {tab('board', '☰ Tickets du projet')}
+        {tab('live', f && f.kind === 'build' && f.ticket && !isFinished(f) ? `⚒ Ticket en cours · #${f.ticket}` : '⚒ Ticket en cours')}
       </Box>
     )
 
