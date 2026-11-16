@@ -72,6 +72,19 @@ TEST_FILE = re.compile(
     r"|[._-](test|spec)\.[^/]+$"
     r"|(^|/)test_[^/]+\.py$"
 )
+# Les réglages qui décident de ce que les checks vérifient. Même liste que gate.sh (skill build-ticket).
+CONFIG_FILE = re.compile(
+    r"(^|/)(pyproject\.toml|setup\.cfg|tox\.ini|pytest\.ini|conftest\.py|\.coveragerc|mypy\.ini|ruff\.toml"
+    r"|\.flake8|Makefile|tsconfig[^/]*\.json|\.eslintrc[^/]*|eslint\.config\.[^/]+|\.eslintignore|biome\.jsonc?"
+    r"|(vitest|jest|playwright|cypress|karma|babel)\.config\.[^/]+)$"
+    r"|^\.github/workflows/|(^|/)scripts/checks\.sh$"
+)
+PKG_KEYS = re.compile(r'^[-+]\s*"(test|lint|typecheck|type-check|check|checks|build|jest|eslintConfig|vitest)[^"]*"\s*:')
+SKIP_MARK = re.compile(
+    r"(^|[^A-Za-z0-9_.])((it|test|describe|context|suite)\.(skip|only|todo)([^A-Za-z0-9_]|$)"
+    r"|x(it|test|describe)\s*\(|t\.Skip\s*\()"
+    r"|@pytest\.mark\.(skip|xfail)|pytest\.skip\s*\(|@unittest\.skip|@Disabled|@Ignore"
+)
 RISQUES = {"faible": "low", "moyen": "medium", "élevé": "high"}
 MAX_ROWS = 60
 EXCLUDE = "docs/briefs/"
@@ -159,6 +172,30 @@ def touched_tests(files):
         elif code in "MTR" and TEST_FILE.search(old or path) and removed not in ("0", "-"):
             modified.append(path)
     return deleted, modified
+
+
+def touched_config(folder, base, files):
+    """Les réglages des checks modifiés et les tests désactivés par la branche (même règle que gate.sh)."""
+    found = []
+    for code, path, old, added, removed in files:
+        if CONFIG_FILE.search(path) or (old and CONFIG_FILE.search(old)):
+            found.append(path)
+        elif path.endswith("package.json") and path.split("/")[-1] == "package.json" and code != "D":
+            diff = git(folder, "diff", "-U0", f"{base}...HEAD", "--", path)
+            if any(PKG_KEYS.match(line) for line in diff.splitlines()):
+                found.append(path)
+        elif code in "AMR" and TEST_FILE.search(path):
+            diff = git(folder, "diff", "-U0", f"{base}...HEAD", "--", path)
+            if any(line.startswith("+") and not line.startswith("+++") and SKIP_MARK.search(line[1:])
+                   for line in diff.splitlines()):
+                found.append(path)
+    return found
+
+
+def config_line(found):
+    if not found:
+        return "Aucun modifié"
+    return f"{len(found)} fichier{'s' if len(found) > 1 else ''} : " + ", ".join(found[:3]) + (" …" if len(found) > 3 else "")
 
 
 def tests_line(deleted, modified):
@@ -372,6 +409,7 @@ def main():
         if checks:
             facts.insert(0, ("Checks", checks))
         facts.append(("Tests existants", tests_line(*touched_tests(files))))
+        facts.append(("Réglages des checks", config_line(touched_config(folder, args.base, files))))
         sections.append(annexe_html(files, roles))
     annexe = ""
     if sections:

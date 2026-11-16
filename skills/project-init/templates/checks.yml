@@ -14,6 +14,8 @@ name: checks
 
 on:
   pull_request:
+    # labeled / unlabeled : relance les checks quand l'étiquette checks-modifies est posée ou retirée.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -28,5 +30,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # GitHub lance les checks tels qu'ils sont dans la PR : une PR qui les modifie pourrait se faire passer
+      # elle-même. Elle est refusée, sauf si elle porte l'étiquette checks-modifies (posée quand le ticket
+      # le demande et que l'utilisateur l'a confirmé). Ne retire pas cette étape.
+      - name: Les checks ne sont pas modifiés par la PR
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'checks-modifies') }}
+        run: |
+          changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- scripts/checks.sh .github/workflows/)
+          if [ -n "$changed" ]; then
+            echo "::error::La PR modifie les checks eux-mêmes : $changed. Annule ces changements, ou pose l'étiquette checks-modifies si l'utilisateur l'a confirmé."
+            exit 1
+          fi
       # L'installation des outils du projet va ici.
       - run: bash scripts/checks.sh

@@ -7,6 +7,8 @@
 # Échoue si la branche a modifié scripts/checks.sh ou .github/workflows/checks.yml
 # (on ne change pas les règles pour passer), sinon lance scripts/checks.sh. Code de sortie 0 seulement si tout passe.
 # Signale aussi, sans échouer, les tests existants que la branche a supprimés ou dont elle a retiré des lignes.
+# Signale de même les réglages qui décident de ce que les checks vérifient (configuration des tests, du lint,
+# du typecheck, commandes de package.json) et les tests désactivés (.skip, .only, xit, @pytest.mark.skip…).
 # Quand tout passe sans modification en cours, retient le commit testé (lu par merge-pr.sh).
 # La sortie complète est gardée dans .git du worktree (chemin affiché), la fin est affichée en cas d'échec.
 set -uo pipefail
@@ -41,6 +43,25 @@ TOUCHED=$(
   git diff --numstat --diff-filter=M "$MB" | awk -F'\t' '$2 != "0" && $2 != "-" {print $3}' | grep -E "$TEST_FILE" | sed 's/^/  modifié  : /'
 )
 
+# Les réglages des checks : changer ces fichiers peut faire passer les checks sans que le code soit bon
+# (un test exclu, une règle de lint coupée, un typecheck moins strict). Un signal aussi, pas un refus.
+CONFIG_FILE='(^|/)(pyproject\.toml|setup\.cfg|tox\.ini|pytest\.ini|conftest\.py|\.coveragerc|mypy\.ini|ruff\.toml|\.flake8|Makefile|tsconfig[^/]*\.json|\.eslintrc[^/]*|eslint\.config\.[^/]+|\.eslintignore|biome\.jsonc?|(vitest|jest|playwright|cypress|karma|babel)\.config\.[^/]+)$|^\.github/workflows/'
+# Dans package.json, seules comptent les lignes des commandes de checks et des réglages de jest / eslint :
+# ajouter une dépendance n'est pas un signal.
+PKG_KEYS='^[-+][[:space:]]*"(test|lint|typecheck|type-check|check|checks|build|jest|eslintConfig|vitest)[^"]*"[[:space:]]*:'
+# Un test désactivé ajouté par la branche, dans un fichier de test.
+# (Sans \b, que le grep de macOS ne connaît pas toujours.)
+SKIP_MARK='(^|[^A-Za-z0-9_.])((it|test|describe|context|suite)\.(skip|only|todo)([^A-Za-z0-9_]|$)|x(it|test|describe)[[:space:]]*\(|t\.Skip[[:space:]]*\()|@pytest\.mark\.(skip|xfail)|pytest\.skip[[:space:]]*\(|@unittest\.skip|@Disabled|@Ignore'
+CONFIG=$(
+  git diff --name-only "$MB" | grep -E "$CONFIG_FILE" | sed 's/^/  réglage modifié : /'
+  git diff --name-only "$MB" | grep -E '(^|/)package\.json$' | while read -r f; do
+    git diff -U0 "$MB" -- "$f" | grep -qE "$PKG_KEYS" && echo "  commandes de checks modifiées : $f"
+  done
+  git diff --name-only --diff-filter=AMR "$MB" | grep -E "$TEST_FILE" | while read -r f; do
+    git diff -U0 "$MB" -- "$f" | grep -E '^\+' | grep -v '^+++' | grep -qE "$SKIP_MARK" && echo "  test désactivé : $f"
+  done
+)
+
 LOG="$(git rev-parse --git-dir)/an-forge-checks.log"
 PASSED="$(git rev-parse --git-dir)/an-forge-gate-pass"
 rm -f "$PASSED"
@@ -59,6 +80,10 @@ if [ $code -eq 0 ]; then
   if [ -n "$TOUCHED" ]; then
     echo "TESTS EXISTANTS TOUCHÉS — remets-les en l'état, sauf si le ticket le demande ; ce qui reste sera affiché dans le brief :"
     echo "$TOUCHED"
+  fi
+  if [ -n "$CONFIG" ]; then
+    echo "RÉGLAGES DES CHECKS TOUCHÉS — annule ces changements, sauf si le ticket les demande ; ce qui reste sera affiché dans le brief :"
+    echo "$CONFIG"
   fi
   exit 0
 fi
