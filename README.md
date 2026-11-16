@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.13.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.17.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -214,7 +214,7 @@ Une flèche veut dire « doit être fini avant ». La spec ne se construit pas :
 1. **Le ménage** : il range les tickets déjà mergés (script `cleanup.sh`).
 2. **Il réserve le ticket** et crée sa **branche**, `ticket/12-…`, à partir de la dernière version de `main`. Il travaille dans un dossier à part, le *worktree*, rangé à côté du projet (`<projet>.worktrees/`).
 3. **Il capture « l'avant »** : des captures d'écran si le changement se voit, ou la reproduction exacte du bug.
-4. **Il construit en TDD** (skill `tdd`) : d'abord un test qui échoue, puis le code qui le fait passer, une petite tranche à la fois, avec une sauvegarde (un *commit*) après chaque tranche.
+4. **Il construit en TDD** (skill `tdd`) : d'abord un test qui échoue, puis le code qui le fait passer, une petite tranche à la fois, avec une sauvegarde (un *commit*) après chaque tranche. Il choisit la solution la plus simple, sans jamais rogner sur la sécurité, la validation, la protection des données ni l'accessibilité. Et dès qu'il touche à un service extérieur (paiement, connexion, une bibliothèque…), il lit d'abord sa documentation officielle au lieu de se fier à sa mémoire, et cite les pages lues dans la PR.
 
 ```mermaid
 gitGraph
@@ -272,19 +272,19 @@ flowchart LR
     c1 -.->|"3 échecs de suite"| stop(["Arrêt, noté<br/>sur le ticket"])
 ```
 
-1. **Les checks chez l'agent** : le script `gate.sh` lance tous les contrôles du projet (`scripts/checks.sh`). Il refuse d'office une branche qui modifie la liste des contrôles.
+1. **Les checks chez l'agent** : le script `gate.sh` lance tous les contrôles du projet (`scripts/checks.sh`). Il refuse d'office une branche qui modifie la liste des contrôles. Il signale aussi ce qui pourrait les affaiblir sans y toucher : un réglage changé (par exemple un test exclu de la liste, une règle de vérification coupée) ou un test mis en pause (`.skip`). Ce qui reste est affiché dans le brief.
 2. **Deux relecteurs neufs**, deux agents qui ne voient que le changement, le ticket et les règles du projet :
    - `code-review` : le code respecte-t-il les règles du projet, et fait-il ce que le ticket demande ?
    - `risk-review` : qu'est-ce qui pourrait mal tourner (bugs, failles de sécurité, données perdues) ? Il donne un **niveau de risque**.
    Deux tours au plus : ce qui reste ensuite est écrit dans le brief.
-3. **Les checks chez GitHub** : à l'ouverture de la pull request, GitHub relance les mêmes contrôles sur une machine neutre.
+3. **Les checks chez GitHub** : à l'ouverture de la pull request, GitHub relance les mêmes contrôles sur une machine neutre. Il refuse lui aussi une PR qui modifie les contrôles, sauf si tu l'as autorisé (étiquette `checks-modifies`).
 
 **Ce que tu obtiens** : un travail qui a passé les trois contrôles, ou un arrêt expliqué.
 
 **Pourquoi.**
 - **Des relecteurs neufs**, parce qu'on ne relit bien que ce qu'on n'a pas écrit. Ils ne voient pas le raisonnement du constructeur, donc ils ne peuvent pas être convaincus par lui : ils jugent seulement le résultat.
 - **Les checks deux fois**, comme un contrôle technique fait par un garage indépendant plutôt que par le vendeur. Ça passe chez l'agent mais pas chez GitHub ? C'est souvent un oubli : un fichier pas sauvegardé, un outil installé seulement sur la machine de l'agent.
-- **Interdit de toucher aux contrôles.** Sinon, le plus simple pour « réussir » serait de retirer le test qui échoue.
+- **Interdit de toucher aux contrôles.** Sinon, le plus simple pour « réussir » serait de retirer le test qui échoue. GitHub lance les contrôles *tels qu'ils sont dans la PR* : une PR qui les modifie pourrait donc se faire passer elle-même. C'est pour ça que le refus est vérifié à trois endroits (l'agent, GitHub, et le merge). Si un ticket doit vraiment changer les contrôles, l'agent te le montre et attend ton accord.
 
 ## 5. Livrer le ticket
 
@@ -292,7 +292,7 @@ flowchart LR
 - **« merge la PR »** si le résultat te convient ;
 - **ce qui ne va pas** (« le bouton est trop petit »). L'agent corrige alors, refait tous les contrôles et te redonne un brief à jour. Si ta demande sort du ticket, il te propose d'en faire un nouveau, avec `/quick-ticket`.
 
-**Ce que l'agent fait** : avant ta décision, il prépare le brief (skills `before-after` et `feature-brief`) et ouvre la pull request. Après ton « merge », il ne merge pas les yeux fermés : le script `merge-pr.sh` vérifie d'abord trois choses.
+**Ce que l'agent fait** : avant ta décision, il prépare le brief (skills `before-after` et `feature-brief`) et ouvre la pull request **en brouillon** : personne ne peut la merger par erreur avec le bouton de GitHub. Après ton « merge », il ne merge pas les yeux fermés : le script `merge-pr.sh` vérifie d'abord trois choses, puis sort la PR du brouillon et la merge.
 
 ```mermaid
 flowchart LR
@@ -314,8 +314,9 @@ flowchart LR
 
 **Pourquoi.**
 - **L'agent ne merge jamais de lui-même**, même si tout est vert : la dernière décision est toujours la tienne.
-- **Le brief contient trois informations que l'agent qui a codé ne peut pas embellir** : le niveau de risque (donné par le relecteur indépendant), le résultat des checks et la liste des tests existants supprimés ou modifiés (calculés par des scripts).
+- **Le brief contient quatre informations que l'agent qui a codé ne peut pas embellir** : le niveau de risque (donné par le relecteur indépendant), le résultat des checks, la liste des tests existants supprimés ou modifiés et celle des réglages des checks touchés (calculés par des scripts).
 - **Les trois vérifications avant le merge**, parce qu'un autre ticket a pu être mergé pendant ce temps. Deux changements justes séparément peuvent se contredire : on revérifie donc sur la version réunie.
+- **Deux refus de plus au merge** : une PR qui modifie les contrôles sans ton accord, et une PR que personne n'a pu vérifier (ni l'agent sur cette machine, ni GitHub). Dans ce dernier cas, l'agent te propose de relancer `/project-init` pour que GitHub vérifie chaque PR.
 
 ## La vie d'un ticket
 
@@ -472,6 +473,13 @@ flowchart LR
   ```
 
   Le script vérifie aussi la mise en page (flèches qui se croisent, étiquettes qui se chevauchent) avec Google Chrome. Sans Chrome, les pages se construisent quand même, sans cette vérification.
+- **Les contrôles d'an-forge** : sur chaque pull request, GitHub lance les tests des scripts, vérifie que chaque skill est sur la carte, et refuse une version oubliée (skills ou scripts changés sans augmenter `plugin.json`, ou badge du README pas à jour). Pour les lancer à la main :
+
+  ```bash
+  tests/run.sh                    # les tests des scripts (gate, merge, choix du modèle)
+  scripts/check-version.sh        # les règles de version, comparées à origin/main
+  ```
+
 - **Les skills venus d'ailleurs** (Matt Pocock, Eric Tech) sont des copies, qu'on modifie le moins possible. Pour voir ce qui a changé chez eux depuis la dernière copie :
 
   ```bash
@@ -486,8 +494,9 @@ AGENTS.md         les règles d'an-forge (lisibles par tous les outils)
 CLAUDE.md         renvoie vers AGENTS.md, pour Claude Code
 skills/           un dossier par skill : ses instructions (SKILL.md) et ses scripts
 agents/           un fichier par sous-agent (vide pour l'instant)
-scripts/          les scripts d'an-forge lui-même : cartes, mises à jour des copies
-tests/            les tests de ces scripts
+scripts/          les scripts d'an-forge lui-même : cartes, mises à jour des copies, version
+tests/            les tests des scripts (tests/run.sh les lance tous)
+.github/          le CI d'an-forge : tests, carte, version
 licenses/         les licences des skills venus d'ailleurs
 docs/             les cartes de la factory
 .claude-plugin/   l'emballage qui fait d'an-forge un plugin Claude Code
@@ -510,11 +519,12 @@ Fait :
 - [x] `/build-ticket` : isolation, TDD, checks, relectures, brief, PR, merge contrôlé
 - [x] Checks relancés par GitHub, étiquettes `needs-info` / `ready-for-human`
 - [x] Choix du modèle par taille de ticket
+- [x] Tests automatiques des scripts (`tests/run.sh`) et CI d'an-forge : tests, carte, version
+- [x] Contrôles non contournables : PR qui modifie les checks refusée chez l'agent, chez GitHub et au merge ; PR en brouillon jusqu'au merge
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
 - [ ] Sous-agents dédiés (`agents/` est vide : les relectures passent par des skills)
-- [ ] Tests automatiques des scripts et contrôle du bump de version
 - [ ] Aperçu de déploiement par PR dans le ticket socle
 - [ ] Orchestrateur `/factory` et parallèle, seulement après 10 à 20 tickets faits à la main
 

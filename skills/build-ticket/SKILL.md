@@ -102,6 +102,8 @@ Le constructeur suit le skill `tdd`, en respectant l'architecture existante et l
 - Pour un bug, termine `diagnosing-bugs` : le test de régression fait partie du travail.
 - Commit après chaque tranche qui passe, sur la branche du ticket, avec un message court qui commence par `#<n>`.
 - Fais ce que demande le ticket, rien de plus. Ce qui manque ou semble faux dans le ticket va dans la PR, pas dans le code.
+- **La solution la plus simple qui remplit les critères** : pas de couche, d'option ou d'abstraction que le ticket ne demande pas. Mais ne retire jamais, pour simplifier : la validation des entrées, la sécurité (accès, secrets), la protection contre la perte de données, l'accessibilité.
+- **La documentation officielle d'abord** quand le ticket touche une bibliothèque, une API ou un service extérieur, une mise à jour de version, la connexion des utilisateurs ou un paiement : lis la page officielle de la version utilisée par le projet avant d'écrire le code, plutôt que de te fier à ta mémoire. Note les pages lues (titre et adresse) : elles vont dans la PR. Si tu ne peux pas consulter le web, dis-le dans la PR.
 
 ## 6. Tester
 
@@ -109,6 +111,7 @@ Lance `scripts/gate.sh <base>` depuis le worktree, même si le constructeur l'a 
 
 - `GATE: PASS` : continue.
 - `GATE: FAIL` : corrige la cause, commit, relance. Si le même échec revient **trois fois**, arrête-toi : pas de PR. Résume l'échec, ce que tu as essayé, et laisse le worktree en place (voir « S'arrêter en route »).
+- `RÉGLAGES DES CHECKS TOUCHÉS` : le gate liste les réglages qui décident de ce que les checks vérifient (configuration des tests, du lint, du typecheck, commandes de `package.json`) que la branche a changés, et les tests qu'elle a désactivés (`.skip`, `.only`, `@pytest.mark.skip`…). Annule chacun, sauf si le ticket le demande. Ceux qui restent apparaîtront dans le brief : garde pour chacun la raison, pour la PR.
 - `TESTS EXISTANTS TOUCHÉS` : le gate liste les tests qui existaient avant et que la branche a supprimés ou raccourcis. Remets chacun en l'état, sauf si le ticket demande ce changement de comportement. Ceux qui restent touchés apparaîtront dans le brief : garde pour chacun la raison, pour la PR.
 
 Ne passe jamais à la relecture avec un gate qui échoue, et ne contourne jamais un check (test désactivé, règle de lint coupée).
@@ -153,13 +156,14 @@ D'autres tickets ont peut-être été mergés pendant que tu travaillais. Intèg
 
 Pousse la branche : `git push -u origin <branch>` (après un rebase sur une branche déjà poussée : `git push --force-with-lease`).
 
-Ouvre la pull request vers la branche de base, avec un titre court et un corps écrit selon le skill `pr`. Ajoute au corps :
+Ouvre la pull request **en brouillon** (`gh pr create --draft`) vers la branche de base, avec un titre court et un corps écrit selon le skill `pr`. Elle reste en brouillon jusqu'au merge : le bouton « Merge » de GitHub ne peut pas la merger par erreur, même quand `main` n'est pas protégée. C'est `merge-pr.sh` qui la sort du brouillon, une fois tout vérifié. Ajoute au corps :
 
 - `Closes #<n>` en première ligne. Si `scripts/tickets.sh last-of-spec <n>` affiche un numéro, c'est le dernier ticket ouvert de sa spec : ajoute `Closes #<spec>`, pour que la spec se ferme avec ce merge ;
 - le chemin du brief (`docs/briefs/<n>-<titre>/index.html`) ;
 - l'avant/après du brief, en image et pas seulement cité. Les captures : `![<nom de l'écran>](https://github.com/<owner>/<repo>/raw/<sha>/docs/briefs/<n>-<titre>/<image>.png)`, avec le SHA du dernier commit poussé, pour que l'image reste visible après le merge et la suppression de la branche. Les schémas : recopie-les tels quels dans un bloc ```` ```mermaid ````, que GitHub dessine ;
 - les interfaces testées (étape 5) ;
-- les tests existants supprimés ou modifiés, avec la raison de chacun, s'il y en a ;
+- les tests existants supprimés ou modifiés, et les réglages des checks touchés, avec la raison de chacun, s'il y en a ;
+- `Docs:` suivi des pages de documentation officielle lues (étape 5), une par ligne, s'il y en a ;
 - ce que les relectures ont laissé ouvert, s'il reste quelque chose.
 
 **Attends ensuite le verdict de GitHub**, qui relance les checks de son côté, sur une machine neutre : `scripts/pr-checks.sh <numéro de la PR> --wait`. La commande peut durer plusieurs minutes : donne-lui un délai long.
@@ -188,8 +192,10 @@ Seulement quand l'utilisateur le demande, dans cette session ou une autre : lanc
 - Code 5, gate à relancer : lance `scripts/gate.sh <base>` dans le worktree, corrige s'il échoue, pousse, puis relance `scripts/merge-pr.sh`.
 - Code 6, checks GitHub en échec : corrige comme à l'étape 9, puis relance `scripts/merge-pr.sh`.
 - Code 7, checks GitHub en cours : attends avec `scripts/pr-checks.sh <numéro de la PR> --wait`, puis relance `scripts/merge-pr.sh`.
+- Code 8, la PR modifie les checks eux-mêmes (`scripts/checks.sh`, `.github/workflows/`) : annule ces changements, refais l'étape 9, puis relance. Si le ticket demande vraiment ce changement, montre à l'utilisateur les fichiers et ce qui change, en mots simples. S'il confirme, pose l'étiquette `checks-modifies` sur la PR (`gh pr edit <numéro> --add-label checks-modifies`), attends les checks, puis relance `scripts/merge-pr.sh`.
+- Code 9, rien n'a pu être vérifié (pas de worktree du ticket sur cette machine et aucun check sur GitHub) : ne merge pas. Dis-le à l'utilisateur et propose de relancer `/project-init`, pour que GitHub vérifie chaque PR.
 
-Si l'utilisateur merge lui-même avec le bouton vert « Merge pull request » de GitHub : quand `main` est protégée, GitHub refuse tant que ses checks ne sont pas verts, sauf si le propriétaire confirme qu'il passe outre. Quand elle ne l'est pas (repo privé avec un compte gratuit), rien n'est vérifié.
+Si l'utilisateur veut merger lui-même avec le bouton de GitHub, il doit d'abord sortir la PR du brouillon (« Ready for review ») : c'est un geste volontaire. Quand `main` est protégée, GitHub refuse ensuite tant que ses checks ne sont pas verts, sauf si le propriétaire confirme qu'il passe outre. Quand elle ne l'est pas (repo privé avec un compte gratuit), rien n'est vérifié : recommande-lui plutôt de te dire « merge la PR ».
 
 ## 12. Reprendre après le brief, sur demande
 
@@ -213,6 +219,7 @@ Si tu dois t'arrêter avant la fin (le gate échoue trois fois, GitHub refuse tr
 - Les relectures ne descendent jamais sous le modèle `review=`, même avec `--eco`.
 - Ne commit jamais sur `main`. Ne force-push que sur la branche du ticket, avec `--force-with-lease`.
 - Ne merge que sur demande explicite de l'utilisateur, après lecture du brief.
-- Ne modifie jamais `scripts/checks.sh`, `.github/workflows/checks.yml` ni un test existant pour faire passer le gate, sauf si le ticket le demande explicitement.
+- Ne modifie jamais `scripts/checks.sh`, `.github/workflows/`, un réglage des checks (configuration des tests, du lint, du typecheck) ni un test existant pour faire passer le gate, et ne désactive aucun test, sauf si le ticket le demande explicitement.
+- Ne pose jamais l'étiquette `checks-modifies` sans la confirmation de l'utilisateur.
 - Le niveau de risque, le résultat des checks et la liste des tests touchés ne sont pas ton avis : ils viennent de la relecture indépendante et des scripts.
 - Si tu t'arrêtes avant la PR, dis à quelle étape, pourquoi, et ce qu'il faut pour reprendre, à l'utilisateur et sur le ticket (« S'arrêter en route ») : relancer `/build-ticket <n>` réutilise le worktree.

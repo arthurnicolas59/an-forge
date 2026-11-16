@@ -50,7 +50,7 @@
       "sublabel": "Ticket → code testé → PR",
       "what": "Construit un ticket `ready-for-agent` **de bout en bout, sans s'arrêter** : branche isolée, code en TDD, checks, relectures indépendantes, brief d'une page, pull request.",
       "when": "Dans **une session neuve**, un ticket par session. `/build-ticket` seul prend le premier ticket libre ; `/build-ticket <n>` prend celui-là ou reprend une PR après ta demande de changement.",
-      "how": "Réserve le premier ticket libre, ou pose sa question sur l'issue et s'arrête s'il oblige à deviner. Fait construire test d'abord par un agent dont le modèle suit la taille du ticket (petit → Sonnet, sinon Opus), gate à 3 essais. Fait relire par `/code-review` et `/risk-review`, toujours sur le modèle le plus capable. Écrit le brief, ouvre la PR, attend les checks, et ne merge que quand tu dis « merge la PR ».",
+      "how": "Réserve le premier ticket libre, ou pose sa question sur l'issue et s'arrête s'il oblige à deviner. Fait construire test d'abord par un agent dont le modèle suit la taille du ticket (petit → Sonnet, sinon Opus), gate à 3 essais. Fait relire par `/code-review` et `/risk-review`, toujours sur le modèle le plus capable. Écrit le brief, ouvre la PR en brouillon, attend les checks, et ne merge que quand tu dis « merge la PR ».",
       "source": "skills/build-ticket/SKILL.md"
     },
     {
@@ -349,7 +349,7 @@
       "kind": "script",
       "what": "**Le gate** : lance les checks du projet (`scripts/checks.sh`).",
       "when": "Étape « Tester » de `/build-ticket`, puis après chaque correction.",
-      "how": "Vérifie que la branche n'a pas modifié `scripts/checks.sh` ni `checks.yml`, sinon il refuse : on ne change pas les règles pour passer. Lance `scripts/checks.sh` (tests, lint, typecheck, build) et répond `GATE: PASS` ou `GATE: FAIL`. Liste les tests existants que la branche a supprimés ou raccourcis. Si tout passe, note le commit testé : `merge-pr.sh` vérifiera que c'est bien celui-là qu'on merge.",
+      "how": "Refuse une branche qui modifie `scripts/checks.sh` ou `checks.yml` : on ne change pas les règles pour passer. Lance `scripts/checks.sh` (tests, lint, typecheck, build) et répond `GATE: PASS` ou `GATE: FAIL`. Signale les tests supprimés ou mis en pause, et les réglages des checks changés (config des tests, du lint). Si tout passe, note le commit testé : `merge-pr.sh` vérifiera que c'est bien celui-là qu'on merge.",
       "source": "skills/build-ticket/scripts/gate.sh"
     },
     {
@@ -367,7 +367,7 @@
       "kind": "script",
       "what": "**Merge la PR**, seulement si c'est sans danger pour `main`.",
       "when": "Quand tu dis « merge la PR ».",
-      "how": "Vérifie que la PR contient le dernier `main`, sinon il demande de la remettre à jour. Vérifie que le gate a passé sur exactement la version poussée, sinon il demande de le relancer. Vérifie que les checks de GitHub sont verts, sinon il s'arrête. Merge la PR (en un seul commit), puis lance `cleanup.sh` pour faire le ménage.",
+      "how": "Refuse une PR qui n'a pas le dernier `main`, ou qui modifie les checks sans l'étiquette `checks-modifies`. Vérifie que le gate a passé sur exactement la version poussée, et que les checks de GitHub sont verts. Refuse si rien n'a pu être vérifié (ni gate ici, ni checks GitHub). Sort la PR du brouillon, la merge en un seul commit, puis lance `cleanup.sh`.",
       "source": "skills/build-ticket/scripts/merge-pr.sh"
     }
   ],
