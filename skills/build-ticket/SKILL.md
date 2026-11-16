@@ -187,7 +187,7 @@ Puis dis-lui ce qu'il a à faire, et rien d'autre :
 
 Seulement quand l'utilisateur le demande, dans cette session ou une autre : lance `scripts/merge-pr.sh <numéro de la PR>`. Il ne merge que si c'est sans danger pour `main`, puis fait le ménage.
 
-- Code 0 : c'est mergé. Dis-le en une ligne.
+- Code 0 : c'est mergé. Dis-le en une ligne. Si le projet a déjà un tableau de bord (dossier `.an-forge/dashboard/` à la racine du projet), mets-le à jour : suis le skill `project-dashboard`, en sautant l'ouverture dans le navigateur.
 - Code 4, pas à jour : un autre ticket a été mergé entre-temps. Refais l'étape 9 (rebase, gate, push), puis relance `scripts/merge-pr.sh`.
 - Code 5, gate à relancer : lance `scripts/gate.sh <base>` dans le worktree, corrige s'il échoue, pousse, puis relance `scripts/merge-pr.sh`.
 - Code 6, checks GitHub en échec : corrige comme à l'étape 9, puis relance `scripts/merge-pr.sh`.

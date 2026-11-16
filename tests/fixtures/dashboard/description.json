@@ -1,0 +1,18 @@
+{
+  "nom": "Recettes du soir",
+  "resume": "Une application web qui propose chaque soir trois idées de repas adaptées à tes goûts et à ce qu'il reste dans ton frigo.",
+  "pour_qui": "Les personnes qui cuisinent en semaine et manquent d'idées.",
+  "architecture": [
+    {"nom": "Toi", "detail": "Navigateur ou téléphone", "icone": "user"},
+    {"nom": "L'application", "detail": "Les écrans (Next.js)", "icone": "screen"},
+    {"nom": "Le serveur", "detail": "Calcule les idées", "icone": "server"},
+    {"nom": "La base de données", "detail": "Recettes et profils (Supabase)", "icone": "database"}
+  ],
+  "liens": ["internet", "", ""],
+  "stack": [
+    {"couche": "Écrans", "techno": "Next.js, Tailwind CSS", "role": "Ce que tu vois et touches"},
+    {"couche": "Serveur", "techno": "Next.js (routes API)", "role": "Choisit les recettes selon ton profil"},
+    {"couche": "Données", "techno": "Supabase (PostgreSQL)", "role": "Garde les recettes, les profils et les comptes"},
+    {"couche": "Hébergement", "techno": "Vercel", "role": "Met l'application en ligne"}
+  ]
+}

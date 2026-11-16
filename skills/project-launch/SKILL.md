@@ -62,6 +62,8 @@ Présente le résultat en séparant clairement la spec et les tickets, par exemp
 
 Rappelle la suite : chaque ticket se construit **dans une session neuve**, un par un, avec `/build-ticket <numéro>`, ou `/build-ticket` seul pour qu'il propose le prochain ticket prêt.
 
+Ajoute en une ligne que `/project-dashboard` montre à tout moment l'avancement du projet sur une page visuelle.
+
 ## Règles
 
 - Ne saute jamais un point d'arrêt : rien n'est publié ni poussé sans le oui de l'utilisateur.

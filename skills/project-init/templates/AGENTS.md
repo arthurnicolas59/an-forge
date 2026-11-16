@@ -19,6 +19,7 @@ Ce projet suit an-forge. Le détail de chaque étape est dans les skills, pas ic
 - Un bug, une retouche, un petit ajout : `/quick-ticket`.
 - Construire un ticket `ready-for-agent` : `/build-ticket <numéro>`, dans une session neuve.
 - Après le brief : l'utilisateur merge, ou demande un changement et `/build-ticket <numéro>` reprend la même pull request.
+- Voir où en est le projet : `/project-dashboard`.
 <!-- /an-forge:workflow -->
 
 ## Checks

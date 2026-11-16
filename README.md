@@ -1,10 +1,10 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.17.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.18.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
+[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Tableau de bord](#le-tableau-de-bord) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
 
 ---
 
@@ -103,7 +103,7 @@ flowchart LR
     end
 ```
 
-Tu ne tapes que **quatre commandes** : `/project-init`, `/project-launch` ou `/quick-ticket`, puis `/build-ticket`. Les étapes 3, 4 et 5 s'enchaînent toutes seules.
+Tu ne tapes que **quatre commandes** : `/project-init`, `/project-launch` ou `/quick-ticket`, puis `/build-ticket`. Les étapes 3, 4 et 5 s'enchaînent toutes seules. À tout moment, `/project-dashboard` te montre où en est le projet.
 
 ---
 
@@ -353,6 +353,40 @@ stateDiagram-v2
 
 ---
 
+## Le tableau de bord
+
+**Ce que tu fais** : tu tapes `/project-dashboard`, quand tu veux. Une page s'ouvre dans ton navigateur.
+
+**Ce que tu obtiens** : tout le projet d'un coup d'œil.
+- **L'avancement** : tickets terminés, en cours, qui t'attendent, à faire.
+- **À faire maintenant** : la question à laquelle répondre, le brief à lire, ou le prochain ticket à lancer.
+- **Les tickets, spec par spec**, chacun avec son état en couleur.
+- **Le schéma du projet** en boîtes de couleur, et la liste des technologies, expliquées simplement.
+- **Les décisions prises**, le vocabulaire du projet et les dernières livraisons.
+
+![Exemple de tableau de bord, pour un projet inventé « Recettes du soir »](docs/images/tableau-de-bord.png)
+
+*Un exemple, sur un projet inventé. La page est en mode sombre et s'adapte au téléphone.*
+
+**Skill utilisé**
+
+| Skill | Ce qu'il fait, concrètement |
+|-------|-----------------------------|
+| [`project-dashboard`](skills/project-dashboard/SKILL.md) | Écrit la présentation du projet (un résumé, le schéma, la technologie de chaque partie) à partir d'`AGENTS.md`, puis fabrique la page et l'ouvre. Ne réécrit la présentation que si `AGENTS.md` a changé depuis. |
+
+**Script utilisé**
+
+| Script | Ce qu'il fait, concrètement |
+|--------|-----------------------------|
+| `dashboard.py` | Lit à chaque fois les tickets (sur GitHub, ou dans `.scratch/` pour un projet sans GitHub), les décisions (`docs/adr/`), le lexique (`GLOSSARY.md`) et les dernières livraisons, puis calcule l'état de chaque ticket et l'avancement. Fabrique une page web autonome, sans rien télécharger. Signale quand la présentation n'est plus à jour. |
+
+**Pourquoi**
+- **Rien n'est recopié à la main.** Un fichier d'avancement tenu par l'IA finit toujours par mentir, le jour où elle oublie une mise à jour. Ici, les chiffres sont recalculés à chaque fois depuis les tickets eux-mêmes.
+- **La page reste sur ta machine** (dossier `.an-forge/`, exclu de git) : la regénérer ne crée aucun changement dans le projet.
+- **Elle se met à jour toute seule** après chaque merge fait par `/build-ticket`, dès que tu l'as ouverte une première fois.
+
+---
+
 ## Les garde-fous
 
 Chaque garde-fou empêche une erreur précise.
@@ -402,7 +436,7 @@ flowchart LR
 
 | Script | Ce qu'il fait, concrètement |
 |--------|-----------------------------|
-| `tests/run.sh` | Lance tous les tests des scripts : on vérifie que les machines de contrôle marchent elles-mêmes. |
+| `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
 | `scripts/build-maps.sh` | Reconstruit les cartes de `docs/` à partir de leurs données, et échoue si un skill manque sur la carte. |
 | `scripts/translate-map.py` | Traduit en français les boutons et libellés de la carte, sans modifier le skill `visual` d'origine. |
 | `scripts/check-version.sh` | Refuse un changement de skill ou de script sans nouvelle version, ou un badge du README pas à jour. |
@@ -437,6 +471,7 @@ Fait :
 - [x] Contrôles relancés par GitHub, étiquettes `needs-info` / `ready-for-human`
 - [x] Choix de l'IA selon la taille du ticket
 - [x] Contrôles intouchables, PR en brouillon, tests des scripts et contrôles d'an-forge
+- [x] Tableau de bord du projet (`/project-dashboard`)
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
