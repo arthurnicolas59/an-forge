@@ -251,6 +251,16 @@
       ]
     },
     {
+      "id": "project-dashboard",
+      "label": "/project-dashboard",
+      "kind": "public",
+      "sublabel": "Où en est le projet",
+      "what": "Fabrique et ouvre le **tableau de bord** du projet : une page visuelle, recalculée à chaque fois.",
+      "when": "Quand tu veux voir où en est le projet. `/build-ticket` le met à jour après chaque merge, s'il existe déjà.",
+      "how": "Lit les tickets, les décisions (`docs/adr/`) et le lexique, et calcule l'avancement spec par spec. Affiche ce qu'il faut faire maintenant : une question à répondre, un brief à lire, le prochain ticket. L'agent n'écrit que la présentation : un résumé, le schéma de l'architecture et la stack. La page reste sur ta machine, jamais commitée.",
+      "source": "skills/project-dashboard/SKILL.md"
+    },
+    {
       "id": "pr",
       "label": "/pr",
       "kind": "external",
@@ -387,7 +397,8 @@
         "quick-ticket",
         "tickets",
         "build-ticket",
-        "pull-request"
+        "pull-request",
+        "project-dashboard"
       ],
       "edges": [
         {
@@ -439,6 +450,11 @@
           "from": "build-ticket",
           "to": "pull-request",
           "label": "PR + brief"
+        },
+        {
+          "from": "pull-request",
+          "to": "project-dashboard",
+          "label": "après merge"
         }
       ],
       "containers": [
@@ -472,7 +488,8 @@
           "id": "ph-livrer",
           "label": "Livrer",
           "nodeIds": [
-            "pull-request"
+            "pull-request",
+            "project-dashboard"
           ]
         }
       ],
@@ -511,6 +528,10 @@
         ],
         "pull-request": [
           7,
+          1
+        ],
+        "project-dashboard": [
+          8,
           1
         ]
       },

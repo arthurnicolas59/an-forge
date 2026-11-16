@@ -1,0 +1,27 @@
+{
+  "openIssues": {"nodes": [
+    {"number": 1, "title": "Recettes du soir : idées de repas selon tes goûts", "url": "https://github.com/x/recettes/issues/1", "state": "OPEN", "body": "",
+     "labels": {"nodes": []}, "assignees": {"totalCount": 0}, "blockedBy": {"nodes": []}, "parent": null,
+     "subIssuesSummary": {"total": 6, "completed": 2},
+     "subIssues": {"nodes": [
+       {"number": 2, "title": "Socle du projet", "url": "https://github.com/x/recettes/issues/2", "state": "CLOSED", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 1}, "blockedBy": {"nodes": []}},
+       {"number": 3, "title": "Profil de goûts", "url": "https://github.com/x/recettes/issues/3", "state": "CLOSED", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 1}, "blockedBy": {"nodes": []}},
+       {"number": 4, "title": "Idées du soir", "url": "https://github.com/x/recettes/issues/4", "state": "OPEN", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 1}, "blockedBy": {"nodes": []}},
+       {"number": 5, "title": "Liste de courses", "url": "https://github.com/x/recettes/issues/5", "state": "OPEN", "body": "## Blocked by\n\n- #4\n", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 0}, "blockedBy": {"nodes": []}},
+       {"number": 6, "title": "Partager une recette", "url": "https://github.com/x/recettes/issues/6", "state": "OPEN", "body": "", "labels": {"nodes": [{"name": "needs-info"}]}, "assignees": {"totalCount": 0}, "blockedBy": {"nodes": []}},
+       {"number": 7, "title": "Recettes favorites", "url": "https://github.com/x/recettes/issues/7", "state": "OPEN", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 0}, "blockedBy": {"nodes": []}}
+     ]}},
+    {"number": 2, "title": "Socle du projet", "state": "OPEN", "body": "", "labels": {"nodes": []}, "assignees": {"totalCount": 0}, "blockedBy": {"nodes": []}, "parent": {"number": 1}, "subIssuesSummary": {"total": 0}},
+    {"number": 9, "title": "Le bouton « Valider » est trop petit sur téléphone", "url": "https://github.com/x/recettes/issues/9", "state": "OPEN", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}, {"name": "ready-for-human"}]}, "assignees": {"totalCount": 1}, "blockedBy": {"nodes": []}, "parent": null, "subIssuesSummary": {"total": 0}}
+  ]},
+  "closedIssues": {"nodes": [
+    {"number": 8, "title": "Corriger l'accent dans le titre", "url": "https://github.com/x/recettes/issues/8", "state": "CLOSED", "body": "", "labels": {"nodes": [{"name": "ready-for-agent"}]}, "assignees": {"totalCount": 1}, "blockedBy": {"nodes": []}, "parent": null, "subIssuesSummary": {"total": 0}}
+  ]},
+  "openPRs": {"nodes": [
+    {"number": 12, "title": "Idées du soir", "url": "https://github.com/x/recettes/pull/12", "headRefName": "ticket/4-idees-du-soir", "isDraft": true}
+  ]},
+  "mergedPRs": {"nodes": [
+    {"number": 10, "title": "Socle du projet", "url": "https://github.com/x/recettes/pull/10", "mergedAt": "2026-11-10T10:00:00Z", "headRefName": "ticket/2-socle"},
+    {"number": 11, "title": "Profil de goûts", "url": "https://github.com/x/recettes/pull/11", "mergedAt": "2026-11-13T16:00:00Z", "headRefName": "ticket/3-profil"}
+  ]}
+}
