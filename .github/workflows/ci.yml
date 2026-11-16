@@ -1,5 +1,5 @@
 # Les contrôles d'an-forge lui-même, sur chaque pull request et chaque push sur main :
-# les tests des scripts, la carte des skills, et les règles de version d'AGENTS.md.
+# les tests des scripts et les règles de version d'AGENTS.md.
 name: ci
 
 on:
@@ -20,8 +20,6 @@ jobs:
           fetch-depth: 0
       - name: Tests des scripts
         run: bash tests/run.sh
-      - name: Chaque skill a sa place sur la carte
-        run: bash scripts/build-maps.sh --check
       - name: Version
         if: github.event_name == 'pull_request'
         run: bash scripts/check-version.sh "origin/${{ github.base_ref }}"

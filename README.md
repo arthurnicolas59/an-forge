@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.19.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.19.1-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -441,22 +441,13 @@ Chaque garde-fou empêche une erreur précise.
 
 ---
 
-## À part : `visual`
-
-| Skill | Ce qu'il fait, concrètement |
-|-------|-----------------------------|
-| [`visual`](skills/visual/SKILL.md) *(Eric Tech)* | Fabrique une page web visuelle à partir d'une description : un résumé, un plan, une carte. C'est lui qui dessine les cartes d'an-forge dans `docs/`. |
-
----
-
 ## Faire évoluer an-forge
 
 an-forge est lui-même un repo, avec ses règles dans [`AGENTS.md`](AGENTS.md). Quand on modifie un skill :
 
 ```mermaid
 flowchart LR
-    m["Modifier<br/>un skill"] --> carte["Mettre à jour<br/>la carte"]
-    carte --> readme["Mettre à jour<br/>le README"]
+    m["Modifier<br/>un skill"] --> readme["Mettre à jour<br/>le README"]
     readme --> v["Augmenter<br/>la version"]
     v --> push["Pousser<br/>sur GitHub"]
     push --> machines(["Les machines<br/>se mettent à jour"])
@@ -464,17 +455,15 @@ flowchart LR
 
 **La version** (dans `.claude-plugin/plugin.json`) signale aux machines qu'il y a du nouveau. Une correction augmente le dernier chiffre (`0.17.0` → `0.17.1`), un ajout celui du milieu (`0.17.0` → `0.18.0`).
 
-À chaque PR sur an-forge, GitHub lance les tests, vérifie la carte et refuse une version oubliée.
+À chaque PR sur an-forge, GitHub lance les tests et refuse une version oubliée.
 
 **Scripts d'an-forge**
 
 | Script | Ce qu'il fait, concrètement |
 |--------|-----------------------------|
 | `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord, fiche architecture…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
-| `scripts/build-maps.sh` | Reconstruit les cartes de `docs/` à partir de leurs données, et échoue si un skill manque sur la carte. |
-| `scripts/translate-map.py` | Traduit en français les boutons et libellés de la carte, sans modifier le skill `visual` d'origine. |
 | `scripts/check-version.sh` | Refuse un changement de skill ou de script sans nouvelle version, ou un badge du README pas à jour. |
-| `scripts/sync-upstream.sh` | Montre ce qui a changé chez Matt Pocock et Eric Tech depuis la dernière copie. Ne modifie rien : on reprend à la main. |
+| `scripts/sync-upstream.sh` | Montre ce qui a changé chez Matt Pocock depuis la dernière copie. Ne modifie rien : on reprend à la main. |
 
 ### Ce que contient ce repo
 
@@ -483,11 +472,11 @@ AGENTS.md         les règles d'an-forge, lisibles par tous les outils
 CLAUDE.md         renvoie vers AGENTS.md, pour Claude Code
 skills/           un dossier par skill : ses instructions (SKILL.md) et ses scripts
 agents/           un fichier par sous-agent (vide pour l'instant)
-scripts/          les scripts d'an-forge lui-même : cartes, copies, version
+scripts/          les scripts d'an-forge lui-même : copies, version
 tests/            les tests des scripts
 .github/          les contrôles d'an-forge sur GitHub
 licenses/         les licences des skills venus d'ailleurs
-docs/             les cartes de la factory
+docs/             les images et exemples du README
 .claude-plugin/   l'emballage qui fait d'an-forge un plugin Claude Code
 plugins/          les plugins en option (forge-progress : Ticket statut)
 ```
@@ -521,8 +510,6 @@ Fait :
 - `setup-matt-pocock-skills`, `grill-with-docs`, `to-spec` et `to-tickets` peuvent être appelés par un skill an-forge. Leur description demande de ne jamais les lancer de sa propre initiative.
 - `to-tickets` donne une taille à chaque ticket (petit, moyen, gros).
 - Les métadonnées de `pr` ont été retirées de l'en-tête ; les crédits restent dans `skills/pr/CREDITS.md`.
-
-**Eric Tech.** Copiés depuis [EricTechPro/super-board](https://github.com/EricTechPro/super-board) (licence MIT, voir [licenses/super-board.txt](licenses/super-board.txt)) : le skill `visual`, le moteur de la carte de Matt (`docs/_shared/`) et la carte de Matt Pocock. `visual` est repris tel quel, sauf une retouche : le panneau de détail coupe aussi ses puces avant une majuscule accentuée. Dans le moteur, seuls la barre du haut, la liste des cartes, la comparaison entre packs et la reconnaissance des noms de skills dans un texte accentué ont été adaptés.
 
 **Inspirations** (idées seulement) :
 [rstack](https://github.com/michaelshimeles/rstack) · [zazencodes software factory v2](https://github.com/zazencodes/zazencodes-season-3/tree/main/src/software-factory-claude-code-v2)
