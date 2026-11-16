@@ -397,13 +397,10 @@ def num(t):
 
 
 CSS = """
-:root{--bg:#f6f7f9;--card:#fff;--ink:#16181d;--muted:#5d6470;--line:#e3e6eb;--soft:#f0f2f5;
---ok:#15803d;--ok-bg:#dcfce7;--info:#1d4ed8;--info-bg:#dbeafe;--warn:#a16207;--warn-bg:#fef3c7;
---bad:#b91c1c;--bad-bg:#fee2e2;--mut:#4b5563;--mut-bg:#eceef2;--accent:#4f46e5;
+:root{color-scheme:dark;--bg:#0f1115;--card:#171a21;--ink:#e8eaee;--muted:#9aa2ae;--line:#2a2f3a;--soft:#1f232c;
+--ok:#4ade80;--ok-bg:#12301d;--info:#93c5fd;--info-bg:#172a4a;--warn:#fcd34d;--warn-bg:#3a2e0f;
+--bad:#fca5a5;--bad-bg:#3d1717;--mut:#a7afbb;--mut-bg:#232833;--accent:#a5b4fc;
 --b1:#c7d2fe;--b2:#bbf7d0;--b3:#fde68a;--b4:#f5d0fe;--b5:#bae6fd;--b6:#fed7aa}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--ink:#e8eaee;--muted:#9aa2ae;--line:#2a2f3a;
---soft:#1f232c;--ok:#4ade80;--ok-bg:#12301d;--info:#93c5fd;--info-bg:#172a4a;--warn:#fcd34d;--warn-bg:#3a2e0f;
---bad:#fca5a5;--bad-bg:#3d1717;--mut:#a7afbb;--mut-bg:#232833;--accent:#a5b4fc}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
 font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 main{max-width:1080px;margin:0 auto;padding:32px 20px 64px}

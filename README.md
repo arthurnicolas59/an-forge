@@ -366,7 +366,7 @@ stateDiagram-v2
 
 ![Exemple de tableau de bord, pour un projet inventé « Recettes du soir »](docs/images/tableau-de-bord.png)
 
-*Un exemple, sur un projet inventé. La page s'adapte au mode sombre et au téléphone.*
+*Un exemple, sur un projet inventé. La page est en mode sombre et s'adapte au téléphone.*
 
 **Skill utilisé**
 
