@@ -1,10 +1,10 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.18.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.19.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Tableau de bord](#le-tableau-de-bord) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
+[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Tableau de bord](#le-tableau-de-bord) · [Fiche architecture](#la-fiche-architecture) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
 
 ---
 
@@ -114,6 +114,7 @@ Tu ne tapes que **quatre commandes** : `/project-init`, `/project-launch` ou `/q
 **Ce que tu obtiens** : un projet prêt à recevoir des tickets.
 - `AGENTS.md` : le règlement du projet, lu par tous les agents.
 - `scripts/checks.sh` : la liste des contrôles à lancer.
+- `ARCHITECTURE.md` (projet existant) : comment le projet est construit, expliqué simplement. Pour un projet neuf, elle arrive à l'étape 2, une fois les technologies choisies.
 - Sur GitHub : les étiquettes, et des contrôles relancés à chaque PR.
 
 **Skills utilisés**
@@ -190,6 +191,7 @@ flowchart LR
 3. **La lecture** du ticket, de la spec et des règles. Si le ticket oblige à deviner, l'agent pose une question sur le ticket et s'arrête (étiquette `needs-info`).
 4. **« L'avant »** : des captures d'écran, ou la reproduction exacte du bug.
 5. **La construction, test d'abord** : un test qui échoue, puis le code qui le fait passer, une petite tranche à la fois. L'agent choisit la solution la plus simple, sans jamais rogner sur la sécurité, la validation, les données ou l'accessibilité. Pour un service extérieur (paiement, connexion…), il lit d'abord la documentation officielle.
+6. **La fiche architecture à jour** : si le ticket ajoute ou retire un dossier, `ARCHITECTURE.md` est complétée dans la même PR.
 
 **Skills utilisés**
 
@@ -387,6 +389,38 @@ stateDiagram-v2
 
 ---
 
+## La fiche architecture
+
+**Ce que c'est** : `ARCHITECTURE.md`, à la racine de chaque projet. Elle explique à un non-initié comment le projet est construit, en trois parties :
+1. **Vue d'ensemble** : en deux phrases et un schéma en boîtes de couleur, de toi jusqu'aux données.
+2. **Les technologies** : chaque partie du projet, sa technologie, et à quoi elle sert.
+3. **Les dossiers du projet** : l'arbre des dossiers, chacun expliqué en une ligne.
+
+![Exemple de fiche architecture, pour un projet inventé « Recettes du soir »](docs/images/fiche-architecture.png)
+
+*Un exemple sur un projet inventé, tel que GitHub l'affiche. Le fichier complet : [`docs/exemples/ARCHITECTURE.md`](docs/exemples/ARCHITECTURE.md).*
+
+**Ce que tu fais** : rien, en général. La fiche est créée par `/project-init` (projet existant) ou `/project-launch` (une fois les technologies choisies), puis `/build-ticket` la complète dès qu'un ticket ajoute un dossier. Tu peux aussi la refaire à la main avec `/project-architecture`.
+
+**Skill utilisé**
+
+| Skill | Ce qu'il fait, concrètement |
+|-------|-----------------------------|
+| [`project-architecture`](skills/project-architecture/SKILL.md) | Écrit la vue d'ensemble, le schéma et le tableau des technologies à partir d'`AGENTS.md` et du code, puis explique chaque dossier en une ligne : ce qu'on y range. |
+
+**Script utilisé**
+
+| Script | Ce qu'il fait, concrètement |
+|--------|-----------------------------|
+| `architecture.py` | Dessine l'arbre d'après les dossiers qui existent vraiment, garde les explications déjà écrites, et marque « À EXPLIQUER » les nouveaux. Dit si la fiche est à jour : un dossier ajouté, un dossier disparu, un texte à compléter. |
+
+**Pourquoi**
+- **Une seule version de l'architecture.** Le tableau de bord reprend le schéma et les technologies de la fiche, sans rien inventer d'autre.
+- **Elle ne peut pas vieillir en silence** : un dossier ajouté sans explication est repéré par le script au ticket suivant.
+- **Les agents la lisent aussi** : un agent qui sait à quoi sert chaque dossier range son code au bon endroit.
+
+---
+
 ## Les garde-fous
 
 Chaque garde-fou empêche une erreur précise.
@@ -436,7 +470,7 @@ flowchart LR
 
 | Script | Ce qu'il fait, concrètement |
 |--------|-----------------------------|
-| `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
+| `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord, fiche architecture…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
 | `scripts/build-maps.sh` | Reconstruit les cartes de `docs/` à partir de leurs données, et échoue si un skill manque sur la carte. |
 | `scripts/translate-map.py` | Traduit en français les boutons et libellés de la carte, sans modifier le skill `visual` d'origine. |
 | `scripts/check-version.sh` | Refuse un changement de skill ou de script sans nouvelle version, ou un badge du README pas à jour. |
@@ -472,6 +506,7 @@ Fait :
 - [x] Choix de l'IA selon la taille du ticket
 - [x] Contrôles intouchables, PR en brouillon, tests des scripts et contrôles d'an-forge
 - [x] Tableau de bord du projet (`/project-dashboard`)
+- [x] Fiche `ARCHITECTURE.md` tenue à jour (`/project-architecture`)
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main

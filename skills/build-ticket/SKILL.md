@@ -107,6 +107,8 @@ Le constructeur suit le skill `tdd`, en respectant l'architecture existante et l
 
 ## 6. Tester
 
+**La fiche d'architecture d'abord.** Si le worktree a un `ARCHITECTURE.md`, lance `scripts/architecture.py check` du skill `project-architecture` depuis le worktree. S'il répond `architecture=stale` (un dossier ajouté ou supprimé, un texte à remplir), suis ce skill (étapes 2 à 4) dans le worktree, puis commit : `#<n>: fiche architecture`. Fais de même si le ticket a ajouté une technologie au projet.
+
 Lance `scripts/gate.sh <base>` depuis le worktree, même si le constructeur l'a déjà lancé : le résultat qui compte est le tien. Il refuse une branche qui modifie `scripts/checks.sh` ou `.github/workflows/checks.yml`, puis lance les checks du projet.
 
 - `GATE: PASS` : continue.

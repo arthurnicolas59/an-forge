@@ -4,7 +4,8 @@
 Les faits sont lus à la source, jamais recopiés à la main : l'avancement des tickets (GitHub, ou les
 fichiers .scratch/ d'un projet sans GitHub), les décisions (docs/adr/), le lexique (GLOSSARY.md), les
 dernières livraisons. Seule la description du projet (résumé, schéma d'architecture, stack) est écrite
-par l'agent, dans description.json, et le script dit quand elle n'est plus à jour par rapport à AGENTS.md.
+par l'agent, dans description.json, et le script dit quand elle n'est plus à jour par rapport à AGENTS.md
+et ARCHITECTURE.md.
 
 La page et description.json sont rangés dans .an-forge/dashboard/ à la racine du projet : propres à
 cette machine, jamais commités.
@@ -12,7 +13,8 @@ cette machine, jamais commités.
 Usage :
   dashboard.py status                 où en est la description : description=missing|stale|ok,
                                       puis tracker=github|local|none et output=<dossier>
-  dashboard.py stamp                  note dans description.json la version d'AGENTS.md qu'elle décrit
+  dashboard.py stamp                  note dans description.json les versions d'AGENTS.md et d'ARCHITECTURE.md
+                                      qu'elle décrit
   dashboard.py render [--open]        fabrique index.html (et l'ouvre dans le navigateur avec --open)
       [--from-json <fichier>]         lit les tickets dans ce fichier au lieu de GitHub (tests)
       [--out <dossier>]               écrit ailleurs que dans .an-forge/dashboard/
@@ -71,10 +73,13 @@ def exclude_output(root):
 
 
 def agents_hash(root):
-    p = root / "AGENTS.md"
-    if not p.exists():
-        return ""
-    return hashlib.sha256(p.read_bytes()).hexdigest()[:16]
+    """L'empreinte des fichiers que la présentation résume : AGENTS.md et, s'il existe, ARCHITECTURE.md."""
+    h = hashlib.sha256()
+    for name in ("AGENTS.md", "ARCHITECTURE.md"):
+        p = root / name
+        if p.exists():
+            h.update(name.encode() + b"\0" + p.read_bytes())
+    return h.hexdigest()[:16]
 
 
 def esc(text):
