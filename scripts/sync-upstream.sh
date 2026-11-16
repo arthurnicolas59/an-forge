@@ -5,7 +5,7 @@
 #
 # Usage : scripts/sync-upstream.sh                     toutes les sources, résumé des fichiers changés
 #         scripts/sync-upstream.sh mattpocock          une seule source
-#         scripts/sync-upstream.sh super-board --full  diff complet
+#         scripts/sync-upstream.sh mattpocock --full  diff complet
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
