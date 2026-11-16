@@ -1,10 +1,10 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.19.1-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.20.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
-[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Tableau de bord](#le-tableau-de-bord) · [Fiche architecture](#la-fiche-architecture) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
+[En 30 secondes](#en-30-secondes) · [Les mots à connaître](#les-mots-à-connaître) · [Installation](#installation) · [1. Initier](#1-initier-le-projet) · [2. Cadrer](#2-cadrer) · [3. Construire](#3-construire) · [4. Vérifier](#4-vérifier) · [5. Livrer](#5-livrer) · [Tableau de bord](#le-tableau-de-bord) · [Fiche architecture](#la-fiche-architecture) · [Comprendre un projet](#comprendre-un-projet) · [Garde-fous](#les-garde-fous) · [Faire évoluer an-forge](#faire-évoluer-an-forge)
 
 ---
 
@@ -421,6 +421,25 @@ stateDiagram-v2
 
 ---
 
+## Comprendre un projet
+
+**Ce que c'est** : `/explain-project` t'explique un projet existant dans la conversation, sans que tu lises le code. C'est utile quand Claude a construit beaucoup de choses et que tu ne sais plus très bien comment ça tient.
+
+**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens, en sept parties : à quoi sert le projet, son architecture, le trajet d'une demande, les technologies, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code.
+
+**Skill utilisé**
+
+| Skill | Ce qu'il fait, concrètement |
+|-------|-----------------------------|
+| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique avec des analogies et des exemples tirés du vrai code. Il sépare ce qu'il a vérifié de ce qu'il suppose, et dit ce qu'il n'a pas regardé. |
+
+**Pourquoi**
+- **Lecture seule.** Il ne modifie rien : ni code, ni dossiers, ni dépendances, ni configuration, ni documentation. L'explication reste dans la conversation.
+- **Pas de doublon.** Pour garder la structure par écrit, il te propose `/project-architecture` ; pour l'avancement, `/project-dashboard`.
+- **Honnête.** Un point qu'il n'a pas ouvert n'est jamais présenté comme un fait.
+
+---
+
 ## Les garde-fous
 
 Chaque garde-fou empêche une erreur précise.
@@ -461,7 +480,7 @@ flowchart LR
 
 | Script | Ce qu'il fait, concrètement |
 |--------|-----------------------------|
-| `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord, fiche architecture…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
+| `tests/run.sh` | Lance tous les tests des scripts (gate, merge, tableau de bord, fiche architecture, structure d'`explain-project`…) : on vérifie que les machines de contrôle marchent elles-mêmes. |
 | `scripts/check-version.sh` | Refuse un changement de skill ou de script sans nouvelle version, ou un badge du README pas à jour. |
 | `scripts/sync-upstream.sh` | Montre ce qui a changé chez Matt Pocock depuis la dernière copie. Ne modifie rien : on reprend à la main. |
 
@@ -496,6 +515,7 @@ Fait :
 - [x] Contrôles intouchables, PR en brouillon, tests des scripts et contrôles d'an-forge
 - [x] Tableau de bord du projet (`/project-dashboard`)
 - [x] Fiche `ARCHITECTURE.md` tenue à jour (`/project-architecture`)
+- [x] Explication pédagogique d'un projet existant, en lecture seule (`/explain-project`)
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
