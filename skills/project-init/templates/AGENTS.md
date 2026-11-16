@@ -20,6 +20,7 @@ Ce projet suit an-forge. Le détail de chaque étape est dans les skills, pas ic
 - Construire un ticket `ready-for-agent` : `/build-ticket <numéro>`, dans une session neuve.
 - Après le brief : l'utilisateur merge, ou demande un changement et `/build-ticket <numéro>` reprend la même pull request.
 - Voir où en est le projet : `/project-dashboard`.
+- Comment le projet est construit : `ARCHITECTURE.md` (vue d'ensemble, technologies, rôle de chaque dossier). Lis-le avant de ranger du code ; `/project-architecture` le tient à jour.
 <!-- /an-forge:workflow -->
 
 ## Checks

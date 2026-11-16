@@ -47,6 +47,9 @@ PASS=$((PASS + 1))
 echo "Stack : Next.js" >> AGENTS.md
 python3 "$D" status >"$H"; grep -qx "description=stale" "$H" || fail "AGENTS.md changé : stale attendu"
 python3 "$D" stamp >/dev/null
+echo "# Architecture" > ARCHITECTURE.md
+python3 "$D" status >"$H"; grep -qx "description=stale" "$H" || fail "ARCHITECTURE.md ajouté : stale attendu"
+python3 "$D" stamp >/dev/null
 PASS=$((PASS + 1))
 
 # 5. Chaque état de ticket est calculé.

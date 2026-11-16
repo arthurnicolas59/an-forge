@@ -261,6 +261,16 @@
       "source": "skills/project-dashboard/SKILL.md"
     },
     {
+      "id": "project-architecture",
+      "label": "/project-architecture",
+      "kind": "public",
+      "sublabel": "La fiche ARCHITECTURE.md",
+      "what": "Écrit et tient à jour **`ARCHITECTURE.md`** : comment le projet est construit, expliqué à un non-initié.",
+      "when": "Créée par `/project-init` (projet existant) ou `/project-launch` (stack choisie). `/build-ticket` la met à jour quand un ticket ajoute un dossier.",
+      "how": "Trois parties : une vue d'ensemble avec un schéma en boîtes de couleur, les technologies et à quoi elles servent, et chaque dossier expliqué. `architecture.py` dessine l'arbre d'après les vrais dossiers et dit si la fiche est à jour. L'agent n'écrit que le texte.",
+      "source": "skills/project-architecture/SKILL.md"
+    },
+    {
       "id": "pr",
       "label": "/pr",
       "kind": "external",
@@ -398,7 +408,8 @@
         "tickets",
         "build-ticket",
         "pull-request",
-        "project-dashboard"
+        "project-dashboard",
+        "project-architecture"
       ],
       "edges": [
         {
@@ -455,6 +466,11 @@
           "from": "pull-request",
           "to": "project-dashboard",
           "label": "après merge"
+        },
+        {
+          "from": "pull-request",
+          "to": "project-architecture",
+          "label": "à jour"
         }
       ],
       "containers": [
@@ -486,10 +502,11 @@
         },
         {
           "id": "ph-livrer",
-          "label": "Livrer",
+          "label": "Livrer et suivre",
           "nodeIds": [
             "pull-request",
-            "project-dashboard"
+            "project-dashboard",
+            "project-architecture"
           ]
         }
       ],
@@ -533,6 +550,10 @@
         "project-dashboard": [
           8,
           1
+        ],
+        "project-architecture": [
+          8,
+          2
         ]
       },
       "nodeOverrides": {

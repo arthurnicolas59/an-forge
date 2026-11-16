@@ -33,7 +33,9 @@ Seulement s'il reste des « À DÉCIDER AVEC /project-launch » dans `AGENTS.md`
 3. **`scripts/checks.sh`** : remplace ses deux dernières lignes par les commandes de tests, lint, typecheck et build prévues pour cette stack, et retire le commentaire « À REMPLIR ». Elles n'existent peut-être pas encore : le premier ticket les mettra en place (étape 4).
 4. **`.github/workflows/checks.yml`**, s'il existe : à l'endroit indiqué, ajoute l'installation des outils dont `scripts/checks.sh` a besoin pour cette stack (le langage et sa version, le cache des dépendances), puis retire le commentaire « À REMPLIR ». Ne renomme pas le job `checks`. C'est ce fichier qui fait relancer les checks par GitHub sur chaque pull request.
 
-Montre en quelques lignes ce que tu as rempli. Puis demande : « Je commite et je pousse ces fichiers sur main ? » (`AGENTS.md`, `scripts/checks.sh`, `.github/workflows/checks.yml`, `GLOSSARY.md`, les ADR). Attends un oui explicite. Chaque ticket part du `main` de GitHub : sans ce push, il ne verrait ni la stack, ni les checks, ni le glossaire.
+5. **`ARCHITECTURE.md`** : suis le skill `project-architecture` (étapes 1 à 4). Pour un projet neuf, la vue d'ensemble et les technologies se remplissent d'après la stack choisie ; les dossiers n'existent pas encore : le premier ticket les créera et complétera la fiche.
+
+Montre en quelques lignes ce que tu as rempli. Puis demande : « Je commite et je pousse ces fichiers sur main ? » (`AGENTS.md`, `ARCHITECTURE.md`, `scripts/checks.sh`, `.github/workflows/checks.yml`, `GLOSSARY.md`, les ADR). Attends un oui explicite. Chaque ticket part du `main` de GitHub : sans ce push, il ne verrait ni la stack, ni les checks, ni le glossaire.
 
 ## 3. Écrire la spec
 

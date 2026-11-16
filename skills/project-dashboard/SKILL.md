@@ -21,13 +21,13 @@ Lance `python3 scripts/dashboard.py status` depuis le projet. Il répond :
 
 - `description=ok` : la présentation est à jour, passe à l'étape 3.
 - `description=missing` : elle n'existe pas encore, écris-la (étape 2).
-- `description=stale` : `AGENTS.md` a changé depuis qu'elle a été écrite (une stack choisie, une règle ajoutée). Relis-la et corrige ce qui n'est plus vrai (étape 2). Si rien n'a changé pour elle, passe directement à `stamp`.
+- `description=stale` : `AGENTS.md` ou `ARCHITECTURE.md` a changé depuis qu'elle a été écrite (une stack choisie, une technologie ajoutée). Relis-la et corrige ce qui n'est plus vrai (étape 2). Si rien n'a changé pour elle, passe directement à `stamp`.
 
 Il donne aussi `output=<dossier>` : c'est là que vit `description.json`.
 
 ## 2. Écrire la présentation
 
-Lis `AGENTS.md`, la spec ouverte la plus récente s'il y en a une, et `GLOSSARY.md`. Écris `<output>/description.json` :
+Lis `AGENTS.md`, `ARCHITECTURE.md` s'il existe, la spec ouverte la plus récente s'il y en a une, et `GLOSSARY.md`. Écris `<output>/description.json` :
 
 ```json
 {
@@ -55,9 +55,11 @@ Lis `AGENTS.md`, la spec ouverte la plus récente s'il y en a une, et `GLOSSARY.
 
 Respecte la section « L'utilisateur » d'`AGENTS.md` : s'il n'est pas développeur, aucun mot technique sans explication, sauf le nom des technologies dans `detail` et `techno`.
 
+**Si `ARCHITECTURE.md` existe, il fait foi** : reprends ses boîtes (dans le même ordre, avec les mêmes noms) et ses technologies, sans rien ajouter. Il ne doit exister qu'une seule version de l'architecture.
+
 N'invente rien : si la stack n'est pas encore choisie (projet neuf avant `/project-launch`), mets une seule boîte « Toi » et une boîte « Le projet » (« Stack pas encore choisie »), et laisse `stack` vide.
 
-Lance ensuite `python3 scripts/dashboard.py stamp` : il note la version d'`AGENTS.md` que la présentation décrit.
+Lance ensuite `python3 scripts/dashboard.py stamp` : il note les versions d'`AGENTS.md` et d'`ARCHITECTURE.md` que la présentation décrit.
 
 ## 3. Fabriquer et ouvrir la page
 
