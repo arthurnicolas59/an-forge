@@ -11,8 +11,8 @@ Une explication pédagogique du projet, donnée dans la conversation, pour quelq
 
 ## Deux formats
 
-- **Court (par défaut)** : une lecture de deux ou trois minutes, 45 lignes au plus. Les sept parties sont là, mais chacune va à l'essentiel : si une phrase ne change pas la compréhension, coupe-la. C'est ce que l'utilisateur obtient s'il tape seulement `/explain-project`.
-- **Long** : l'utilisateur ajoute `--long` (ou demande « en détail », « version longue »). Les sept parties sont développées, avec les détails marqués « Long » plus bas.
+- **Court (par défaut)** : une lecture de deux ou trois minutes, 45 lignes au plus. Les six parties sont là, mais chacune va à l'essentiel : si une phrase ne change pas la compréhension, coupe-la. C'est ce que l'utilisateur obtient s'il tape seulement `/explain-project`.
+- **Long** : l'utilisateur ajoute `--long` (ou demande « en détail », « version longue »). Les six parties sont développées, avec les détails marqués « Long » plus bas.
 
 Les règles de fiabilité (faits, hypothèses, lecture seule) **et de pédagogie** (section « Niveau d'explication ») sont **les mêmes dans les deux formats** : court ne veut pas dire moins vérifié, ni plus sec. On raccourcit en retirant des détails, jamais les explications qui font comprendre : chaque terme technique reste défini la première fois, et les idées clés gardent leur image du quotidien. À la fin d'une version courte, propose : « Je peux détailler une partie, ou tout en `--long`. » Si l'utilisateur nomme une partie (« détaille les technologies »), donne la version longue de cette partie seulement.
 
@@ -43,22 +43,23 @@ Dans un gros projet, ne lis pas tout : prends les dossiers principaux et dis les
 
 ## 2. Écrire l'explication
 
-Dans la conversation, avec ces sept parties, dans cet ordre. Chacune tient en quelques lignes ou une courte liste.
+Dans la conversation, avec ces six parties, dans cet ordre. Chacune tient en quelques lignes ou une courte liste.
 
 1. **Présentation** : à quoi sert le projet, quel problème il résout, qui l'utilise.
-2. **Architecture** : les dossiers principaux et leur rôle, et comment les parties se parlent. Un petit schéma en texte ou en Mermaid si cela aide.
+2. **Architecture et technologies** : les deux ensemble, parce qu'une technologie ne se comprend que par la partie du projet qu'elle fait tourner. Présente chaque partie du projet (dossier ou bloc) avec **la technologie sur laquelle elle s'appuie**, et dis comment les parties se parlent : « les textes (`src/content/`, YAML) sont vérifiés par Zod, puis assemblés par Astro ». Un petit schéma en texte ou en Mermaid si cela aide.
+   - *Court* : une à deux lignes par partie (cinq au plus, regroupe celles qui vont ensemble) : l'image et le mécanisme en une phrase, la raison technique en une demi-phrase, le fichier qui le montre. Les liens entre parties et technologies se disent dans ces phrases (« lit les YAML », « bloque le build »), sans liste séparée.
+   - *Long* : en plus, pour chaque technologie importante (pas pour chaque dépendance), cinq points courts :
+     - son rôle général (ce qu'elle fait en dehors du projet) ;
+     - son usage concret ici, avec le fichier ou la configuration qui le montre ;
+     - avec quelles autres technologies du projet elle travaille (c'est la partie la plus utile : décris les liens, pas une liste de noms) ;
+     - pourquoi elle est là : cite la source (ADR, `AGENTS.md`, `ARCHITECTURE.md`). Sans source, dis « raison non documentée » et ne la devine pas ;
+     - ce qu'impliquerait de la remplacer ou de la retirer : ce qui casserait, quels fichiers changeraient, d'après les imports et la configuration que tu as lus. Ne propose pas d'alternative technique absente des documents ou du code.
 3. **Fonctionnement** : le trajet d'une demande, d'un clic ou d'une commande jusqu'au résultat, où les données sont traitées, où elles sont stockées.
-4. **Technologies** : *Court* : une à deux lignes par technologie, cinq au plus (regroupe celles qui vont ensemble) : l'image et le mécanisme en une phrase, la raison technique en une demi-phrase, le fichier qui le montre. Les liens entre technologies se disent dans ces phrases (« lit les YAML », « bloque le build »), sans point à part. *Long* : pour chaque technologie importante (pas pour chaque dépendance), cinq points courts :
-   - son rôle général (ce qu'elle fait en dehors du projet) ;
-   - son usage concret ici, avec le fichier ou la configuration qui le montre ;
-   - avec quelles autres technologies du projet elle travaille (c'est la partie la plus utile : décris les liens, pas une liste de noms) ;
-   - pourquoi elle est là : cite la source (ADR, `AGENTS.md`, `ARCHITECTURE.md`). Sans source, dis « raison non documentée » et ne la devine pas ;
-   - ce qu'impliquerait de la remplacer ou de la retirer : ce qui casserait, quels fichiers changeraient, d'après les imports et la configuration que tu as lus. Ne propose pas d'alternative technique absente des documents ou du code.
-5. **Fichiers importants** : cinq à dix fichiers à connaître en priorité, chacun avec une phrase sur son rôle et pourquoi il compte.
-6. **Points de vigilance** : les parties complexes, les dépendances importantes, les zones où une erreur coûte cher.
-7. **Pour aller plus loin** : par où commencer à lire le code, quelles fonctionnalités étudier en premier, dans quel ordre. Elle se termine par la sous-section « Où intervenir selon ce que je veux modifier ? » (voir plus bas), puis par la synthèse de fiabilité.
+4. **Fichiers importants** : cinq à dix fichiers à connaître en priorité, chacun avec une phrase sur son rôle et pourquoi il compte.
+5. **Points de vigilance** : les parties complexes, les dépendances importantes, les zones où une erreur coûte cher.
+6. **Pour aller plus loin** : par où commencer à lire le code, quelles fonctionnalités étudier en premier, dans quel ordre. Elle se termine par la sous-section « Où intervenir selon ce que je veux modifier ? » (voir plus bas), puis par la synthèse de fiabilité.
 
-Pour les parties 1, 2, 3, 5 et 6, le format court tient en deux à quatre lignes ou puces chacune ; le format long en ajoute les exemples, le schéma complet et les cas particuliers.
+Pour les parties 1, 3, 4 et 5, le format court tient en deux à quatre lignes ou puces chacune (la partie 2 suit sa propre règle) ; le format long en ajoute les exemples, le schéma complet et les cas particuliers.
 
 Commence par un résumé de deux ou trois phrases : l'utilisateur doit pouvoir s'arrêter là.
 

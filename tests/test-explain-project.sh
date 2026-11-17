@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Vérifie la structure du skill explain-project : métadonnées, sept parties, lecture seule.
+# Vérifie la structure du skill explain-project : métadonnées, six parties, lecture seule.
 # (Le skill n'a pas de script : on teste ce qui peut l'être, pas la qualité des explications.)
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -16,8 +16,8 @@ keys=$(printf '%s\n' "$fm" | grep -oE '^[a-z-]+:' | tr -d ':' | tr '\n' ' ')
 printf '%s\n' "$fm" | grep -qx "name: explain-project" || fail "name différent du dossier"
 PASS=$((PASS + 1))
 
-# 2. Les sept parties demandées sont dans le skill.
-for p in "Présentation" "Architecture" "Fonctionnement" "Technologies" "Fichiers importants" "Points de vigilance" "Pour aller plus loin"; do
+# 2. Les six parties (architecture et technologies fusionnées) sont dans le skill.
+for p in "Présentation" "Architecture et technologies" "Fonctionnement" "Fichiers importants" "Points de vigilance" "Pour aller plus loin"; do
   grep -q "\*\*$p\*\*" "$S" || fail "partie manquante : $p"
 done
 PASS=$((PASS + 1))
