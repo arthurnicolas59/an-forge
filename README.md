@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.20.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.21.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -425,13 +425,13 @@ stateDiagram-v2
 
 **Ce que c'est** : `/explain-project` t'explique un projet existant dans la conversation, sans que tu lises le code. C'est utile quand Claude a construit beaucoup de choses et que tu ne sais plus très bien comment ça tient.
 
-**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens, en sept parties : à quoi sert le projet, son architecture, le trajet d'une demande, les technologies, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code.
+**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens une version courte (une page et demie) ; ajoute `--long` pour la version détaillée. Dans les deux cas, en six parties : à quoi sert le projet, son architecture avec les technologies sur lesquelles chaque partie s'appuie, le trajet d'une demande, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code. La dernière partie contient une carte « Où intervenir selon ce que je veux modifier ? » : pour 3 à 5 évolutions réalistes, le fichier à toucher, ceux qui suivent, ce qu'on peut réutiliser, les vérifications et les précautions.
 
 **Skill utilisé**
 
 | Skill | Ce qu'il fait, concrètement |
 |-------|-----------------------------|
-| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique avec des analogies et des exemples tirés du vrai code. Il sépare ce qu'il a vérifié de ce qu'il suppose, et dit ce qu'il n'a pas regardé. |
+| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique avec des analogies et des exemples tirés du vrai code. Pour chaque technologie, il dit son rôle, ses liens avec les autres et ce que coûterait son remplacement. Il cite fichier, fonction et ligne vérifiée, sépare faits, déductions et points à confirmer, et termine par une synthèse (inspecté, non inspecté, hypothèses, limites). Il n'affirme jamais qu'un test passe sans l'avoir lancé. |
 
 **Pourquoi**
 - **Lecture seule.** Il ne modifie rien : ni code, ni dossiers, ni dépendances, ni configuration, ni documentation. L'explication reste dans la conversation.
