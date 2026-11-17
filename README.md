@@ -201,6 +201,7 @@ flowchart LR
 | [`tdd`](skills/tdd/SKILL.md) *(Matt Pocock)* | Construire « test d'abord » : écrire un test qui échoue, puis juste assez de code pour qu'il passe, puis recommencer. Chaque tranche est sauvegardée. |
 | [`diagnosing-bugs`](skills/diagnosing-bugs/SKILL.md) *(Matt Pocock)* | Pour un bug : d'abord trouver une façon sûre de le reproduire, ensuite chercher la cause, puis corriger. Ajoute un test pour que le bug ne revienne pas. |
 | [`codebase-design`](skills/codebase-design/SKILL.md) *(Matt Pocock)* | Aide à bien découper le code : des briques simples à utiliser de l'extérieur, qui cachent leur complexité à l'intérieur. Plus faciles à tester et à comprendre. |
+| [`writing-for-agents`](skills/writing-for-agents/SKILL.md) *(Matt Pocock)* | Le guide pour écrire un document que lit un agent (skill, `AGENTS.md`, `CLAUDE.md`) : où placer chaque information, comment formuler quand déclencher un skill, comment élaguer. À consulter quand on crée ou modifie un skill. |
 | [`before-after`](skills/before-after/SKILL.md) | Choisit les écrans qui vont changer et les photographie avant le travail. Il refera exactement les mêmes photos après. |
 
 **Scripts utilisés**
