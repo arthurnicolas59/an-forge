@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.22.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.22.1-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -432,7 +432,7 @@ stateDiagram-v2
 
 | Skill | Ce qu'il fait, concrètement |
 |-------|-----------------------------|
-| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique en phrases courtes et naturelles, avec des exemples tirés du vrai code et des analogies rares. Il relit sa réponse avant de l'envoyer (titres présents, phrases complètes, chemins non tronqués). Pour chaque technologie, il dit son rôle, ses liens avec les autres et ce que coûterait son remplacement. Il cite fichier, fonction et ligne vérifiée, sépare faits, déductions et points à confirmer, et termine par une synthèse (inspecté, non inspecté, hypothèses, limites). Il n'affirme jamais qu'un test passe sans l'avoir lancé. |
+| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique en phrases courtes et naturelles, avec des exemples tirés du vrai code et des analogies rares. Il relit sa réponse avant de l'envoyer (titres présents, phrases complètes, chemins non tronqués). Pour chaque technologie, il dit son rôle, ses liens avec les autres et ce que coûterait son remplacement. Il cite fichier, fonction et ligne vérifiée, sépare faits, déductions et points à confirmer, et termine par une synthèse (inspecté, non inspecté, hypothèses, limites). Il n'affirme jamais qu'un test passe sans l'avoir lancé. Le détail du format long et la façon d'expliquer à un non-développeur sont dans deux fichiers à part (`LONG.md`, `NON-DEVELOPER.md`), lus seulement quand il faut. |
 
 **Pourquoi**
 - **Lecture seule.** Il ne modifie rien : ni code, ni dossiers, ni dépendances, ni configuration, ni documentation. L'explication reste dans la conversation.
