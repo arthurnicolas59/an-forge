@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.23.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.24.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -282,7 +282,7 @@ flowchart LR
 - **ce qui ne va pas** (« le bouton est trop petit »). L'agent corrige, refait tous les contrôles et te redonne un brief à jour.
 
 **Ce que tu obtiens**
-- **Le brief**, rangé dans `docs/briefs/` : une page de synthèse (la décision à prendre, l'objectif, les captures avant/après, la fiabilité, les choix faits, comment essayer) et une annexe (chaque critère avec sa preuve, les fichiers touchés).
+- **Le brief**, rangé dans `docs/briefs/` : une page de synthèse (la décision à prendre, l'objectif, les captures avant/après, la fiabilité, les choix faits, comment essayer), une page « Comprendre et intervenir » (comment le code construit fonctionne, deux ou trois notions à retenir, où et comment le modifier toi-même) et une annexe (chaque critère avec sa preuve, les fichiers touchés, leur rôle et pourquoi ils ont changé).
 - **La PR, en brouillon** : personne ne peut la fusionner par erreur avec le bouton de GitHub.
 
 Quand tu dis « merge la PR », l'agent ne fusionne pas les yeux fermés :
@@ -306,7 +306,7 @@ flowchart LR
 | Skill | Ce qu'il fait, concrètement |
 |-------|-----------------------------|
 | [`before-after`](skills/before-after/SKILL.md) | Reprend les mêmes photos qu'à l'étape 3, après le travail, pour les montrer côte à côte. |
-| [`feature-brief`](skills/feature-brief/SKILL.md) | Écrit le brief en mots simples, pour quelqu'un qui ne lit pas le code. Explique chaque choix fait en route, et ce qui reste à décider. |
+| [`feature-brief`](skills/feature-brief/SKILL.md) | Écrit le brief en mots simples. La synthèse s'adresse à quelqu'un qui ne lit pas le code : chaque choix fait en route, et ce qui reste à décider. La page « Comprendre et intervenir » t'explique le code construit, pour apprendre et le modifier toi-même. |
 | [`pr`](skills/pr/SKILL.md) *(Matt Pocock)* | Rédige le texte de la PR : ce qui change, pourquoi, comment c'est testé, et les pages de documentation lues. |
 
 **Scripts utilisés**

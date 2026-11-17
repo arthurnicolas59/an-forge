@@ -86,6 +86,24 @@
 
   .choix p { color: var(--body); }
 
+  /* Page 2 : Comprendre et intervenir */
+  .comprendre { break-before: page; border-top: 2.5px solid var(--ink); padding-top: 18px; }
+  @media screen { .comprendre { margin-top: 40px; } }
+  .comprendre .annexe-label { margin-bottom: 4px; }
+  .comprendre .path { font-size: 11.5px; color: var(--muted); }
+  .steps li { margin-bottom: 9px; }
+  .notion, .intervenir { margin-bottom: 12px; } .notion:last-child, .intervenir:last-child { margin-bottom: 0; }
+  .notion-nom { color: var(--text); font-weight: 600; margin-bottom: 2px; }
+  .exemple { color: var(--muted); margin-top: 3px; }
+  .exemple .path { display: inline; }
+  .intervenir p:not(.notion-nom) { display: grid; grid-template-columns: 80px 1fr; gap: 8px; margin-bottom: 2px; }
+  .intervenir .k { color: var(--muted); }
+  .intervenir .path { display: inline; color: var(--text); }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; background: #f1f3f5; padding: 1px 4px; }
+  .deduit { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--medium); border: 1px solid currentColor; padding: 0 4px; margin-left: 4px; white-space: nowrap; }
+  .plus-loin { color: var(--muted); margin-top: 12px; }
+  .why { color: var(--text); }
+
   /* Annexe */
   .annexe { break-before: page; border-top: 2.5px solid var(--ink); padding-top: 18px; }
   @media screen { .annexe { margin-top: 40px; } }
@@ -140,6 +158,7 @@
 
   <section class="row choix"><h2>Choix effectués</h2><p>{{CHOIX}}</p></section>
 {{ESSAYER}}
+{{COMPRENDRE}}
 {{ANNEXE}}
   <footer><span>Branche {{BRANCHE}}</span><span>an-forge</span></footer>
 </main>

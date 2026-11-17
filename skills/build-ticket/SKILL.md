@@ -149,6 +149,7 @@ Puis suis le skill `feature-brief` avec le dossier du brief, `<base>`, les résu
 - **`criteres`** : un par critère d'acceptation du ticket (étape 2), avec le test ou la capture qui le prouve. Un critère sans preuve reste « non prouvé » : ajoute le test qui manque si c'est possible, sinon dis-le dans `a_decider`.
 - **`fiabilite.risque`** et **`risque_detail`** : ceux de `risk-review`.
 - **`essayer`** : comment l'utilisateur peut essayer lui-même, en reprenant « À vérifier soi-même » de `risk-review` quand il s'applique.
+- **Page 2, « Comprendre et intervenir »** (`fonctionnement`, `notions`, `intervenir`) et le `pourquoi` des fichiers importants : écris-les à partir du diff, relu en entier puisqu'un sous-agent l'a construit, et des tests que tu as lancés, pour que l'utilisateur comprenne ce que tu as fait et puisse le modifier lui-même.
 
 Le script du brief calcule lui-même si les checks ont passé sur cette version et quels tests existants ont été touchés : lance-le après le dernier gate, sans rien modifier au code entre les deux. Commit le dossier du brief : `#<n>: brief`.
 
