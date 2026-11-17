@@ -425,13 +425,13 @@ stateDiagram-v2
 
 **Ce que c'est** : `/explain-project` t'explique un projet existant dans la conversation, sans que tu lises le code. C'est utile quand Claude a construit beaucoup de choses et que tu ne sais plus très bien comment ça tient.
 
-**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens une version courte (une page et demie) ; ajoute `--long` pour la version détaillée. Dans les deux cas, en six parties : à quoi sert le projet, son architecture avec les technologies sur lesquelles chaque partie s'appuie, le trajet d'une demande, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code. La dernière partie contient une carte « Où intervenir selon ce que je veux modifier ? » : pour 3 à 5 évolutions réalistes, le fichier à toucher, ceux qui suivent, ce qu'on peut réutiliser, les vérifications et les précautions.
+**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens une version courte (une page et demie) ; ajoute `--long` pour la version détaillée. Dans les deux cas, la lecture se fait en quatre niveaux : (1) comprendre en deux minutes, c'est-à-dire le but, ce qu'on peut faire, les grandes technologies et le fonctionnement général ; (2) comprendre le fonctionnement, avec le parcours des données et le rôle de chaque partie ; (3) savoir intervenir, avec des cas concrets (modifier un contenu, ajouter une fonctionnalité, changer l'apparence, corriger un problème), les vrais fichiers concernés, les vérifications et les précautions ; (4) approfondir : détails techniques, tests, risques et fichiers non inspectés. Tu peux t'arrêter après le niveau 1.
 
 **Skill utilisé**
 
 | Skill | Ce qu'il fait, concrètement |
 |-------|-----------------------------|
-| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique avec des analogies et des exemples tirés du vrai code. Pour chaque technologie, il dit son rôle, ses liens avec les autres et ce que coûterait son remplacement. Il cite fichier, fonction et ligne vérifiée, sépare faits, déductions et points à confirmer, et termine par une synthèse (inspecté, non inspecté, hypothèses, limites). Il n'affirme jamais qu'un test passe sans l'avoir lancé. |
+| [`explain-project`](skills/explain-project/SKILL.md) | Lit `AGENTS.md`, `ARCHITECTURE.md`, les décisions et le code, puis explique en phrases courtes et naturelles, avec des exemples tirés du vrai code et des analogies rares. Il relit sa réponse avant de l'envoyer (titres présents, phrases complètes, chemins non tronqués). Pour chaque technologie, il dit son rôle, ses liens avec les autres et ce que coûterait son remplacement. Il cite fichier, fonction et ligne vérifiée, sépare faits, déductions et points à confirmer, et termine par une synthèse (inspecté, non inspecté, hypothèses, limites). Il n'affirme jamais qu'un test passe sans l'avoir lancé. |
 
 **Pourquoi**
 - **Lecture seule.** Il ne modifie rien : ni code, ni dossiers, ni dépendances, ni configuration, ni documentation. L'explication reste dans la conversation.
