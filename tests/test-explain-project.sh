@@ -38,4 +38,16 @@ PASS=$((PASS + 1))
 for r in "project-architecture" "project-dashboard"; do grep -q "$r" "$S" || fail "renvoi manquant : $r"; done
 PASS=$((PASS + 1))
 
+# 6. V2 : technologies détaillées, carte d'intervention, fiabilité des références.
+grep -q "^### Où intervenir selon ce que je veux modifier ?" "$S" || fail "sous-section « Où intervenir » absente"
+grep -q "à créer" "$S" || fail "règle « fichier à créer » absente"
+grep -q "N'invente pas d'architecture" "$S" || fail "règle « pas d'architecture inventée » absente"
+grep -q "^## Fiabilité des références" "$S" || fail "section Fiabilité des références absente"
+for t in "Inspecté" "Non inspecté" "Hypothèses restantes" "Limites"; do
+  grep -q "\*\*$t\*\*" "$S" || fail "synthèse de fiabilité : $t manquant"
+done
+grep -q "N'affirme jamais qu'un test passe" "$S" || fail "règle « jamais affirmer qu'un test passe » absente"
+grep -q "ce qu'impliquerait de la remplacer" "$S" || fail "technologies : remplacement/suppression absent"
+PASS=$((PASS + 1))
+
 echo "explain-project : $PASS cas OK"
