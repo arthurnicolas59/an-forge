@@ -12,6 +12,8 @@ Usage : render.py <dossier-du-brief> [--base <ref>]
   - si les checks (gate.sh de build-ticket) ont passé sur cette version.
 
 Refuse un brief trop long ou incomplet, pour que la synthèse tienne sur une page.
+Vérifie aussi que les fichiers cités en page 2 (« Comprendre et intervenir ») existent,
+et qu'un exemple de notion vient bien d'un fichier du diff.
 """
 
 import argparse
@@ -37,7 +39,20 @@ LIMITS = {
     "essayer": 200,
     "revision": 200,
     "critere": 160,
+    "pourquoi": 140,
+    "etape": 140,
+    "notion_nom": 40,
+    "notion_explication": 240,
+    "notion_exemple": 160,
+    "pour": 100,
+    "ou": 100,
+    "precaution": 160,
+    "verifier": 140,
+    "fichier": 120,
 }
+# Page 2 : nombre d'éléments permis (au moins, au plus) quand la partie est présente.
+COMPRENDRE = {"fonctionnement": (2, 6), "notions": (2, 3), "intervenir": (1, 3)}
+LIGNE = re.compile(r":\d+(-\d+)?$")  # src/a.ts:42 ou src/a.ts:42-50
 MAX_CRITERES = 12
 MAX_BOITES = 5
 MERMAID = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs"
@@ -198,6 +213,100 @@ def config_line(found):
     return f"{len(found)} fichier{'s' if len(found) > 1 else ''} : " + ", ".join(found[:3]) + (" …" if len(found) > 3 else "")
 
 
+def repo_root(folder):
+    res = subprocess.run(["git", "-C", str(folder), "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+    return Path(res.stdout.strip()) if res.returncode == 0 else None
+
+
+def bare_path(ref):
+    """src/a.ts:42 -> src/a.ts"""
+    return LIGNE.sub("", ref.strip())
+
+
+def page2_list(data, key, fields, optional=(), flags=()):
+    """Lit une liste de la page 2 : chaque élément a ses champs (texte limité) et ses drapeaux (booléens)."""
+    value = data.get(key)
+    if value is None:
+        return []
+    low, high = COMPRENDRE[key]
+    if not isinstance(value, list) or not low <= len(value) <= high:
+        errors.append(f"{key} : entre {low} et {high} éléments")
+        return []
+    out = []
+    for i, item in enumerate(value, 1):
+        where = f"{key}[{i}]."
+        if not isinstance(item, dict):
+            errors.append(f"{key}[{i}] : doit être un objet")
+            continue
+        row = {}
+        for name, limit in fields:
+            if name in optional and not (item.get(name) or "").strip():
+                row[name] = ""
+            else:
+                row[name] = need(item, name, LIMITS[limit], where)
+        for flag in flags:
+            if flag in item and not isinstance(item[flag], bool):
+                errors.append(f"{where}{flag} : true ou false")
+            row[flag] = item.get(flag) is True
+        out.append(row)
+    return out
+
+
+def check_paths(root, refs, where_key):
+    """Chaque fichier cité en page 2 existe dans le projet."""
+    if root is None:
+        return
+    for i, ref in refs:
+        if ref and not (root / bare_path(ref)).is_file():
+            errors.append(f"{where_key}[{i}].fichier : introuvable dans le projet ({bare_path(ref)})")
+
+
+def tag_deduit(row):
+    return ' <span class="deduit">Déduction</span>' if row.get("deduit") else ""
+
+
+def comprendre_html(fonctionnement, notions, intervenir):
+    """La page 2 : comment ça marche, à retenir, pour intervenir."""
+    rows = []
+    if fonctionnement:
+        steps = "\n".join(
+            f'<li><div><p>{esc(r["etape"])}{tag_deduit(r)}</p><p class="path">{esc(r["fichier"])}</p></div></li>'
+            for r in fonctionnement
+        )
+        rows.append(f'  <section class="row"><h2>Comment ça marche</h2><ol class="steps">\n{steps}\n  </ol></section>')
+    if notions:
+        blocks = "\n".join(
+            f'<div class="notion"><p class="notion-nom">{esc(r["nom"])}</p><p>{esc(r["explication"])}</p>'
+            f'<p class="exemple">Ici : {esc(r["exemple"])} <span class="path">{esc(r["fichier"])}</span></p></div>'
+            for r in notions
+        )
+        rows.append(f'  <section class="row"><h2>À retenir</h2><div>\n{blocks}\n  </div></section>')
+    if intervenir:
+        blocks = []
+        for r in intervenir:
+            ou = f' : {esc(r["ou"])}' if r["ou"] else ""
+            blocks.append(
+                f'<div class="intervenir"><p class="notion-nom">{esc(r["pour"])}</p>'
+                f'<p><span class="k">Où</span><span><span class="path">{esc(r["fichier"])}</span>{ou}</span></p>'
+                f'<p><span class="k">Attention</span><span>{esc(r["precaution"])}{tag_deduit(r)}</span></p>'
+                f'<p><span class="k">Vérifier</span><span><code>{esc(r["verifier"])}</code></span></p></div>'
+            )
+        rows.append('  <section class="row"><h2>Pour intervenir</h2><div>\n' + "\n".join(blocks) + "\n  </div></section>")
+    if not rows:
+        return ""
+    # Le fichier le plus cité de la page 2 (à égalité, le premier cité) : le cœur du changement.
+    cites = [bare_path(r["fichier"]) for r in fonctionnement + intervenir + notions]
+    first = max(dict.fromkeys(cites), key=cites.count)
+    plus = (
+        '  <p class="plus-loin">Pour aller plus loin sur un fichier, demandez à l\'agent '
+        f'<code>/explain-code {esc(bare_path(first))}</code>.</p>'
+    )
+    return (
+        '<section class="comprendre">\n<p class="label annexe-label">Comprendre et intervenir</p>\n'
+        + "\n".join(rows) + "\n" + plus + "\n</section>"
+    )
+
+
 def tests_line(deleted, modified):
     if not deleted and not modified:
         return "Aucun supprimé ni modifié"
@@ -274,8 +383,10 @@ def annexe_html(files, roles):
     for code, path, old, added, deleted in files[:MAX_ROWS]:
         cls, label = labels.get(code, ("modified", "Modifié"))
         name = f"{esc(old)} → {esc(path)}" if old else esc(path)
-        role = roles.get(path, "")
+        role, pourquoi = roles.get(path, ("", ""))
         role_html = f'<p class="role">{esc(role)}</p>' if role else ""
+        if pourquoi:
+            role_html += f'<p class="role"><span class="why">Pourquoi :</span> {esc(pourquoi)}</p>'
         lines = "binaire" if added == "-" else f'<span class="plus">+{added}</span> <span class="minus">−{deleted}</span>'
         rows.append(
             f'<tr><td><span class="status {cls}">{label}</span></td>'
@@ -301,9 +412,19 @@ def annexe_html(files, roles):
 
 def main():
     parser = argparse.ArgumentParser(description="Met en page un brief an-forge.")
-    parser.add_argument("dossier")
+    parser.add_argument("dossier", nargs="?")
+    parser.add_argument("--limites", action="store_true", help="affiche la longueur maximale de chaque champ")
     parser.add_argument("--base", help="référence git de départ, pour l'annexe des fichiers")
     args = parser.parse_args()
+    if args.limites:
+        for key, limit in LIMITS.items():
+            print(f"{key} : {limit} caractères")
+        for key, (low, high) in COMPRENDRE.items():
+            print(f"{key} : {low} à {high} éléments")
+        print(f"changements : 1 à 5 points ; criteres : {MAX_CRITERES} au plus ; schémas : {MAX_BOITES} boîtes au plus")
+        return
+    if not args.dossier:
+        parser.error("indique le dossier du brief")
 
     folder = Path(args.dossier)
     source = folder / "brief.json"
@@ -368,13 +489,34 @@ def main():
     choix = need(data, "choix", LIMITS["choix"])
     a_decider = need(data, "a_decider", LIMITS["a_decider"])
 
-    roles = data.get("fichiers") or {}
-    if not isinstance(roles, dict):
-        errors.append("fichiers : doit associer un chemin à une phrase")
-        roles = {}
-    for path, role in roles.items():
-        if not isinstance(role, str) or len(role) > LIMITS["role"]:
+    raw_roles = data.get("fichiers") or {}
+    if not isinstance(raw_roles, dict):
+        errors.append("fichiers : doit associer un chemin à une phrase, ou à { role, pourquoi }")
+        raw_roles = {}
+    roles = {}  # chemin -> (rôle, pourquoi)
+    for path, role in raw_roles.items():
+        if isinstance(role, dict):
+            roles[path] = (
+                need(role, "role", LIMITS["role"], f"fichiers[{path}]."),
+                (role.get("pourquoi") or "").strip() if isinstance(role.get("pourquoi"), str) else "",
+            )
+            if len(roles[path][1]) > LIMITS["pourquoi"]:
+                errors.append(f"fichiers[{path}].pourquoi : {len(roles[path][1])} caractères, {LIMITS['pourquoi']} au maximum")
+        elif isinstance(role, str) and len(role) <= LIMITS["role"]:
+            roles[path] = (role.strip(), "")
+        else:
             errors.append(f"fichiers[{path}] : une phrase de {LIMITS['role']} caractères au maximum")
+
+    # Page 2 : Comprendre et intervenir (facultative pour le script ; build-ticket la demande).
+    fonctionnement = page2_list(data, "fonctionnement", [("etape", "etape"), ("fichier", "fichier")], flags=("deduit",))
+    notions = page2_list(data, "notions", [("nom", "notion_nom"), ("explication", "notion_explication"),
+                                      ("exemple", "notion_exemple"), ("fichier", "fichier")])
+    intervenir = page2_list(data, "intervenir", [("pour", "pour"), ("fichier", "fichier"), ("ou", "ou"),
+                                            ("precaution", "precaution"), ("verifier", "verifier")],
+                       optional=("ou",), flags=("deduit",))
+    root = repo_root(folder)
+    for key, rows in (("fonctionnement", fonctionnement), ("notions", notions), ("intervenir", intervenir)):
+        check_paths(root, [(i, r["fichier"]) for i, r in enumerate(rows, 1)], key)
 
     essayer = (data.get("essayer") or "").strip()
     if len(essayer) > LIMITS["essayer"]:
@@ -405,6 +547,10 @@ def main():
         for path in roles:
             if path not in known:
                 errors.append(f"fichiers[{path}] : ce fichier n'est pas dans le diff")
+        live = {f[1] for f in files if f[0] != "D"}
+        for i, r in enumerate(notions, 1):
+            if r["fichier"] and bare_path(r["fichier"]) not in live:
+                errors.append(f"notions[{i}].fichier : l'exemple doit venir d'un fichier créé ou modifié par la branche")
         checks = checks_line(folder)
         if checks:
             facts.insert(0, ("Checks", checks))
@@ -494,6 +640,7 @@ def main():
         "FAITS": faits,
         "ESSAYER": essayer_html,
         "REVISION": revision_html,
+        "COMPRENDRE": comprendre_html(fonctionnement, notions, intervenir),
         "ANNEXE": annexe,
         "SCRIPTS": READY_MERMAID if schemas else READY,
     }
