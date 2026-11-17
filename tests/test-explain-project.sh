@@ -50,4 +50,21 @@ grep -q "N'affirme jamais qu'un test passe" "$S" || fail "règle « jamais affir
 grep -q "ce qu'impliquerait de la remplacer" "$S" || fail "technologies : remplacement/suppression absent"
 PASS=$((PASS + 1))
 
+# 7. Deux formats : court par défaut, --long pour le détail, mêmes règles de fiabilité.
+grep -q "^## Deux formats" "$S" || fail "section Deux formats absente"
+grep -q '\*\*Court (par défaut)\*\*' "$S" || fail "format court par défaut absent"
+grep -q -- '--long' "$S" || fail "option --long absente"
+grep -q "mêmes dans les deux formats" "$S" || fail "règle « mêmes règles dans les deux formats » absente"
+PASS=$((PASS + 1))
+
+# 8. Le court reste pédagogique, surtout pour un non-développeur.
+grep -q "ni plus sec" "$S" || fail "règle « court reste pédagogique » absente"
+grep -q "langage courant" "$S" || fail "règle non-développeur (langage courant) absente"
+PASS=$((PASS + 1))
+
+# 9. Pour un non-développeur : l'image ne remplace pas le mécanisme, et une raison technique est donnée.
+grep -q "l'image ouvre la porte" "$S" || fail "règle « image puis mécanisme » absente"
+grep -q "raison technique" "$S" || fail "règle « raison technique » absente"
+PASS=$((PASS + 1))
+
 echo "explain-project : $PASS cas OK"

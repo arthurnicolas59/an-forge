@@ -9,6 +9,13 @@ Une explication pédagogique du projet, donnée dans la conversation, pour quelq
 
 **Ce skill ne modifie rien.** C'est sa règle principale (voir « Lecture seule »).
 
+## Deux formats
+
+- **Court (par défaut)** : une lecture de deux ou trois minutes, 45 lignes au plus. Les sept parties sont là, mais chacune va à l'essentiel : si une phrase ne change pas la compréhension, coupe-la. C'est ce que l'utilisateur obtient s'il tape seulement `/explain-project`.
+- **Long** : l'utilisateur ajoute `--long` (ou demande « en détail », « version longue »). Les sept parties sont développées, avec les détails marqués « Long » plus bas.
+
+Les règles de fiabilité (faits, hypothèses, lecture seule) **et de pédagogie** (section « Niveau d'explication ») sont **les mêmes dans les deux formats** : court ne veut pas dire moins vérifié, ni plus sec. On raccourcit en retirant des détails, jamais les explications qui font comprendre : chaque terme technique reste défini la première fois, et les idées clés gardent leur image du quotidien. À la fin d'une version courte, propose : « Je peux détailler une partie, ou tout en `--long`. » Si l'utilisateur nomme une partie (« détaille les technologies »), donne la version longue de cette partie seulement.
+
 ## Ce que les autres skills font déjà
 
 Ne refais pas leur travail, lis ce qu'ils ont produit :
@@ -41,7 +48,7 @@ Dans la conversation, avec ces sept parties, dans cet ordre. Chacune tient en qu
 1. **Présentation** : à quoi sert le projet, quel problème il résout, qui l'utilise.
 2. **Architecture** : les dossiers principaux et leur rôle, et comment les parties se parlent. Un petit schéma en texte ou en Mermaid si cela aide.
 3. **Fonctionnement** : le trajet d'une demande, d'un clic ou d'une commande jusqu'au résultat, où les données sont traitées, où elles sont stockées.
-4. **Technologies** : pour chaque technologie importante (pas pour chaque dépendance), cinq points courts :
+4. **Technologies** : *Court* : une à deux lignes par technologie, cinq au plus (regroupe celles qui vont ensemble) : l'image et le mécanisme en une phrase, la raison technique en une demi-phrase, le fichier qui le montre. Les liens entre technologies se disent dans ces phrases (« lit les YAML », « bloque le build »), sans point à part. *Long* : pour chaque technologie importante (pas pour chaque dépendance), cinq points courts :
    - son rôle général (ce qu'elle fait en dehors du projet) ;
    - son usage concret ici, avec le fichier ou la configuration qui le montre ;
    - avec quelles autres technologies du projet elle travaille (c'est la partie la plus utile : décris les liens, pas une liste de noms) ;
@@ -51,11 +58,15 @@ Dans la conversation, avec ces sept parties, dans cet ordre. Chacune tient en qu
 6. **Points de vigilance** : les parties complexes, les dépendances importantes, les zones où une erreur coûte cher.
 7. **Pour aller plus loin** : par où commencer à lire le code, quelles fonctionnalités étudier en premier, dans quel ordre. Elle se termine par la sous-section « Où intervenir selon ce que je veux modifier ? » (voir plus bas), puis par la synthèse de fiabilité.
 
+Pour les parties 1, 2, 3, 5 et 6, le format court tient en deux à quatre lignes ou puces chacune ; le format long en ajoute les exemples, le schéma complet et les cas particuliers.
+
 Commence par un résumé de deux ou trois phrases : l'utilisateur doit pouvoir s'arrêter là.
 
 ### Où intervenir selon ce que je veux modifier ?
 
-Choisis 3 à 5 évolutions réalistes pour ce projet, tirées de ce que tu as lu (fonctionnalités existantes à étendre, configuration, textes ou données qui changent souvent). Pour chacune :
+**Court** : 3 évolutions, chacune en deux lignes au plus : *ce que tu veux modifier → où (fichier, fonction) et pourquoi là*, *autres fichiers à suivre*, *vérification et précaution* (en nommant les tests existants sans dire qu'ils passent). Pas de détail de réutilisation sauf s'il évite de réécrire quelque chose d'important.
+
+**Long** : choisis 3 à 5 évolutions réalistes pour ce projet, tirées de ce que tu as lu (fonctionnalités existantes à étendre, configuration, textes ou données qui changent souvent). Pour chacune :
 
 1. **Ce que tu veux modifier**, en une phrase.
 2. **Où intervenir** : le fichier ou dossier principal.
@@ -83,7 +94,7 @@ Pour chaque explication technique importante :
 - ajoute un **numéro de ligne** (`src/api/users.ts:42`) seulement si tu l'as vu en lisant le fichier à l'instant. Une ligne devinée ou venue d'un document non relu est pire que pas de ligne ;
 - marque le statut de chaque affirmation non triviale : **fait** (lu dans le code), **déduction** (conclusion que tu tires de faits cités, dis lesquels) ou **à confirmer** (non vérifié, avec le moyen de le vérifier).
 
-Termine par une synthèse de quelques lignes :
+Termine par une synthèse (*court* : trois lignes, « Inspecté », « Non inspecté », « Hypothèses et limites » ; *long* : les quatre points ci-dessous) :
 
 - **Inspecté** : les fichiers et dossiers réellement lus ;
 - **Non inspecté** : les parties ignorées ;
@@ -100,8 +111,15 @@ N'affirme jamais qu'un test passe, qu'une commande marche ou qu'un comportement 
 - Ne noie pas le lecteur : un point par idée, pas de liste de tous les fichiers, pas de détail qui ne change pas la compréhension.
 - Pour qui lit : quelqu'un qui a des bases et construit ses logiciels avec un assistant de code. Ne l'infantilise pas : pas de « c'est simple » ni de définition de ce qu'est un fichier. Va droit à ce qui l'aide à décider où agir.
 - Dis pourquoi un fichier compte (ce qui casse ou change s'il bouge), pas seulement ce qu'il contient.
-- Reste court : une idée par point, et la section « Où intervenir » ne répète pas ce que les parties précédentes ont déjà dit, elle y renvoie.
-- Si l'utilisateur est identifié comme non développeur dans `AGENTS.md`, évite le jargon et ne garde que les noms des technologies.
+- Reste court : une idée par point, et la section « Où intervenir » ne répète pas ce que les parties précédentes ont déjà dit, elle y renvoie. En format court, coupe tout ce qui n'aide pas à décider où agir.
+- Si l'utilisateur est identifié comme non développeur (dans `AGENTS.md`, ou parce qu'il le dit), la version courte reste pédagogique et passe en langage courant :
+  - une image du quotidien pour chaque idée clé (le site statique comme un livre imprimé plutôt qu'écrit à la demande, un schéma de validation comme un contrôle à l'entrée), **puis le mécanisme réel en une ou deux phrases** : l'image ouvre la porte, elle ne remplace pas l'explication. L'objectif est que quelqu'un qui ne code pas comprenne comment la technologie fonctionne, pas seulement à quoi elle ressemble ;
+  - pour chaque technologie, au moins une **raison technique** vérifiable dans le code (ce qu'elle rend possible ou empêche, par exemple « le build s'arrête si un texte est incomplet, donc rien d'invalide n'est publié ») ;
+  - chaque fichier est présenté par son rôle d'abord (« le fichier des textes des Moments »), puis son chemin entre parenthèses ;
+  - les noms de fonctions et les numéros de ligne passent en fin de phrase ou dans la synthèse, jamais au milieu d'une explication ;
+  - pas de sigle ni d'anglicisme sans définition d'une demi-phrase ;
+  - dans « Où intervenir », formule chaque évolution comme une envie (« corriger le texte d'un moment ») et dis ce qu'il faut demander à l'assistant de code, en une phrase, plutôt que de lister des fichiers à ouvrir.
+  Les références restent exactes et vérifiées : seule la présentation change.
 
 ## Faits et hypothèses
 

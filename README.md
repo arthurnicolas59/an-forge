@@ -425,7 +425,7 @@ stateDiagram-v2
 
 **Ce que c'est** : `/explain-project` t'explique un projet existant dans la conversation, sans que tu lises le code. C'est utile quand Claude a construit beaucoup de choses et que tu ne sais plus très bien comment ça tient.
 
-**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens, en sept parties : à quoi sert le projet, son architecture, le trajet d'une demande, les technologies, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code. La dernière partie contient une carte « Où intervenir selon ce que je veux modifier ? » : pour 3 à 5 évolutions réalistes, le fichier à toucher, ceux qui suivent, ce qu'on peut réutiliser, les vérifications et les précautions.
+**Ce que tu fais** : tu tapes `/explain-project`. Tu obtiens une version courte (une page et demie) ; ajoute `--long` pour la version détaillée. Dans les deux cas, en sept parties : à quoi sert le projet, son architecture, le trajet d'une demande, les technologies, les fichiers à connaître, les points de vigilance, et par où commencer pour lire le code. La dernière partie contient une carte « Où intervenir selon ce que je veux modifier ? » : pour 3 à 5 évolutions réalistes, le fichier à toucher, ceux qui suivent, ce qu'on peut réutiliser, les vérifications et les précautions.
 
 **Skill utilisé**
 
