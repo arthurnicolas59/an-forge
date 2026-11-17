@@ -26,7 +26,7 @@ merged() {
 # 1. Les tickets mergés.
 for branch in $(git for-each-ref --format='%(refname:short)' 'refs/heads/ticket/*'); do
   merged "$branch" || continue
-  wt=$(git worktree list --porcelain | awk -v b="refs/heads/$branch" '/^worktree /{p=$2} $0=="branch "b{print p}')
+  wt=$(git worktree list --porcelain | awk -v b="refs/heads/$branch" '/^worktree /{p=substr($0,10)} $0=="branch "b{print p}')
   if [ -n "$wt" ]; then
     if [ -n "$(git -C "$wt" status --porcelain)" ]; then
       echo "Gardé : $wt contient du travail non commité (branche $branch déjà mergée)."

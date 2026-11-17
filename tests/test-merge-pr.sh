@@ -43,7 +43,7 @@ git add -A && git commit -qm init && git push -q origin main
 
 # Une branche de ticket poussée, avec un worktree, en partant de main. $1 : nom, $2 : fichier à changer.
 ticket() {
-  local wt="$TMP/wt-$1"
+  local wt="${WTBASE:-$TMP}/wt-$1"
   git worktree add -q -b "ticket/$1" "$wt" main
   echo "x" >> "$wt/$2"
   git -C "$wt" add -A && git -C "$wt" commit -qm "$1"
@@ -110,6 +110,17 @@ ticket retard app4.js
 echo "y" > autre.js && git add -A && git commit -qm autre && git push -q origin main
 FAKE_CHECKS=ok run_merge
 [ $code = 4 ] || fail "pas à jour : code 4 attendu, obtenu $code"
+PASS=$((PASS + 1))
+
+# 10. Le worktree du ticket est dans un dossier dont le chemin contient un espace
+# (comme « Software Factory ») : le gate qui y a passé est bien retrouvé, la PR est mergée.
+WTBASE="$TMP/dossier avec espace"
+mkdir -p "$WTBASE"
+ticket espace app5.js
+(cd "$WT" && bash "$SCRIPTS/gate.sh" main >/dev/null)
+FAKE_CHECKS=ok run_merge
+[ $code = 0 ] && merged || fail "chemin avec espace : devait merger (code $code)"
+unset WTBASE
 PASS=$((PASS + 1))
 
 echo "merge-pr.sh : $PASS cas OK"
