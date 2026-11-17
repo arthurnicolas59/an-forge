@@ -46,7 +46,7 @@ if [ -n "$changed" ] && [ "$accept" != "true" ]; then
 fi
 
 verified=0
-wt=$(git worktree list --porcelain | awk -v b="refs/heads/$head" '/^worktree /{p=$2} $0=="branch "b{print p}')
+wt=$(git worktree list --porcelain | awk -v b="refs/heads/$head" '/^worktree /{p=substr($0,10)} $0=="branch "b{print p}')
 if [ -n "$wt" ]; then
   passed=$(cat "$(git -C "$wt" rev-parse --git-dir)/an-forge-gate-pass" 2>/dev/null || true)
   # Le gate vaut aussi pour une version qui n'ajoute que le brief à celle qu'il a testée.
