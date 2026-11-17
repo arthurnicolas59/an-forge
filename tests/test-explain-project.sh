@@ -16,9 +16,13 @@ keys=$(printf '%s\n' "$fm" | grep -oE '^[a-z-]+:' | tr -d ':' | tr '\n' ' ')
 printf '%s\n' "$fm" | grep -qx "name: explain-project" || fail "name différent du dossier"
 PASS=$((PASS + 1))
 
-# 2. Les six parties (architecture et technologies fusionnées) sont dans le skill.
-for p in "Présentation" "Architecture et technologies" "Fonctionnement" "Fichiers importants" "Points de vigilance" "Pour aller plus loin"; do
-  grep -q "\*\*$p\*\*" "$S" || fail "partie manquante : $p"
+# 2. V3 : les quatre niveaux de lecture sont dans le skill, dans l'ordre.
+prev=0
+for p in "Niveau 1 : comprendre en deux minutes" "Niveau 2 : comprendre le fonctionnement" "Niveau 3 : savoir intervenir" "Niveau 4 : approfondir"; do
+  n=$(grep -n "^### $p" "$S" | head -1 | cut -d: -f1)
+  [ -n "$n" ] || fail "niveau manquant : $p"
+  [ "$n" -gt "$prev" ] || fail "niveau dans le désordre : $p"
+  prev=$n
 done
 PASS=$((PASS + 1))
 
@@ -65,6 +69,15 @@ PASS=$((PASS + 1))
 # 9. Pour un non-développeur : l'image ne remplace pas le mécanisme, et une raison technique est donnée.
 grep -q "l'image ouvre la porte" "$S" || fail "règle « image puis mécanisme » absente"
 grep -q "raison technique" "$S" || fail "règle « raison technique » absente"
+PASS=$((PASS + 1))
+
+# 10. V3 : priorité à la compréhension, style naturel, relecture avant réponse.
+grep -q "La priorité est la compréhension" "$S" || fail "priorité compréhension absente"
+grep -q "^## Style d'écriture" "$S" || fail "section Style d'écriture absente"
+grep -q "Métaphores rares" "$S" || fail "règle « métaphores rares » absente"
+grep -q "^## Relecture avant de répondre" "$S" || fail "section Relecture absente"
+grep -q "aucun chemin de fichier n'est tronqué" "$S" || fail "relecture : chemins tronqués absent"
+grep -q "La précision ne se sacrifie pas" "$S" || fail "règle précision absente"
 PASS=$((PASS + 1))
 
 echo "explain-project : $PASS cas OK"
