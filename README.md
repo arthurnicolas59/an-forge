@@ -1,6 +1,6 @@
 # an-forge
 
-![version](https://img.shields.io/badge/version-0.22.1-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
+![version](https://img.shields.io/badge/version-0.23.0-blue?style=flat-square) ![hôte](https://img.shields.io/badge/Claude%20Code-plugin-orange?style=flat-square) ![format](https://img.shields.io/badge/Agent%20Skills-format%20ouvert-green?style=flat-square)
 
 **an-forge transforme une idée en logiciel qui fonctionne, sans que tu écrives une ligne de code.** Tu dis ce que tu veux, des agents IA le construisent, et des contrôles automatiques les empêchent de livrer quelque chose de faux. Tu gardes la décision du début à la fin.
 
@@ -439,6 +439,16 @@ stateDiagram-v2
 - **Pas de doublon.** Pour garder la structure par écrit, il te propose `/project-architecture` ; pour l'avancement, `/project-dashboard`.
 - **Honnête.** Un point qu'il n'a pas ouvert n'est jamais présenté comme un fait.
 
+### Comprendre un morceau du code
+
+**Ce que c'est** : `/explain-code` t'explique une partie précise du code : un fichier, une fonction, un composant, une classe, ou une fonctionnalité qui traverse plusieurs fichiers.
+
+**Ce que tu fais** : tu tapes `/explain-code` suivi de ce que tu veux comprendre, par exemple `/explain-code src/data/charger-moments.ts`, `/explain-code explique la fonction chargerMoments` ou `/explain-code comment fonctionnent les compteurs du palmarès`. Si ta demande est trop vague, il te pose une seule question, en te proposant ce qu'il a trouvé.
+
+| Skill | Ce qu'il fait, concrètement |
+|-------|-----------------------------|
+| [`explain-code`](skills/explain-code/SKILL.md) | Trouve le code visé (par son chemin, son nom ou les mots de la demande), lit ce qu'il appelle, ce qui l'appelle et ses tests, et suit le parcours de bout en bout pour une fonctionnalité. Il répond sous six titres : en bref, comment ça marche, les liens, points de vigilance, pour le modifier, inspecté. La longueur dépend de la cible : environ 20 lignes pour une fonction, 40 au plus pour une fonctionnalité. Comme `explain-project`, il est en lecture seule, cite fichier et fonction, et ne présente pas comme un fait ce qu'il n'a pas ouvert. |
+
 ---
 
 ## Les garde-fous
@@ -517,6 +527,7 @@ Fait :
 - [x] Tableau de bord du projet (`/project-dashboard`)
 - [x] Fiche `ARCHITECTURE.md` tenue à jour (`/project-architecture`)
 - [x] Explication pédagogique d'un projet existant, en lecture seule (`/explain-project`)
+- [x] Explication d'un morceau précis du code (`/explain-code`)
 
 À faire :
 - [ ] Test sur un vrai projet (Recipe) : plusieurs tickets à la main
